@@ -344,6 +344,47 @@ def create_hub_logic(db: Session, name: str, region: str = "global", scenario: s
     return new_hub
 
 
+def list_vpc_endpoints(db: Session, vpc_id: str):
+    return db.query(VPCEndpointModel).filter(VPCEndpointModel.vpc_id == vpc_id).all()
+
+
+def create_vpc_endpoint(db: Session, vpc_id: str, name: str, ip: str):
+    # Find the subnet this IP belongs to
+    subnets = db.query(SubnetModel).filter(SubnetModel.vpc_id == vpc_id).all()
+    import ipaddress
+    target_subnet_id = "unknown"
+    for s in subnets:
+        if ipaddress.ip_address(ip) in ipaddress.ip_network(s.cidr):
+            target_subnet_id = s.id
+            break
+
+    endpoint_id = f"vpe-{uuid.uuid4().hex[:8]}"
+    new_endpoint = VPCEndpointModel(
+        id=endpoint_id,
+        vpc_id=vpc_id,
+        subnet_id=target_subnet_id,
+        name=name,
+        ip=ip,
+        status="active"
+    )
+    db.add(new_endpoint)
+    db.commit()
+    db.refresh(new_endpoint)
+    return new_endpoint
+
+
+def delete_vpc_endpoint(db: Session, vpc_id: str, endpoint_id: str):
+    endpoint = db.query(VPCEndpointModel).filter(
+        VPCEndpointModel.vpc_id == vpc_id, 
+        VPCEndpointModel.id == endpoint_id
+    ).first()
+    if endpoint:
+        db.delete(endpoint)
+        db.commit()
+        return True
+    return False
+
+
 def delete_hub_logic(db: Session, hub_id: str):
     hub = db.query(HubModel).filter(HubModel.id == hub_id).first()
     if hub:

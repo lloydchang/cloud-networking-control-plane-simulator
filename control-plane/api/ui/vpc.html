@@ -41,6 +41,17 @@
             align-items: center;
         }
 
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            height: 40px;
+            width: auto;
+        }
+
         .btn {
             background: #00897b;
             color: #fff;
@@ -819,7 +830,10 @@
 
 <body>
     <header>
-        <h1>VPC View</h1>
+        <div class="logo-container">
+            <img src="assets/images/cncps_logo.svg" alt="CNCPS Logo" class="logo">
+            <h1>VPC View</h1>
+        </div>
         <div class="controls">
             <button class="btn" onclick="loadData()">Refresh</button>
         </div>

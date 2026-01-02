@@ -55,6 +55,11 @@ SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "scripts")
 if os.path.exists(SCRIPTS_DIR):
     app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
 
+# Serve static assets (images, CSS, JS)
+ASSETS_DIR = os.path.join(os.path.dirname(__file__), "ui", "assets")
+if os.path.exists(ASSETS_DIR):
+    app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
+
 # ============================================================================
 # Database Configuration (SQLite for Persistence)
 # ============================================================================
@@ -633,9 +638,12 @@ def list_vpc_endpoints(vpc_id: str, db: Session = Depends(get_db)):
 
 @app.post("/vpcs/{vpc_id}/endpoints", response_model=VPCEndpoint, status_code=201)
 def create_vpc_endpoint(vpc_id: str, payload: VPCEndpointCreate, db: Session = Depends(get_db)):
+    print(f"DEBUG: create_vpc_endpoint called for vpc_id: {vpc_id}")
     vpc = db.query(VPCModel).filter(VPCModel.id == vpc_id).first()
     if not vpc:
+        print(f"DEBUG: VPC {vpc_id} NOT FOUND in database")
         raise HTTPException(status_code=404, detail="VPC not found")
+    print(f"DEBUG: Found VPC: {vpc.name}. Attempting to create endpoint: {payload.name} ({payload.ip})")
     endpoint = services.create_vpc_endpoint(db, vpc_id, payload.name, payload.ip)
     return endpoint
 
