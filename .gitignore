@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Virtual Environments
+venv/
+.venv/
+ENV/
+
+# Docker
+.dockerignore
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project Specific
+controller/data/*
+!controller/data/.gitkeep
+/tmp/versions/*
+
+# Cloud Network Simulation
+server.log
+server.pid
+stress.db
+network_test.db
+coverage_report.txt
+cloud_networking_simulation_pb2.py
+cloud_networking_simulation_pb2_grpc.py
+cloud_networking_control_plane_simulator_pb2.py
+cloud_networking_control_plane_simulator_pb2_grpc.py
+*pb2.py
+*pb2_grpc.py
+control-plane/data/*.db
+control-plane/data/network.db

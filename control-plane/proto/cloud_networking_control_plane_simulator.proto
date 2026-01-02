@@ -1,0 +1,203 @@
+syntax = "proto3";
+
+package network;
+
+// Network Service API
+// gRPC definitions for high-performance network operations
+
+service NetworkService {
+    // VPC Operations
+    rpc CreateVPC(CreateVPCRequest) returns (VPC);
+    rpc GetVPC(GetVPCRequest) returns (VPC);
+    rpc ListVPCs(ListVPCsRequest) returns (ListVPCsResponse);
+    rpc DeleteVPC(DeleteVPCRequest) returns (DeleteResponse);
+    
+    // Subnet Operations
+    rpc CreateSubnet(CreateSubnetRequest) returns (Subnet);
+    rpc GetSubnet(GetSubnetRequest) returns (Subnet);
+    rpc ListSubnets(ListSubnetsRequest) returns (ListSubnetsResponse);
+    rpc DeleteSubnet(DeleteSubnetRequest) returns (DeleteResponse);
+    
+    // Route Operations
+    rpc CreateRoute(CreateRouteRequest) returns (Route);
+    rpc ListRoutes(ListRoutesRequest) returns (ListRoutesResponse);
+    rpc DeleteRoute(DeleteRouteRequest) returns (DeleteResponse);
+    
+    // Security Group Operations
+    rpc CreateSecurityGroup(CreateSecurityGroupRequest) returns (SecurityGroup);
+    rpc AttachSecurityGroup(AttachSecurityGroupRequest) returns (AttachResponse);
+    
+    // NAT Gateway Operations
+    rpc CreateNATGateway(CreateNATGatewayRequest) returns (NATGateway);
+    rpc DeleteNATGateway(DeleteNATGatewayRequest) returns (DeleteResponse);
+    
+    // Streaming telemetry
+    rpc WatchNetworkEvents(WatchRequest) returns (stream NetworkEvent);
+}
+
+// Common types
+message DeleteResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message AttachResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+// VPC Messages
+message VPC {
+    string id = 1;
+    string name = 2;
+    string cidr = 3;
+    int32 vni = 4;
+    string vrf = 5;
+    string status = 6;
+    int64 created_at = 7;
+}
+
+message CreateVPCRequest {
+    string name = 1;
+    string cidr = 2;
+    string region = 3;
+}
+
+message GetVPCRequest {
+    string id = 1;
+}
+
+message ListVPCsRequest {
+    int32 limit = 1;
+    int32 offset = 2;
+}
+
+message ListVPCsResponse {
+    repeated VPC vpcs = 1;
+    int32 total = 2;
+}
+
+message DeleteVPCRequest {
+    string id = 1;
+}
+
+// Subnet Messages
+message Subnet {
+    string id = 1;
+    string vpc_id = 2;
+    string name = 3;
+    string cidr = 4;
+    string gateway = 5;
+    string availability_zone = 6;
+    string status = 7;
+}
+
+message CreateSubnetRequest {
+    string vpc_id = 1;
+    string name = 2;
+    string cidr = 3;
+    string availability_zone = 4;
+}
+
+message GetSubnetRequest {
+    string id = 1;
+}
+
+message ListSubnetsRequest {
+    string vpc_id = 1;
+}
+
+message ListSubnetsResponse {
+    repeated Subnet subnets = 1;
+}
+
+message DeleteSubnetRequest {
+    string id = 1;
+}
+
+// Route Messages
+message Route {
+    string id = 1;
+    string vpc_id = 2;
+    string destination = 3;
+    string next_hop = 4;
+    string next_hop_type = 5;
+    int32 priority = 6;
+}
+
+message CreateRouteRequest {
+    string vpc_id = 1;
+    string destination = 2;
+    string next_hop = 3;
+    string next_hop_type = 4;
+}
+
+message ListRoutesRequest {
+    string vpc_id = 1;
+}
+
+message ListRoutesResponse {
+    repeated Route routes = 1;
+}
+
+message DeleteRouteRequest {
+    string id = 1;
+}
+
+// Security Group Messages
+message SecurityGroup {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    repeated SecurityRule rules = 4;
+}
+
+message SecurityRule {
+    string direction = 1;
+    string protocol = 2;
+    int32 port_from = 3;
+    int32 port_to = 4;
+    string cidr = 5;
+}
+
+message CreateSecurityGroupRequest {
+    string name = 1;
+    string description = 2;
+    repeated SecurityRule rules = 3;
+}
+
+message AttachSecurityGroupRequest {
+    string security_group_id = 1;
+    string instance_id = 2;
+}
+
+// NAT Gateway Messages
+message NATGateway {
+    string id = 1;
+    string vpc_id = 2;
+    string subnet_id = 3;
+    string public_ip = 4;
+    string status = 5;
+}
+
+message CreateNATGatewayRequest {
+    string vpc_id = 1;
+    string subnet_id = 2;
+}
+
+message DeleteNATGatewayRequest {
+    string id = 1;
+}
+
+// Streaming Messages
+message WatchRequest {
+    repeated string event_types = 1;
+}
+
+message NetworkEvent {
+    string type = 1;
+    string resource_type = 2;
+    string resource_id = 3;
+    int64 timestamp = 4;
+    string details = 5;
+}

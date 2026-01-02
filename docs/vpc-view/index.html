@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head><script>window.STATIC_VPC_DATA = {"nodes": [{"id": "hub-hub-54c6c1f9", "label": "Cloud Routing Hub (NAT Flows)", "type": "hub", "region": "global", "scenario": "12. Kubernetes Hybrid Network", "routes": [{"destination": "0.0.0.0/0", "next_hop": "vpc-59d3e4a4", "next_hop_type": "nat_gateway"}, {"destination": "10.1.0.0/16", "next_hop": "vpc-0ee2e484", "next_hop_type": "cloud_routing_hub"}, {"destination": "10.2.0.0/16", "next_hop": "vpc-1aa3195f", "next_hop_type": "cloud_routing_hub"}, {"destination": "100.64.0.0/16", "next_hop": "vpc-0ee2e484", "next_hop_type": "cloud_routing_hub"}, {"destination": "100.65.0.0/16", "next_hop": "vpc-1aa3195f", "next_hop_type": "cloud_routing_hub"}]}, {"id": "hub-hub-4b4f875f", "label": "Cloud Routing Hub (Non-NAT Flows)", "type": "hub", "region": "global", "scenario": "12. Kubernetes Hybrid Network", "routes": [{"destination": "10.1.0.0/16", "next_hop": "vpc-0ee2e484", "next_hop_type": "cloud_routing_hub"}, {"destination": "10.2.0.0/16", "next_hop": "vpc-1aa3195f", "next_hop_type": "cloud_routing_hub"}, {"destination": "10.100.0.0/24", "next_hop": "vpc-59d3e4a4", "next_hop_type": "cloud_routing_hub"}, {"destination": "100.64.0.0/16", "next_hop": "vpc-0ee2e484", "next_hop_type": "cloud_routing_hub"}, {"destination": "100.65.0.0/16", "next_hop": "vpc-1aa3195f", "next_hop_type": "cloud_routing_hub"}]}, {"id": "hub-hub-f056fbb7", "label": "Enterprise Policy Hub", "type": "hub", "region": "global", "scenario": "17. Enterprise Hub-and-Spoke", "routes": [{"destination": "10.240.0.0/12", "next_hop": "vpc-2208db97", "next_hop_type": "cloud_routing_hub"}, {"destination": "10.240.0.0/12", "next_hop": "vpc-0528b036", "next_hop_type": "cloud_routing_hub"}, {"destination": "10.240.0.0/12", "next_hop": "vpc-95de9c72", "next_hop_type": "cloud_routing_hub"}, {"destination": "10.240.0.0/12", "next_hop": "vpc-4831be3b", "next_hop_type": "cloud_routing_hub"}]}, {"id": "hub-hub-6405aa80", "label": "Transit Backbone Hub", "type": "hub", "region": "global", "scenario": "18. Virtual Appliance Routing", "routes": []}, {"id": "hub-hub-cc664525", "label": "Central Hybrid Hub", "type": "hub", "region": "global", "scenario": "19. Hub Gateway Transit", "routes": [{"destination": "192.168.10.0/24", "next_hop": "dc-9a7c408d", "next_hop_type": "vpn_gateway"}, {"destination": "10.201.0.0/16", "next_hop": "vpc-07927298", "next_hop_type": "cloud_routing_hub"}]}, {"id": "hub-hub-6f5afece", "label": "Service Mesh Hub", "type": "hub", "region": "global", "scenario": "23. Cloud-Native Service Hub", "routes": [{"destination": "svc.vpc-53dcb2db.local", "next_hop": "vpc-53dcb2db", "next_hop_type": "service_mesh"}, {"destination": "svc.vpc-d6002673.local", "next_hop": "vpc-d6002673", "next_hop_type": "service_mesh"}, {"destination": "svc.vpc-346e9696.local", "next_hop": "vpc-346e9696", "next_hop_type": "service_mesh"}]}, {"id": "hub-hub-d3bb223b", "label": "Regional Hub A", "type": "hub", "region": "us-east", "scenario": "26. Global Transit: Multi-Region Hubs with GRE Support", "routes": [{"destination": "10.170.0.0/16", "next_hop": "vpc-5509277b", "next_hop_type": "cloud_routing_hub"}, {"destination": "0.0.0.0/0", "next_hop": "hub-5f5d2eff", "next_hop_type": "hub_peer"}]}, {"id": "hub-hub-5f5d2eff", "label": "Regional Hub B", "type": "hub", "region": "us-west", "scenario": "26. Global Transit: Multi-Region Hubs with GRE Support", "routes": [{"destination": "10.170.0.0/16", "next_hop": "vpc-5509277b", "next_hop_type": "cloud_routing_hub"}]}, {"id": "leaf-1", "label": "Site Switch (CDC-1)", "type": "leaf"}, {"id": "leaf-2", "label": "Site Switch (CDC-2)", "type": "leaf"}, {"id": "leaf-3", "label": "Site Switch (CDC-3)", "type": "leaf"}, {"id": "leaf-11", "label": "Site Switch (CDC-11)", "type": "leaf"}, {"id": "leaf-12", "label": "Site Switch (CDC-12)", "type": "leaf"}, {"id": "leaf-13", "label": "Site Switch (CDC-13)", "type": "leaf"}, {"id": "leaf-1", "label": "Site Switch (ODC-1)", "type": "leaf"}, {"id": "leaf-north", "label": "Site Switch (DC-NORTH)", "type": "leaf"}, {"id": "leaf-south", "label": "Site Switch (DC-SOUTH)", "type": "leaf"}, {"id": "vpc-vpc-b0da5c4c", "label": "Web VPC", "type": "vpc", "cidr": "10.0.0.0/16", "scenario": "1. Single VPC"}, {"id": "vpc-vpc-b0da5c4c-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-b0da5c4c"}, {"id": "subnet-subnet-abb0d348", "label": "Public Subnet (10.0.1.0/24)", "type": "subnet", "cidr": "10.0.1.0/24", "parent": "vpc-vpc-b0da5c4c-dc-CDC-1"}, {"id": "igw-igw-8dc1a20c", "label": "Internet GW", "type": "igw", "parent": "vpc-vpc-b0da5c4c"}, {"id": "vpc-vpc-47fd9474", "label": "Production VPC", "type": "vpc", "cidr": "10.10.0.0/16", "scenario": "2. Multi-tier VPC"}, {"id": "vpc-vpc-47fd9474-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-47fd9474"}, {"id": "subnet-subnet-8e54a05d", "label": "Public Subnet (10.10.1.0/24)", "type": "subnet", "cidr": "10.10.1.0/24", "parent": "vpc-vpc-47fd9474-dc-CDC-1"}, {"id": "subnet-subnet-0df1047c", "label": "Private Subnet (10.10.2.0/24)", "type": "subnet", "cidr": "10.10.2.0/24", "parent": "vpc-vpc-47fd9474-dc-CDC-1"}, {"id": "subnet-subnet-040e30f8", "label": "Web Server (10.10.1.10)", "type": "server", "cidr": "10.10.1.10", "parent": "vpc-vpc-47fd9474-dc-CDC-1"}, {"id": "subnet-subnet-a58fe668", "label": "Database Server (10.10.2.50)", "type": "server", "cidr": "10.10.2.50", "parent": "vpc-vpc-47fd9474-dc-CDC-1"}, {"id": "igw-igw-a784179d", "label": "Internet GW", "type": "igw", "parent": "vpc-vpc-47fd9474"}, {"id": "vpc-vpc-53b87db6", "label": "Production Environment", "type": "vpc", "cidr": "10.20.0.0/16", "scenario": "3. Secure Database Tier"}, {"id": "vpc-vpc-53b87db6-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-53b87db6"}, {"id": "subnet-subnet-1519036f", "label": "Web DMZ (10.20.1.0/24)", "type": "subnet", "cidr": "10.20.1.0/24", "parent": "vpc-vpc-53b87db6-dc-CDC-1"}, {"id": "subnet-subnet-0ac37879", "label": "Web Server (10.20.1.10)", "type": "server", "cidr": "10.20.1.10", "parent": "vpc-vpc-53b87db6-dc-CDC-1"}, {"id": "subnet-subnet-48bb5cd6", "label": "Secure DB Tier (10.20.2.0/24)", "type": "subnet", "cidr": "10.20.2.0/24", "parent": "vpc-vpc-53b87db6-dc-CDC-1"}, {"id": "subnet-subnet-d9b77bfd", "label": "Database Server (10.20.2.50)", "type": "server", "cidr": "10.20.2.50", "parent": "vpc-vpc-53b87db6-dc-CDC-1"}, {"id": "igw-igw-89da6495", "label": "Internet GW", "type": "igw", "parent": "vpc-vpc-53b87db6"}, {"id": "vpc-vpc-5c2d00f4", "label": "Application Service", "type": "vpc", "cidr": "10.30.0.0/16", "scenario": "4. Public Load Balancer & Private Backend"}, {"id": "vpc-vpc-5c2d00f4-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-5c2d00f4"}, {"id": "subnet-subnet-9aea64f8", "label": "Frontend Entry (10.30.1.0/24)", "type": "subnet", "cidr": "10.30.1.0/24", "parent": "vpc-vpc-5c2d00f4-dc-CDC-1"}, {"id": "subnet-subnet-9389055d", "label": "Load Balancer Server (10.30.1.5)", "type": "server", "cidr": "10.30.1.5", "parent": "vpc-vpc-5c2d00f4-dc-CDC-1"}, {"id": "subnet-subnet-97719aa8", "label": "Backend Pool (10.30.2.0/24)", "type": "subnet", "cidr": "10.30.2.0/24", "parent": "vpc-vpc-5c2d00f4-dc-CDC-1"}, {"id": "subnet-subnet-c72738bf", "label": "App Server 1 (10.30.2.11)", "type": "server", "cidr": "10.30.2.11", "parent": "vpc-vpc-5c2d00f4-dc-CDC-1"}, {"id": "subnet-subnet-1fbaedb8", "label": "App Server 2 (10.30.2.12)", "type": "server", "cidr": "10.30.2.12", "parent": "vpc-vpc-5c2d00f4-dc-CDC-1"}, {"id": "igw-igw-aead9c8c", "label": "Internet GW", "type": "igw", "parent": "vpc-vpc-5c2d00f4"}, {"id": "vpc-vpc-deadd0ab", "label": "Egress Gateway VPC", "type": "vpc", "cidr": "10.40.0.0/16", "scenario": "5. NAT Router for Private Subnets"}, {"id": "vpc-vpc-deadd0ab-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-deadd0ab"}, {"id": "subnet-subnet-349e3e44", "label": "Public Gateway (10.40.1.0/24)", "type": "subnet", "cidr": "10.40.1.0/24", "parent": "vpc-vpc-deadd0ab-dc-CDC-1"}, {"id": "subnet-subnet-9ff79d19", "label": "NAT Router Server (10.40.1.100)", "type": "server", "cidr": "10.40.1.100", "parent": "vpc-vpc-deadd0ab-dc-CDC-1"}, {"id": "subnet-subnet-8fac2abb", "label": "Isolated Compute (10.40.2.0/24)", "type": "subnet", "cidr": "10.40.2.0/24", "parent": "vpc-vpc-deadd0ab-dc-CDC-1"}, {"id": "subnet-subnet-8f696167", "label": "Worker Node Server (10.40.2.10)", "type": "server", "cidr": "10.40.2.10", "parent": "vpc-vpc-deadd0ab-dc-CDC-1"}, {"id": "igw-igw-f7534127", "label": "Internet GW", "type": "igw", "parent": "vpc-vpc-deadd0ab"}, {"id": "vpc-vpc-0b8996d8", "label": "Platform VPC", "type": "vpc", "cidr": "10.50.0.0/16", "scenario": "6. Secure Microservices Mesh"}, {"id": "vpc-vpc-0b8996d8-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-0b8996d8"}, {"id": "subnet-subnet-85bb32fe", "label": "Identity Service (10.50.1.0/24)", "type": "subnet", "cidr": "10.50.1.0/24", "parent": "vpc-vpc-0b8996d8-dc-CDC-1"}, {"id": "subnet-subnet-672f7734", "label": "Identity Server (10.50.1.5)", "type": "server", "cidr": "10.50.1.5", "parent": "vpc-vpc-0b8996d8-dc-CDC-1"}, {"id": "subnet-subnet-e03c8fd5", "label": "Catalog Service (10.50.2.0/24)", "type": "subnet", "cidr": "10.50.2.0/24", "parent": "vpc-vpc-0b8996d8-dc-CDC-1"}, {"id": "subnet-subnet-3aa9d465", "label": "Catalog Server (10.50.2.10)", "type": "server", "cidr": "10.50.2.10", "parent": "vpc-vpc-0b8996d8-dc-CDC-1"}, {"id": "subnet-subnet-994cb184", "label": "Order Service (10.50.3.0/24)", "type": "subnet", "cidr": "10.50.3.0/24", "parent": "vpc-vpc-0b8996d8-dc-CDC-1"}, {"id": "subnet-subnet-ca3545ce", "label": "Order Server (10.50.3.15)", "type": "server", "cidr": "10.50.3.15", "parent": "vpc-vpc-0b8996d8-dc-CDC-1"}, {"id": "vpc-vpc-6146d847", "label": "us-west-vpc", "type": "vpc", "cidr": "172.16.2.0/24", "scenario": "7. Managed VPN"}, {"id": "vpc-vpc-6146d847-dc-CDC-11", "label": "Cloud Data Center: CDC-11", "type": "dc", "parent": "vpc-vpc-6146d847"}, {"id": "subnet-subnet-3c96693b", "label": "Primary (172.16.2.0/24)", "type": "subnet", "cidr": "172.16.2.0/24", "parent": "vpc-vpc-6146d847-dc-CDC-11"}, {"id": "vpn-gateway-vpn-b396c73b", "label": "VPN Gateway\n192.0.2.1:51820", "type": "vpn_gateway", "parent": "vpc-vpc-6146d847"}, {"id": "vpc-vpc-de53afac", "label": "us-east-vpc", "type": "vpc", "cidr": "172.16.1.0/24", "scenario": "7. Managed VPN"}, {"id": "vpc-vpc-de53afac-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-de53afac"}, {"id": "subnet-subnet-39189e94", "label": "Primary (172.16.1.0/24)", "type": "subnet", "cidr": "172.16.1.0/24", "parent": "vpc-vpc-de53afac-dc-CDC-1"}, {"id": "vpn-gateway-vpn-69bdf093", "label": "VPN Gateway\n192.0.2.2:51820", "type": "vpn_gateway", "parent": "vpc-vpc-de53afac"}, {"id": "vpc-vpc-47aeaac7", "label": "Mesh Node West", "type": "vpc", "cidr": "192.168.200.0/24", "scenario": "8. Private Mesh Overlay"}, {"id": "vpc-vpc-47aeaac7-dc-CDC-11", "label": "Cloud Data Center: CDC-11", "type": "dc", "parent": "vpc-vpc-47aeaac7"}, {"id": "subnet-subnet-c89cbbc6", "label": "Main (192.168.200.0/24)", "type": "subnet", "cidr": "192.168.200.0/24", "parent": "vpc-vpc-47aeaac7-dc-CDC-11"}, {"id": "mesh-node-mesh-de461acf", "label": "Mesh Node\nmkey:wes...", "type": "mesh_node", "parent": "vpc-vpc-47aeaac7"}, {"id": "vpc-vpc-de88cdc9", "label": "Mesh Node East", "type": "vpc", "cidr": "192.168.100.0/24", "scenario": "8. Private Mesh Overlay"}, {"id": "vpc-vpc-de88cdc9-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-de88cdc9"}, {"id": "subnet-subnet-6e47c848", "label": "Main (192.168.100.0/24)", "type": "subnet", "cidr": "192.168.100.0/24", "parent": "vpc-vpc-de88cdc9-dc-CDC-1"}, {"id": "mesh-node-mesh-e4feadfc", "label": "Mesh Node\nmkey:eas...", "type": "mesh_node", "parent": "vpc-vpc-de88cdc9"}, {"id": "vpc-vpc-fec6cf11", "label": "Frontend VPC", "type": "vpc", "cidr": "10.50.0.0/16", "scenario": "9. VPC Peering"}, {"id": "vpc-vpc-fec6cf11-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-fec6cf11"}, {"id": "subnet-subnet-6dea31e6", "label": "Web Subnet (10.50.1.0/24)", "type": "subnet", "cidr": "10.50.1.0/24", "parent": "vpc-vpc-fec6cf11-dc-CDC-1"}, {"id": "subnet-subnet-f8d55aa2", "label": "Web Server (10.50.1.10)", "type": "server", "cidr": "10.50.1.10", "parent": "vpc-vpc-fec6cf11-dc-CDC-1"}, {"id": "vpc-vpc-f65f3eb4", "label": "Backend VPC", "type": "vpc", "cidr": "10.51.0.0/16", "scenario": "9. VPC Peering"}, {"id": "vpc-vpc-f65f3eb4-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-f65f3eb4"}, {"id": "subnet-subnet-e6364eee", "label": "App Subnet (10.51.1.0/24)", "type": "subnet", "cidr": "10.51.1.0/24", "parent": "vpc-vpc-f65f3eb4-dc-CDC-1"}, {"id": "subnet-subnet-d7601a4e", "label": "App Server (10.51.1.20)", "type": "server", "cidr": "10.51.1.20", "parent": "vpc-vpc-f65f3eb4-dc-CDC-1"}, {"id": "vpc-vpc-001b8c15", "label": "Consumer VPC", "type": "vpc", "cidr": "10.60.0.0/16", "scenario": "10. Private Service Connectivity"}, {"id": "vpc-vpc-001b8c15-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-001b8c15"}, {"id": "subnet-subnet-db442841", "label": "App Subnet (10.60.1.0/24)", "type": "subnet", "cidr": "10.60.1.0/24", "parent": "vpc-vpc-001b8c15-dc-CDC-1"}, {"id": "subnet-subnet-ed8e0cd7", "label": "App Client (10.60.1.10/32)", "type": "subnet", "cidr": "10.60.1.10/32", "parent": "vpc-vpc-001b8c15-dc-CDC-1"}, {"id": "vpc-vpc-004ab849", "label": "Provider VPC", "type": "vpc", "cidr": "10.70.0.0/16", "scenario": "10. Private Service Connectivity"}, {"id": "vpc-vpc-004ab849-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-004ab849"}, {"id": "subnet-subnet-94e71f14", "label": "Service Subnet (10.70.1.0/24)", "type": "subnet", "cidr": "10.70.1.0/24", "parent": "vpc-vpc-004ab849-dc-CDC-1"}, {"id": "subnet-subnet-7ae6fc8d", "label": "Service Backend (10.70.1.50/32)", "type": "subnet", "cidr": "10.70.1.50/32", "parent": "vpc-vpc-004ab849-dc-CDC-1"}, {"id": "vpc-vpc-2a096799", "label": "Shared Network VPC", "type": "vpc", "cidr": "11.80.0.0/16", "scenario": "11. Collaborative Shared Network"}, {"id": "vpc-vpc-2a096799-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-2a096799"}, {"id": "subnet-subnet-efddaa4e", "label": "Human Resources Subnet (11.80.1.0/24)", "type": "subnet", "cidr": "11.80.1.0/24", "parent": "vpc-vpc-2a096799-dc-CDC-1"}, {"id": "subnet-subnet-cba42044", "label": "HR Server (11.80.1.10)", "type": "server", "cidr": "11.80.1.10", "parent": "vpc-vpc-2a096799-dc-CDC-1"}, {"id": "vpc-vpc-2a096799-dc-CDC-2", "label": "Cloud Data Center: CDC-2", "type": "dc", "parent": "vpc-vpc-2a096799"}, {"id": "subnet-subnet-34d381a6", "label": "Finance Department Subnet (11.80.2.0/24)", "type": "subnet", "cidr": "11.80.2.0/24", "parent": "vpc-vpc-2a096799-dc-CDC-2"}, {"id": "subnet-subnet-370d27f9", "label": "Finance Server (11.80.2.20)", "type": "server", "cidr": "11.80.2.20", "parent": "vpc-vpc-2a096799-dc-CDC-2"}, {"id": "subnet-subnet-6440a39d", "label": "Central IT Admin Subnet (11.80.3.0/24)", "type": "subnet", "cidr": "11.80.3.0/24", "parent": "vpc-vpc-2a096799-dc-CDC-1"}, {"id": "subnet-subnet-2f46d386", "label": "IT Controller (11.80.3.5/32)", "type": "subnet", "cidr": "11.80.3.5/32", "parent": "vpc-vpc-2a096799-dc-CDC-1"}, {"id": "vpc-vpc-0ee2e484", "label": "Kubernetes Cluster 1", "type": "vpc", "cidr": "10.1.0.0/16 & 100.64.0.0/16", "scenario": "12. Kubernetes Hybrid Network"}, {"id": "vpc-vpc-0ee2e484-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-0ee2e484"}, {"id": "subnet-subnet-87cf7343", "label": "Public Subnet (10.1.1.0/24)", "type": "subnet", "cidr": "10.1.1.0/24", "parent": "vpc-vpc-0ee2e484-dc-CDC-1"}, {"id": "subnet-subnet-c527b427", "label": "Private Subnet (10.1.3.0/24)", "type": "subnet", "cidr": "10.1.3.0/24", "parent": "vpc-vpc-0ee2e484-dc-CDC-1"}, {"id": "subnet-subnet-ce5a0146", "label": "CGNAT Subnet (100.64.0.0/19)", "type": "subnet", "cidr": "100.64.0.0/19", "parent": "vpc-vpc-0ee2e484-dc-CDC-1"}, {"id": "vpc-vpc-0ee2e484-dc-CDC-2", "label": "Cloud Data Center: CDC-2", "type": "dc", "parent": "vpc-vpc-0ee2e484"}, {"id": "subnet-subnet-02352b56", "label": "Public Subnet (10.1.2.0/24)", "type": "subnet", "cidr": "10.1.2.0/24", "parent": "vpc-vpc-0ee2e484-dc-CDC-2"}, {"id": "subnet-subnet-cf64e9c5", "label": "Private Subnet (10.1.4.0/24)", "type": "subnet", "cidr": "10.1.4.0/24", "parent": "vpc-vpc-0ee2e484-dc-CDC-2"}, {"id": "subnet-subnet-7fc0c9c5", "label": "CGNAT Subnet (100.64.32.0/19)", "type": "subnet", "cidr": "100.64.32.0/19", "parent": "vpc-vpc-0ee2e484-dc-CDC-2"}, {"id": "vpc-vpc-1aa3195f", "label": "Kubernetes Cluster 2", "type": "vpc", "cidr": "10.2.0.0/16 & 100.65.0.0/16", "scenario": "12. Kubernetes Hybrid Network"}, {"id": "vpc-vpc-1aa3195f-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-1aa3195f"}, {"id": "subnet-subnet-595e0354", "label": "Public Subnet (10.2.1.0/24)", "type": "subnet", "cidr": "10.2.1.0/24", "parent": "vpc-vpc-1aa3195f-dc-CDC-1"}, {"id": "subnet-subnet-501b3535", "label": "Private Subnet (10.2.3.0/24)", "type": "subnet", "cidr": "10.2.3.0/24", "parent": "vpc-vpc-1aa3195f-dc-CDC-1"}, {"id": "subnet-subnet-d8105bab", "label": "CGNAT Subnet (100.65.0.0/19)", "type": "subnet", "cidr": "100.65.0.0/19", "parent": "vpc-vpc-1aa3195f-dc-CDC-1"}, {"id": "vpc-vpc-1aa3195f-dc-CDC-2", "label": "Cloud Data Center: CDC-2", "type": "dc", "parent": "vpc-vpc-1aa3195f"}, {"id": "subnet-subnet-636f7db9", "label": "Public Subnet (10.2.2.0/24)", "type": "subnet", "cidr": "10.2.2.0/24", "parent": "vpc-vpc-1aa3195f-dc-CDC-2"}, {"id": "subnet-subnet-275f4733", "label": "Private Subnet (10.2.4.0/24)", "type": "subnet", "cidr": "10.2.4.0/24", "parent": "vpc-vpc-1aa3195f-dc-CDC-2"}, {"id": "subnet-subnet-df2d390d", "label": "CGNAT Subnet (100.65.32.0/19)", "type": "subnet", "cidr": "100.65.32.0/19", "parent": "vpc-vpc-1aa3195f-dc-CDC-2"}, {"id": "vpc-vpc-59d3e4a4", "label": "Shared Services", "type": "vpc", "cidr": "10.100.0.0/24", "scenario": "12. Kubernetes Hybrid Network"}, {"id": "vpc-vpc-59d3e4a4-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-59d3e4a4"}, {"id": "subnet-subnet-3f3a4a86", "label": "Public Subnet (10.100.0.64/27)", "type": "subnet", "cidr": "10.100.0.64/27", "parent": "vpc-vpc-59d3e4a4-dc-CDC-1"}, {"id": "subnet-subnet-d938ee42", "label": "NGW-DC Subnet (10.100.0.32/27)", "type": "subnet", "cidr": "10.100.0.32/27", "parent": "vpc-vpc-59d3e4a4-dc-CDC-1"}, {"id": "subnet-subnet-906a87a4", "label": "Private Subnet (10.100.0.128/26)", "type": "subnet", "cidr": "10.100.0.128/26", "parent": "vpc-vpc-59d3e4a4-dc-CDC-1"}, {"id": "vpc-vpc-59d3e4a4-dc-CDC-2", "label": "Cloud Data Center: CDC-2", "type": "dc", "parent": "vpc-vpc-59d3e4a4"}, {"id": "subnet-subnet-406ba448", "label": "Public Subnet (10.100.0.96/27)", "type": "subnet", "cidr": "10.100.0.96/27", "parent": "vpc-vpc-59d3e4a4-dc-CDC-2"}, {"id": "subnet-subnet-d5070173", "label": "NGW-DC Subnet (10.100.0.0/27)", "type": "subnet", "cidr": "10.100.0.0/27", "parent": "vpc-vpc-59d3e4a4-dc-CDC-2"}, {"id": "subnet-subnet-98bf50f9", "label": "Private Subnet (10.100.0.192/26)", "type": "subnet", "cidr": "10.100.0.192/26", "parent": "vpc-vpc-59d3e4a4-dc-CDC-2"}, {"id": "vpc-vpc-cee1ebb3", "label": "Frontend Mesh VPC", "type": "vpc", "cidr": "10.110.0.0/16", "scenario": "13. Secure Application Service Mesh"}, {"id": "vpc-vpc-cee1ebb3-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-cee1ebb3"}, {"id": "subnet-subnet-20108a0d", "label": "Mesh Ingress (10.110.1.0/24)", "type": "subnet", "cidr": "10.110.1.0/24", "parent": "vpc-vpc-cee1ebb3-dc-CDC-1"}, {"id": "vpc-vpc-5caaa56f", "label": "Backend Mesh VPC", "type": "vpc", "cidr": "10.120.0.0/16", "scenario": "13. Secure Application Service Mesh"}, {"id": "vpc-vpc-5caaa56f-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-5caaa56f"}, {"id": "subnet-subnet-1ce49c68", "label": "Service Tier (10.120.1.0/24)", "type": "subnet", "cidr": "10.120.1.0/24", "parent": "vpc-vpc-5caaa56f-dc-CDC-1"}, {"id": "vpc-vpc-3c63e6b8", "label": "Data Mesh VPC", "type": "vpc", "cidr": "10.130.0.0/16", "scenario": "13. Secure Application Service Mesh"}, {"id": "vpc-vpc-3c63e6b8-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-3c63e6b8"}, {"id": "subnet-subnet-e383568f", "label": "Storage Tier (10.130.1.0/24)", "type": "subnet", "cidr": "10.130.1.0/24", "parent": "vpc-vpc-3c63e6b8-dc-CDC-1"}, {"id": "vpc-vpc-68591099", "label": "Automated Regional VPC", "type": "vpc", "cidr": "10.128.0.0/9", "scenario": "14. Network Lifecycle: Automated vs Manual"}, {"id": "vpc-vpc-68591099-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-68591099"}, {"id": "subnet-subnet-4d01a9ee", "label": "Auto Subnet us-east1 (10.128.0.0/20)", "type": "subnet", "cidr": "10.128.0.0/20", "parent": "vpc-vpc-68591099-dc-CDC-1"}, {"id": "vpc-vpc-68591099-dc-CDC-11", "label": "Cloud Data Center: CDC-11", "type": "dc", "parent": "vpc-vpc-68591099"}, {"id": "subnet-subnet-e87c8304", "label": "Auto Subnet us-west1 (10.136.0.0/20)", "type": "subnet", "cidr": "10.136.0.0/20", "parent": "vpc-vpc-68591099-dc-CDC-11"}, {"id": "vpc-vpc-68591099-dc-CDC-2", "label": "Cloud Data Center: CDC-2", "type": "dc", "parent": "vpc-vpc-68591099"}, {"id": "subnet-subnet-97bace24", "label": "Auto Subnet europe-west1 (10.144.0.0/20)", "type": "subnet", "cidr": "10.144.0.0/20", "parent": "vpc-vpc-68591099-dc-CDC-2"}, {"id": "vpc-vpc-c44f2346", "label": "Manual Controlled VPC", "type": "vpc", "cidr": "10.13.0.0/16", "scenario": "14. Network Lifecycle: Automated vs Manual"}, {"id": "vpc-vpc-c44f2346-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-c44f2346"}, {"id": "subnet-subnet-71254c2e", "label": "Manual Subnet A (10.13.1.0/24)", "type": "subnet", "cidr": "10.13.1.0/24", "parent": "vpc-vpc-c44f2346-dc-CDC-1"}, {"id": "subnet-subnet-1b190f99", "label": "Manual Subnet B (10.13.2.0/24)", "type": "subnet", "cidr": "10.13.2.0/24", "parent": "vpc-vpc-c44f2346-dc-CDC-1"}, {"id": "vpc-vpc-3098e3b6", "label": "Restricted VPC", "type": "vpc", "cidr": "10.140.0.0/16", "scenario": "15. Policy Enforcement"}, {"id": "vpc-vpc-3098e3b6-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-3098e3b6"}, {"id": "subnet-subnet-3d3689cc", "label": "Compliant Subnet (10.140.1.0/24)", "type": "subnet", "cidr": "10.140.1.0/24", "parent": "vpc-vpc-3098e3b6-dc-CDC-1"}, {"id": "subnet-subnet-a0d7e641", "label": "Policy: No External IPv6 (10.140.2.0/24)", "type": "subnet", "cidr": "10.140.2.0/24", "parent": "vpc-vpc-3098e3b6-dc-CDC-1"}, {"id": "vpc-vpc-8344af13", "label": "Corporate Hub VPC", "type": "vpc", "cidr": "10.150.0.0/16", "scenario": "16. Hybrid Connectivity: Dedicated & Redundant VPN"}, {"id": "vpc-vpc-8344af13-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-8344af13"}, {"id": "subnet-subnet-8bf0af51", "label": "Hybrid Gateway (10.150.1.0/24)", "type": "subnet", "cidr": "10.150.1.0/24", "parent": "vpc-vpc-8344af13-dc-CDC-1"}, {"id": "vpc-vpc-2208db97", "label": "Engineering Spoke", "type": "vpc", "cidr": "10.240.0.0/16", "scenario": "17. Enterprise Hub-and-Spoke"}, {"id": "vpc-vpc-2208db97-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-2208db97"}, {"id": "subnet-subnet-c3245ce2", "label": "Dev Cluster (10.240.1.0/24)", "type": "subnet", "cidr": "10.240.1.0/24", "parent": "vpc-vpc-2208db97-dc-CDC-1"}, {"id": "vpc-vpc-0528b036", "label": "Finance Spoke", "type": "vpc", "cidr": "10.255.0.0/16", "scenario": "17. Enterprise Hub-and-Spoke"}, {"id": "vpc-vpc-0528b036-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-0528b036"}, {"id": "subnet-subnet-bc208c9d", "label": "Billing App (10.250.1.0/24)", "type": "subnet", "cidr": "10.250.1.0/24", "parent": "vpc-vpc-0528b036-dc-CDC-1"}, {"id": "vpc-vpc-95de9c72", "label": "HR Spoke", "type": "vpc", "cidr": "10.251.0.0/16", "scenario": "17. Enterprise Hub-and-Spoke"}, {"id": "vpc-vpc-95de9c72-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-95de9c72"}, {"id": "subnet-subnet-81a98208", "label": "Employee Portal (10.251.1.0/24)", "type": "subnet", "cidr": "10.251.1.0/24", "parent": "vpc-vpc-95de9c72-dc-CDC-1"}, {"id": "vpc-vpc-4831be3b", "label": "Security Services VPC", "type": "vpc", "cidr": "10.252.0.0/16", "scenario": "17. Enterprise Hub-and-Spoke"}, {"id": "vpc-vpc-4831be3b-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-4831be3b"}, {"id": "subnet-subnet-f0293c03", "label": "Security Scanner (10.252.1.0/24)", "type": "subnet", "cidr": "10.252.1.0/24", "parent": "vpc-vpc-4831be3b-dc-CDC-1"}, {"id": "vpc-vpc-0154ca07", "label": "Spoke Application VPC", "type": "vpc", "cidr": "10.181.0.0/16", "scenario": "18. Virtual Appliance Routing"}, {"id": "vpc-vpc-0154ca07-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-0154ca07"}, {"id": "subnet-subnet-1694807b", "label": "App Server (10.181.1.10)", "type": "server", "cidr": "10.181.1.10", "parent": "vpc-vpc-0154ca07-dc-CDC-1"}, {"id": "vpc-vpc-ed26e22a", "label": "Transit Security VPC", "type": "vpc", "cidr": "10.191.0.0/16", "scenario": "18. Virtual Appliance Routing"}, {"id": "vpc-vpc-ed26e22a-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-ed26e22a"}, {"id": "subnet-subnet-341ea7f1", "label": "Firewall Appliance (10.191.1.100/32)", "type": "subnet", "cidr": "10.191.1.100/32", "parent": "vpc-vpc-ed26e22a-dc-CDC-1"}, {"id": "vpc-vpc-07927298", "label": "Remote Spoke VPC", "type": "vpc", "cidr": "10.201.0.0/16", "scenario": "19. Hub Gateway Transit"}, {"id": "vpc-vpc-07927298-dc-CDC-11", "label": "Cloud Data Center: CDC-11", "type": "dc", "parent": "vpc-vpc-07927298"}, {"id": "subnet-subnet-2ee6d4f3", "label": "Cloud App Server (10.201.1.10)", "type": "server", "cidr": "10.201.1.10", "parent": "vpc-vpc-07927298-dc-CDC-11"}, {"id": "vpc-vpc-f875709d", "label": "High-Density Cluster VPC", "type": "vpc", "cidr": "10.22.0.0/16 & 100.64.0.0/10", "scenario": "20. Data-Scale Network: Secondary CIDR Expansion & Pre-initialized Instances"}, {"id": "vpc-vpc-f875709d-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-f875709d"}, {"id": "subnet-subnet-e5376289", "label": "Management Subnet (10.22.1.0/24)", "type": "subnet", "cidr": "10.22.1.0/24", "parent": "vpc-vpc-f875709d-dc-CDC-1"}, {"id": "subnet-subnet-fc4d1c6b", "label": "Compute Pool 1 (Dense) (100.64.0.0/18)", "type": "subnet", "cidr": "100.64.0.0/18", "parent": "vpc-vpc-f875709d-dc-CDC-1"}, {"id": "vpc-vpc-f875709d-dc-CDC-2", "label": "Cloud Data Center: CDC-2", "type": "dc", "parent": "vpc-vpc-f875709d"}, {"id": "subnet-subnet-4ad3c703", "label": "Compute Pool 2 (Dense) (100.64.64.0/18)", "type": "subnet", "cidr": "100.64.64.0/18", "parent": "vpc-vpc-f875709d-dc-CDC-2"}, {"id": "subnet-subnet-a44a6273", "label": "Dense Resource 1 (100.64.1.10/32)", "type": "subnet", "cidr": "100.64.1.10/32", "parent": "vpc-vpc-f875709d-dc-CDC-1"}, {"id": "subnet-subnet-2d80f7e2", "label": "Dense Resource 2 (100.64.65.20/32)", "type": "subnet", "cidr": "100.64.65.20/32", "parent": "vpc-vpc-f875709d-dc-CDC-2"}, {"id": "vpc-vpc-ed3ae894", "label": "Producer Service VPC", "type": "vpc", "cidr": "10.221.0.0/16", "scenario": "21. Subnet-Level Peering"}, {"id": "vpc-vpc-ed3ae894-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-ed3ae894"}, {"id": "subnet-subnet-54a89e15", "label": "Exposed API Subnet (10.221.1.0/24)", "type": "subnet", "cidr": "10.221.1.0/24", "parent": "vpc-vpc-ed3ae894-dc-CDC-1"}, {"id": "subnet-subnet-6f8798d9", "label": "Internal Data Subnet (10.221.2.0/24)", "type": "subnet", "cidr": "10.221.2.0/24", "parent": "vpc-vpc-ed3ae894-dc-CDC-1"}, {"id": "vpc-vpc-1deb920b", "label": "Consumer Client VPC", "type": "vpc", "cidr": "10.231.0.0/16", "scenario": "21. Subnet-Level Peering"}, {"id": "vpc-vpc-1deb920b-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-1deb920b"}, {"id": "subnet-subnet-53bc41b4", "label": "Client App Subnet (10.231.1.0/24)", "type": "subnet", "cidr": "10.231.1.0/24", "parent": "vpc-vpc-1deb920b-dc-CDC-1"}, {"id": "vpc-vpc-b15b9226", "label": "Enterprise Shared VPC", "type": "vpc", "cidr": "10.90.0.0/16", "scenario": "22. Shared Cluster Infrastructure"}, {"id": "vpc-vpc-b15b9226-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-b15b9226"}, {"id": "subnet-subnet-6bd63ad5", "label": "Control Plane (Shared) (10.90.1.0/24)", "type": "subnet", "cidr": "10.90.1.0/24", "parent": "vpc-vpc-b15b9226-dc-CDC-1"}, {"id": "subnet-subnet-29cdd386", "label": "Team Alpha Pool (10.90.2.0/24)", "type": "subnet", "cidr": "10.90.2.0/24", "parent": "vpc-vpc-b15b9226-dc-CDC-1"}, {"id": "vpc-vpc-b15b9226-dc-CDC-2", "label": "Cloud Data Center: CDC-2", "type": "dc", "parent": "vpc-vpc-b15b9226"}, {"id": "subnet-subnet-c8a7de0c", "label": "Team Beta Pool (10.90.3.0/24)", "type": "subnet", "cidr": "10.90.3.0/24", "parent": "vpc-vpc-b15b9226-dc-CDC-2"}, {"id": "subnet-subnet-af088a6d", "label": "Shared LB Tier (10.90.4.0/24)", "type": "subnet", "cidr": "10.90.4.0/24", "parent": "vpc-vpc-b15b9226-dc-CDC-1"}, {"id": "subnet-subnet-d34743fa", "label": "Alpha App Server (10.90.2.10)", "type": "server", "cidr": "10.90.2.10", "parent": "vpc-vpc-b15b9226-dc-CDC-1"}, {"id": "subnet-subnet-fc1f2132", "label": "Beta App Server (10.90.3.50)", "type": "server", "cidr": "10.90.3.50", "parent": "vpc-vpc-b15b9226-dc-CDC-2"}, {"id": "vpc-vpc-53dcb2db", "label": "Checkout VPC", "type": "vpc", "cidr": "10.25.1.0/24", "scenario": "23. Cloud-Native Service Hub"}, {"id": "vpc-vpc-53dcb2db-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-53dcb2db"}, {"id": "subnet-subnet-1c3b6684", "label": "Checkout Backend (10.25.1.5/32)", "type": "subnet", "cidr": "10.25.1.5/32", "parent": "vpc-vpc-53dcb2db-dc-CDC-1"}, {"id": "vpc-vpc-d6002673", "label": "Inventory VPC", "type": "vpc", "cidr": "10.25.2.0/24", "scenario": "23. Cloud-Native Service Hub"}, {"id": "vpc-vpc-d6002673-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-d6002673"}, {"id": "subnet-subnet-a8c8620d", "label": "Inventory Backend (10.25.2.10/32)", "type": "subnet", "cidr": "10.25.2.10/32", "parent": "vpc-vpc-d6002673-dc-CDC-1"}, {"id": "vpc-vpc-346e9696", "label": "Client VPC", "type": "vpc", "cidr": "10.26.0.0/16", "scenario": "23. Cloud-Native Service Hub"}, {"id": "vpc-vpc-346e9696-dc-CDC-11", "label": "Cloud Data Center: CDC-11", "type": "dc", "parent": "vpc-vpc-346e9696"}, {"id": "subnet-subnet-6ef1581b", "label": "Web App Client (10.26.1.100/32)", "type": "subnet", "cidr": "10.26.1.100/32", "parent": "vpc-vpc-346e9696-dc-CDC-11"}, {"id": "vpc-vpc-612e89dd", "label": "Provider Network (Managed)", "type": "vpc", "cidr": "10.241.0.0/16", "scenario": "24. Hybrid Appliance Bridge"}, {"id": "vpc-vpc-612e89dd-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-612e89dd"}, {"id": "subnet-subnet-57ec7556", "label": "Cloud Services (10.241.1.0/24)", "type": "subnet", "cidr": "10.241.1.0/24", "parent": "vpc-vpc-612e89dd-dc-CDC-1"}, {"id": "vpc-vpc-d836c39c", "label": "Consumer Network (Software Appliance)", "type": "vpc", "cidr": "10.242.0.0/16", "scenario": "24. Hybrid Appliance Bridge"}, {"id": "vpc-vpc-d836c39c-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-d836c39c"}, {"id": "subnet-subnet-fc9554c8", "label": "Appliance Subnet (10.242.1.0/24)", "type": "subnet", "cidr": "10.242.1.0/24", "parent": "vpc-vpc-d836c39c-dc-CDC-1"}, {"id": "subnet-subnet-6f1d4dfe", "label": "Software Gateway Server (10.242.1.10)", "type": "server", "cidr": "10.242.1.10", "parent": "vpc-vpc-d836c39c-dc-CDC-1"}, {"id": "vpc-vpc-68b4e19e", "label": "AI Training VPC", "type": "vpc", "cidr": "10.160.0.0/16", "scenario": "25. AI Infrastructure: Accelerated RDMA Network"}, {"id": "vpc-vpc-68b4e19e-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-68b4e19e"}, {"id": "subnet-subnet-eb7081b6", "label": "GPU Cluster Subnet (RDMA) (10.160.1.0/24)", "type": "subnet", "cidr": "10.160.1.0/24", "parent": "vpc-vpc-68b4e19e-dc-CDC-1"}, {"id": "subnet-subnet-6ef519e6", "label": "Accelerator Node 1 (10.160.1.10/32)", "type": "subnet", "cidr": "10.160.1.10/32", "parent": "vpc-vpc-68b4e19e-dc-CDC-1"}, {"id": "subnet-subnet-6e6a8d3b", "label": "Accelerator Node 2 (10.160.1.11/32)", "type": "subnet", "cidr": "10.160.1.11/32", "parent": "vpc-vpc-68b4e19e-dc-CDC-1"}, {"id": "subnet-subnet-b6357330", "label": "Parameter Server (10.160.1.100)", "type": "server", "cidr": "10.160.1.100", "parent": "vpc-vpc-68b4e19e-dc-CDC-1"}, {"id": "vpc-vpc-5509277b", "label": "Security Appliance VPC", "type": "vpc", "cidr": "10.170.0.0/16", "scenario": "26. Global Transit: Multi-Region Hubs with GRE Support"}, {"id": "vpc-vpc-5509277b-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-5509277b"}, {"id": "subnet-subnet-a063b994", "label": "GRE Termination (10.170.1.0/24)", "type": "subnet", "cidr": "10.170.1.0/24", "parent": "vpc-vpc-5509277b-dc-CDC-1"}, {"id": "vpc-vpc-a51d3a58", "label": "Dual-Stack VPC", "type": "vpc", "cidr": "10.180.0.0/16 & 2001:db8::1/64", "scenario": "27. Dual-Stack Infrastructure: IPv4 & IPv6 Coexistence"}, {"id": "vpc-vpc-a51d3a58-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-a51d3a58"}, {"id": "subnet-subnet-e61d82b0", "label": "Dual-Stack Subnet (10.180.1.0/24)", "type": "subnet", "cidr": "10.180.1.0/24", "parent": "vpc-vpc-a51d3a58-dc-CDC-1"}, {"id": "subnet-subnet-6437bd2a", "label": "IPv6 Resource (2001:db8:1::10/128)", "type": "subnet", "cidr": "2001:db8:1::10/128", "parent": "vpc-vpc-a51d3a58-dc-CDC-1"}, {"id": "vpc-vpc-a72407fd", "label": "NAT Router VPC", "type": "vpc", "cidr": "10.49.96.0/20", "scenario": "28. Cloud Native NAT Router"}, {"id": "vpc-vpc-a72407fd-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-a72407fd"}, {"id": "subnet-subnet-d9770518", "label": "Host 1 (NAT Router/DNS) (10.49.96.3/32)", "type": "subnet", "cidr": "10.49.96.3/32", "parent": "vpc-vpc-a72407fd-dc-CDC-1"}, {"id": "subnet-subnet-e056fe82", "label": "Host 2 (FTP Server) (10.49.96.4)", "type": "server", "cidr": "10.49.96.4", "parent": "vpc-vpc-a72407fd-dc-CDC-1"}, {"id": "subnet-subnet-594c238f", "label": "Host 3 (Web Server) (10.49.96.5)", "type": "server", "cidr": "10.49.96.5", "parent": "vpc-vpc-a72407fd-dc-CDC-1"}, {"id": "subnet-subnet-784092f7", "label": "Host 4 (Windows Server) (10.49.96.6)", "type": "server", "cidr": "10.49.96.6", "parent": "vpc-vpc-a72407fd-dc-CDC-1"}, {"id": "vpc-vpc-37a2eee0", "label": "Load Balanced VPC", "type": "vpc", "cidr": "10.49.144.0/20", "scenario": "29. Heterogeneous Load Balancing"}, {"id": "vpc-vpc-37a2eee0-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-37a2eee0"}, {"id": "subnet-subnet-1560a06e", "label": "Load Balancer (10.49.144.3/32)", "type": "subnet", "cidr": "10.49.144.3/32", "parent": "vpc-vpc-37a2eee0-dc-CDC-1"}, {"id": "subnet-subnet-bfb0d6dd", "label": "Host 1 (Nginx/Ubuntu) (10.49.144.4/32)", "type": "subnet", "cidr": "10.49.144.4/32", "parent": "vpc-vpc-37a2eee0-dc-CDC-1"}, {"id": "vpc-vpc-37a2eee0-dc-CDC-2", "label": "Cloud Data Center: CDC-2", "type": "dc", "parent": "vpc-vpc-37a2eee0"}, {"id": "subnet-subnet-50a64e62", "label": "Host 2 (Apache/Rocky) (10.49.144.5/32)", "type": "subnet", "cidr": "10.49.144.5/32", "parent": "vpc-vpc-37a2eee0-dc-CDC-2"}, {"id": "subnet-subnet-48c8b785", "label": "Host 3 (Nginx/Debian) (10.49.144.6/32)", "type": "subnet", "cidr": "10.49.144.6/32", "parent": "vpc-vpc-37a2eee0-dc-CDC-1"}, {"id": "subnet-subnet-267ebf89", "label": "Host 4 (Management) (10.49.144.7/32)", "type": "subnet", "cidr": "10.49.144.7/32", "parent": "vpc-vpc-37a2eee0-dc-CDC-1"}, {"id": "vpc-vpc-04ebe2e5", "label": "Cloud VPC", "type": "vpc", "cidr": "203.0.113.0/24", "scenario": "30. Standard IPsec VPN (Site-to-Site)"}, {"id": "vpc-vpc-04ebe2e5-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-04ebe2e5"}, {"id": "subnet-subnet-4fb96d22", "label": "VPC VPN Gateway (203.0.113.2/32)", "type": "subnet", "cidr": "203.0.113.2/32", "parent": "vpc-vpc-04ebe2e5-dc-CDC-1"}, {"id": "subnet-subnet-9833b74f", "label": "App Server (Debian) (203.0.113.3)", "type": "server", "cidr": "203.0.113.3", "parent": "vpc-vpc-04ebe2e5-dc-CDC-1"}, {"id": "vpc-vpc-add82f50", "label": "Remote Access Hub VPC", "type": "vpc", "cidr": "10.200.0.0/16", "scenario": "31. Remote Access VPN"}, {"id": "vpc-vpc-add82f50-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-add82f50"}, {"id": "subnet-subnet-38407add", "label": "VPN Endpoints Pool (192.5.2.0/24)", "type": "subnet", "cidr": "192.5.2.0/24", "parent": "vpc-vpc-add82f50-dc-CDC-1"}, {"id": "subnet-subnet-84781095", "label": "Internal Services (10.200.1.0/24)", "type": "subnet", "cidr": "10.200.1.0/24", "parent": "vpc-vpc-add82f50-dc-CDC-1"}, {"id": "subnet-subnet-8dcfd5e2", "label": "Identity Server (10.200.1.5)", "type": "server", "cidr": "10.200.1.5", "parent": "vpc-vpc-add82f50-dc-CDC-1"}, {"id": "vpc-vpc-89eb4095", "label": "DNS Managed VPC", "type": "vpc", "cidr": "10.49.144.0/24", "scenario": "32. Private DNS Discovery"}, {"id": "vpc-vpc-89eb4095-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-89eb4095"}, {"id": "subnet-subnet-3969a33e", "label": "DNS Server (Bind9) (10.49.144.3)", "type": "server", "cidr": "10.49.144.3", "parent": "vpc-vpc-89eb4095-dc-CDC-1"}, {"id": "subnet-subnet-bf990d78", "label": "ftp.example.com (10.49.144.4/32)", "type": "subnet", "cidr": "10.49.144.4/32", "parent": "vpc-vpc-89eb4095-dc-CDC-1"}, {"id": "subnet-subnet-0f9cc250", "label": "web.example.com (10.49.144.5/32)", "type": "subnet", "cidr": "10.49.144.5/32", "parent": "vpc-vpc-89eb4095-dc-CDC-1"}, {"id": "vpc-vpc-7577d63d", "label": "Legacy Windows VPC", "type": "vpc", "cidr": "10.49.96.0/24", "scenario": "33. Legacy Windows Integration"}, {"id": "vpc-vpc-7577d63d-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-7577d63d"}, {"id": "subnet-subnet-c6aa0347", "label": "Public Mgmt (10.49.96.0/28)", "type": "subnet", "cidr": "10.49.96.0/28", "parent": "vpc-vpc-7577d63d-dc-CDC-1"}, {"id": "subnet-subnet-345d0a35", "label": "Private Data (10.49.96.16/28)", "type": "subnet", "cidr": "10.49.96.16/28", "parent": "vpc-vpc-7577d63d-dc-CDC-1"}, {"id": "subnet-subnet-bad95add", "label": "Windows AD DC (10.49.96.4/32)", "type": "subnet", "cidr": "10.49.96.4/32", "parent": "vpc-vpc-7577d63d-dc-CDC-1"}, {"id": "subnet-subnet-0e875eb3", "label": "Windows SQL (10.49.96.20/32)", "type": "subnet", "cidr": "10.49.96.20/32", "parent": "vpc-vpc-7577d63d-dc-CDC-1"}, {"id": "vpc-vpc-80d9f589", "label": "Brownfield VPC", "type": "vpc", "cidr": "10.1.0.0/16", "scenario": "34. Brownfield Endpoint Adoption"}, {"id": "vpc-vpc-80d9f589-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-80d9f589"}, {"id": "subnet-subnet-b0bce70e", "label": "Adopted Subnet A (10.1.1.0/24)", "type": "subnet", "cidr": "10.1.1.0/24", "parent": "vpc-vpc-80d9f589-dc-CDC-1"}, {"id": "subnet-subnet-94957d1d", "label": "Adopted Subnet B (10.1.2.0/24)", "type": "subnet", "cidr": "10.1.2.0/24", "parent": "vpc-vpc-80d9f589-dc-CDC-1"}, {"id": "vpc-vpc-06b207c1", "label": "Partial Brownfield VPC", "type": "vpc", "cidr": "10.2.0.0/16", "scenario": "35. Partial Brownfield Adoption"}, {"id": "vpc-vpc-06b207c1-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-06b207c1"}, {"id": "subnet-subnet-6ee1ddd2", "label": "Adoptable Subnet (10.2.1.0/24)", "type": "subnet", "cidr": "10.2.1.0/24", "parent": "vpc-vpc-06b207c1-dc-CDC-1"}, {"id": "vpc-vpc-06b207c1-dc-CDC-2", "label": "Cloud Data Center: CDC-2", "type": "dc", "parent": "vpc-vpc-06b207c1"}, {"id": "subnet-subnet-1dc087b2", "label": "Conflicting Subnet (10.2.2.0/24)", "type": "subnet", "cidr": "10.2.2.0/24", "parent": "vpc-vpc-06b207c1-dc-CDC-2"}, {"id": "vpc-vpc-aff18715", "label": "Churn Resilient Brownfield VPC", "type": "vpc", "cidr": "10.2.0.0/16", "scenario": "36. Brownfield Adoption Under Churn"}, {"id": "vpc-vpc-aff18715-dc-CDC-1", "label": "Cloud Data Center: CDC-1", "type": "dc", "parent": "vpc-vpc-aff18715"}, {"id": "subnet-subnet-92ef4b35", "label": "Adopted Subnet A (10.2.2.0/24)", "type": "subnet", "cidr": "10.2.2.0/24", "parent": "vpc-vpc-aff18715-dc-CDC-1"}, {"id": "subnet-subnet-23fa6334", "label": "Adopted Subnet B (10.2.3.0/24)", "type": "subnet", "cidr": "10.2.3.0/24", "parent": "vpc-vpc-aff18715-dc-CDC-1"}, {"id": "standalone-dc-dc-5c58fc2a", "label": "On-Premise Data Center", "type": "standalone_dc", "cidr": "10.250.0.0/16", "region": "on-prem", "scenario": "12. Kubernetes Hybrid Network"}, {"id": "dc-subnet-dc-subnet-6531ef5c", "label": "Test Server (10.0.1.117)", "type": "server", "cidr": "10.0.1.117", "parent": "standalone-dc-dc-5c58fc2a"}, {"id": "standalone-dc-dc-5a56579c", "label": "MegaCorp DC", "type": "standalone_dc", "cidr": "192.168.0.0/16", "region": "on-prem", "scenario": "16. Hybrid Connectivity: Dedicated & Redundant VPN"}, {"id": "dc-subnet-dc-subnet-8821e90c", "label": "On-Prem Core (192.168.1.0/24)", "type": "subnet", "cidr": "192.168.1.0/24", "parent": "standalone-dc-dc-5a56579c"}, {"id": "standalone-dc-dc-9a7c408d", "label": "On-Premises Data Center", "type": "standalone_dc", "cidr": "192.168.10.0/24", "region": "on-prem", "scenario": "19. Hub Gateway Transit"}, {"id": "dc-subnet-dc-subnet-b73e0c22", "label": "Mainframe Link (192.168.10.50/32)", "type": "subnet", "cidr": "192.168.10.50/32", "parent": "standalone-dc-dc-9a7c408d"}, {"id": "standalone-dc-dc-58949711", "label": "On-Premises Network", "type": "standalone_dc", "cidr": "192.168.1.0/24", "region": "on-prem", "scenario": "30. Standard IPsec VPN (Site-to-Site)"}, {"id": "dc-subnet-dc-subnet-dcdaf43b", "label": "On-Prem VPN Gateway (192.168.1.1/32)", "type": "subnet", "cidr": "192.168.1.1/32", "parent": "standalone-dc-dc-58949711"}, {"id": "dc-subnet-dc-subnet-e86e8eef", "label": "Windows Client (192.168.1.2/32)", "type": "subnet", "cidr": "192.168.1.2/32", "parent": "standalone-dc-dc-58949711"}], "edges": [{"source": "leaf-1", "target": "vpc-vpc-b0da5c4c", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-b0da5c4c", "target": "igw-auto", "type": "internet", "label": "Internet", "destination": "1.0.0.0/0"}, {"source": "leaf-1", "target": "vpc-vpc-47fd9474", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-47fd9474", "target": "igw-auto", "type": "internet", "label": "Internet", "destination": "0.0.0.0/0"}, {"source": "leaf-1", "target": "vpc-vpc-53b87db6", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-53b87db6", "target": "igw-auto", "type": "internet", "label": "Internet", "destination": "0.0.0.0/0"}, {"source": "leaf-1", "target": "vpc-vpc-5c2d00f4", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-5c2d00f4", "target": "igw-auto", "type": "internet", "label": "Internet", "destination": "0.0.0.0/0"}, {"source": "leaf-1", "target": "vpc-vpc-deadd0ab", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-deadd0ab", "target": "igw-auto", "type": "internet", "label": "Internet", "destination": "0.0.0.0/0"}, {"source": "leaf-1", "target": "vpc-vpc-0b8996d8", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-11", "target": "vpc-vpc-6146d847", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-6146d847", "target": "vpc-vpc-de53afac", "type": "vpn", "label": "VPN Gateway", "destination": "172.16.1.0/24"}, {"source": "leaf-1", "target": "vpc-vpc-de53afac", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-11", "target": "vpc-vpc-47aeaac7", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-47aeaac7", "target": "vpc-vpc-de88cdc9", "type": "mesh", "label": "Mesh VPN", "destination": "192.168.100.0/24"}, {"source": "leaf-1", "target": "vpc-vpc-de88cdc9", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-de88cdc9", "target": "vpc-vpc-47aeaac7", "type": "mesh", "label": "Mesh VPN", "destination": "192.168.200.0/24"}, {"source": "leaf-1", "target": "vpc-vpc-fec6cf11", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-fec6cf11", "target": "vpc-vpc-f65f3eb4", "type": "peering", "label": "VPC Peering", "destination": "10.51.0.0/16"}, {"source": "leaf-1", "target": "vpc-vpc-f65f3eb4", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-f65f3eb4", "target": "vpc-vpc-fec6cf11", "type": "peering", "label": "VPC Peering", "destination": "10.50.0.0/16"}, {"source": "leaf-1", "target": "vpc-vpc-001b8c15", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-004ab849", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-2", "target": "vpc-vpc-2a096799", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-2a096799", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-2", "target": "vpc-vpc-0ee2e484", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-0ee2e484", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-0ee2e484", "target": "hub-hub-54c6c1f9", "type": "cloud_routing_hub", "label": "Cloud Routing Hub", "destination": "0.0.0.0/0"}, {"source": "vpc-vpc-0ee2e484", "target": "hub-hub-4b4f875f", "type": "cloud_routing_hub", "label": "Cloud Routing Hub", "destination": "10.0.0.0/8"}, {"source": "leaf-2", "target": "vpc-vpc-1aa3195f", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-1aa3195f", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-1aa3195f", "target": "hub-hub-54c6c1f9", "type": "cloud_routing_hub", "label": "Cloud Routing Hub", "destination": "0.0.0.0/0"}, {"source": "vpc-vpc-1aa3195f", "target": "hub-hub-4b4f875f", "type": "cloud_routing_hub", "label": "Cloud Routing Hub", "destination": "10.0.0.0/8"}, {"source": "leaf-2", "target": "vpc-vpc-59d3e4a4", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-59d3e4a4", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-59d3e4a4", "target": "hub-hub-54c6c1f9", "type": "cloud_routing_hub", "label": "Cloud Routing Hub", "destination": "0.0.0.0/0"}, {"source": "vpc-vpc-59d3e4a4", "target": "hub-hub-4b4f875f", "type": "cloud_routing_hub", "label": "Cloud Routing Hub", "destination": "10.0.0.0/8"}, {"source": "leaf-1", "target": "vpc-vpc-cee1ebb3", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-5caaa56f", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-3c63e6b8", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-2", "target": "vpc-vpc-68591099", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-11", "target": "vpc-vpc-68591099", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-68591099", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-c44f2346", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-3098e3b6", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-8344af13", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-8344af13", "target": "vpc-dc-5a56579c", "type": "vpn", "label": "VPN Gateway", "destination": "192.168.0.0/16"}, {"source": "leaf-1", "target": "vpc-vpc-2208db97", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-2208db97", "target": "hub-hub-f056fbb7", "type": "cloud_routing_hub", "label": "Cloud Routing Hub", "destination": "10.240.0.0/12"}, {"source": "leaf-1", "target": "vpc-vpc-0528b036", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-0528b036", "target": "hub-hub-f056fbb7", "type": "cloud_routing_hub", "label": "Cloud Routing Hub", "destination": "10.240.0.0/12"}, {"source": "leaf-1", "target": "vpc-vpc-95de9c72", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-95de9c72", "target": "hub-hub-f056fbb7", "type": "cloud_routing_hub", "label": "Cloud Routing Hub", "destination": "10.240.0.0/12"}, {"source": "leaf-1", "target": "vpc-vpc-4831be3b", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-4831be3b", "target": "hub-hub-f056fbb7", "type": "cloud_routing_hub", "label": "Cloud Routing Hub", "destination": "10.240.0.0/12"}, {"source": "leaf-1", "target": "vpc-vpc-0154ca07", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-ed26e22a", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-ed26e22a", "target": "hub-hub-6405aa80", "type": "cloud_routing_hub", "label": "Cloud Routing Hub", "destination": "0.0.0.0/0"}, {"source": "leaf-11", "target": "vpc-vpc-07927298", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-07927298", "target": "hub-hub-cc664525", "type": "cloud_routing_hub", "label": "Cloud Routing Hub", "destination": "192.168.10.0/24"}, {"source": "leaf-2", "target": "vpc-vpc-f875709d", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-f875709d", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-ed3ae894", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-ed3ae894", "target": "vpc-vpc-1deb920b", "type": "peering", "label": "VPC Peering", "destination": "10.231.1.0/24"}, {"source": "leaf-1", "target": "vpc-vpc-1deb920b", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-1deb920b", "target": "vpc-vpc-ed3ae894", "type": "peering", "label": "VPC Peering", "destination": "10.221.1.0/24"}, {"source": "leaf-2", "target": "vpc-vpc-b15b9226", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-b15b9226", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-53dcb2db", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-d6002673", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-11", "target": "vpc-vpc-346e9696", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-612e89dd", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-612e89dd", "target": "vpc-vpc-d836c39c", "type": "vpn", "label": "VPN Gateway", "destination": "10.242.0.0/16"}, {"source": "leaf-1", "target": "vpc-vpc-d836c39c", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-d836c39c", "target": "vpc-vpc-612e89dd", "type": "vpn", "label": "VPN Gateway", "destination": "10.241.0.0/16"}, {"source": "leaf-1", "target": "vpc-vpc-68b4e19e", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-5509277b", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-a51d3a58", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-a72407fd", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-2", "target": "vpc-vpc-37a2eee0", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-37a2eee0", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-37a2eee0", "target": "10.49.144.3", "type": "internet", "label": "Internet", "destination": "0.0.0.0/0"}, {"source": "leaf-1", "target": "vpc-vpc-04ebe2e5", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-04ebe2e5", "target": "vpc-dc-58949711", "type": "vpn", "label": "VPN Gateway", "destination": "192.168.1.0/24"}, {"source": "leaf-1", "target": "vpc-vpc-add82f50", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-add82f50", "target": "vpc-vpn-auto", "type": "vpn", "label": "VPN Gateway", "destination": "192.5.2.0/24"}, {"source": "leaf-1", "target": "vpc-vpc-89eb4095", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-7577d63d", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-7577d63d", "target": "igw-auto", "type": "internet", "label": "Internet", "destination": "10.49.96.0/28"}, {"source": "vpc-vpc-7577d63d", "target": "vpc-vpn-auto", "type": "vpn", "label": "VPN Gateway", "destination": "10.0.0.0/8"}, {"source": "leaf-1", "target": "vpc-vpc-80d9f589", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-80d9f589", "target": "igw-auto", "type": "internet", "label": "Internet", "destination": "0.0.0.0/0"}, {"source": "leaf-2", "target": "vpc-vpc-06b207c1", "type": "overlay", "label": "Logical Membership"}, {"source": "leaf-1", "target": "vpc-vpc-06b207c1", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-06b207c1", "target": "igw-auto", "type": "internet", "label": "Internet", "destination": "0.0.0.0/0"}, {"source": "leaf-1", "target": "vpc-vpc-aff18715", "type": "overlay", "label": "Logical Membership"}, {"source": "vpc-vpc-aff18715", "target": "igw-auto", "type": "internet", "label": "Internet", "destination": "0.0.0.0/0"}, {"source": "standalone-dc-dc-5c58fc2a", "target": "hub-hub-4b4f875f", "type": "vpn", "label": "VPN Gateway", "destination": "10.1.0.0/16"}, {"source": "standalone-dc-dc-5c58fc2a", "target": "hub-hub-4b4f875f", "type": "vpn", "label": "VPN Gateway", "destination": "10.2.0.0/16"}, {"source": "standalone-dc-dc-9a7c408d", "target": "hub-hub-cc664525", "type": "vpn", "label": "VPN Gateway", "destination": "10.0.0.0/8"}, {"source": "standalone-dc-dc-58949711", "target": "vpc-04ebe2e5", "type": "vpn", "label": "VPN Gateway", "destination": "203.0.113.0/24"}], "scenarios": [{"title": "1. Single VPC", "description": "Simplest cloud network with one public subnet.", "resources": [{"type": "vpc", "label": "Web VPC"}]}, {"title": "2. Multi-tier VPC", "description": "Professional VPC with public/private segmentation.", "resources": [{"type": "vpc", "label": "Production VPC"}]}, {"title": "3. Secure Database Tier", "description": "Isolation of sensitive data between web DMZ and secure backend.", "resources": [{"type": "vpc", "label": "Production Environment"}]}, {"title": "4. Public Load Balancer & Private Backend", "description": "Ingress traffic management with a public listener and private workers.", "resources": [{"type": "vpc", "label": "Application Service"}]}, {"title": "5. NAT Router for Private Subnets", "description": "Controlled internet access for isolated instances.", "resources": [{"type": "vpc", "label": "Egress Gateway VPC"}]}, {"title": "6. Secure Microservices Mesh", "description": "Secure service-to-service communication.", "resources": [{"type": "vpc", "label": "Platform VPC"}]}, {"title": "7. Managed VPN", "description": "Secure cloud-to-on-prem or region-to-region connectivity.", "resources": [{"type": "vpc", "label": "us-east-vpc"}, {"type": "vpc", "label": "us-west-vpc"}]}, {"title": "8. Private Mesh Overlay", "description": "Zero-trust mesh overlay networking.", "resources": [{"type": "vpc", "label": "Mesh Node West"}, {"type": "vpc", "label": "Mesh Node East"}]}, {"title": "9. VPC Peering", "description": "Simple VPC-to-VPC connectivity within the same region.", "resources": [{"type": "vpc", "label": "Frontend VPC"}, {"type": "vpc", "label": "Backend VPC"}]}, {"title": "10. Private Service Connectivity", "description": "Private service connectivity without full network peering.", "resources": [{"type": "vpc", "label": "Consumer VPC"}, {"type": "vpc", "label": "Provider VPC"}]}, {"title": "11. Collaborative Shared Network", "description": "Centralized network management with departmental isolation.", "resources": [{"type": "vpc", "label": "Shared Network VPC"}]}, {"title": "12. Kubernetes Hybrid Network", "description": "Complex enterprise connectivity with secondary addressing.", "resources": [{"type": "vpc", "label": "Kubernetes Cluster 1"}, {"type": "vpc", "label": "Kubernetes Cluster 2"}, {"type": "hub", "label": "Cloud Routing Hub (NAT Flows)"}, {"type": "hub", "label": "Cloud Routing Hub (Non-NAT Flows)"}, {"type": "vpc", "label": "Shared Services"}, {"type": "standalone_dc", "label": "On-Premise Data Center"}]}, {"title": "13. Secure Application Service Mesh", "description": "High-level application-layer mesh across multiple tiers.", "resources": [{"type": "vpc", "label": "Frontend Mesh VPC"}, {"type": "vpc", "label": "Backend Mesh VPC"}, {"type": "vpc", "label": "Data Mesh VPC"}]}, {"title": "14. Network Lifecycle: Automated vs Manual", "description": "Contrast automated regional coverage with manual precision.", "resources": [{"type": "vpc", "label": "Automated Regional VPC"}, {"type": "vpc", "label": "Manual Controlled VPC"}]}, {"title": "15. Policy Enforcement", "description": "Demonstrate network restriction and security baseline enforcement.", "resources": [{"type": "vpc", "label": "Restricted VPC"}]}, {"title": "16. Hybrid Connectivity: Dedicated & Redundant VPN", "description": "High-speed dedicated cloud connectivity with encrypted fallback.", "resources": [{"type": "vpc", "label": "Corporate Hub VPC"}, {"type": "standalone_dc", "label": "MegaCorp DC"}]}, {"title": "17. Enterprise Hub-and-Spoke", "description": "Large-scale topology with central policy management.", "resources": [{"type": "hub", "label": "Enterprise Policy Hub"}, {"type": "vpc", "label": "Engineering Spoke"}, {"type": "vpc", "label": "Finance Spoke"}, {"type": "vpc", "label": "HR Spoke"}, {"type": "vpc", "label": "Security Services VPC"}]}, {"title": "18. Virtual Appliance Routing", "description": "Route traffic through a security appliance in a hub VPC.", "resources": [{"type": "vpc", "label": "Spoke Application VPC"}, {"type": "vpc", "label": "Transit Security VPC"}, {"type": "hub", "label": "Transit Backbone Hub"}]}, {"title": "19. Hub Gateway Transit", "description": "Spokes use a central hub's VPN gateway.", "resources": [{"type": "standalone_dc", "label": "On-Premises Data Center"}, {"type": "hub", "label": "Central Hybrid Hub"}, {"type": "vpc", "label": "Remote Spoke VPC"}]}, {"title": "20. Data-Scale Network: Secondary CIDR Expansion & Pre-initialized Instances", "description": "High-density networking with secondary CIDR ranges to provide ready-state instance pools", "resources": [{"type": "vpc", "label": "High-Density Cluster VPC"}]}, {"title": "21. Subnet-Level Peering", "description": "Restrict peering connectivity to specific subnets.", "resources": [{"type": "vpc", "label": "Producer Service VPC"}, {"type": "vpc", "label": "Consumer Client VPC"}]}, {"title": "22. Shared Cluster Infrastructure", "description": "Shared VPC for multiple teams with governance.", "resources": [{"type": "vpc", "label": "Enterprise Shared VPC"}]}, {"title": "23. Cloud-Native Service Hub", "description": "Identity-based service connectivity layer.", "resources": [{"type": "hub", "label": "Service Mesh Hub"}, {"type": "vpc", "label": "Checkout VPC"}, {"type": "vpc", "label": "Inventory VPC"}, {"type": "vpc", "label": "Client VPC"}]}, {"title": "24. Hybrid Appliance Bridge", "description": "Managed cloud VPN connecting to a custom software appliance.", "resources": [{"type": "vpc", "label": "Provider Network (Managed)"}, {"type": "vpc", "label": "Consumer Network (Software Appliance)"}]}, {"title": "25. AI Infrastructure: Accelerated RDMA Network", "description": "Specialized high-performance networking for AI/ML training workloads", "resources": [{"type": "vpc", "label": "AI Training VPC"}]}, {"title": "26. Global Transit: Multi-Region Hubs with GRE Support", "description": "Integration of SASE and SD-WAN using GRE tunneling over global transit hubs", "resources": [{"type": "hub", "label": "Regional Hub A"}, {"type": "hub", "label": "Regional Hub B"}, {"type": "vpc", "label": "Security Appliance VPC"}]}, {"title": "27. Dual-Stack Infrastructure: IPv4 & IPv6 Coexistence", "description": "Modern network design supporting concurrent IPv4 and IPv6 traffic flows", "resources": [{"type": "vpc", "label": "Dual-Stack VPC"}]}, {"title": "28. Cloud Native NAT Router", "description": "Linux-based NAT router managing ingress and egress.", "resources": [{"type": "vpc", "label": "NAT Router VPC"}]}, {"title": "29. Heterogeneous Load Balancing", "description": "Load Balancer distributing traffic across mixed-os backends.", "resources": [{"type": "vpc", "label": "Load Balanced VPC"}]}, {"title": "30. Standard IPsec VPN (Site-to-Site)", "description": "Secure IPsec tunnel between a VPC and on-prem.", "resources": [{"type": "vpc", "label": "Cloud VPC"}, {"type": "standalone_dc", "label": "On-Premises Network"}]}, {"title": "31. Remote Access VPN", "description": "Road Warrior connectivity via IKEv2/IPsec.", "resources": [{"type": "vpc", "label": "Remote Access Hub VPC"}]}, {"title": "32. Private DNS Discovery", "description": "Internal zone management with private resolution.", "resources": [{"type": "vpc", "label": "DNS Managed VPC"}]}, {"title": "33. Legacy Windows Integration", "description": "Legacy workloads with multiple interfaces.", "resources": [{"type": "vpc", "label": "Legacy Windows VPC"}]}, {"title": "34. Brownfield Endpoint Adoption", "description": "Adopt existing workloads into a new VPC without redeployment, ensuring accurate VPC View mapping.", "resources": [{"type": "vpc", "label": "Brownfield VPC"}]}, {"title": "35. Partial Brownfield Adoption", "description": "Adopt a subset of existing workloads while rejecting conflicting endpoints, with VPC View reflecting accurate endpoint placement.", "resources": [{"type": "vpc", "label": "Partial Brownfield VPC"}]}, {"title": "36. Brownfield Adoption Under Churn", "description": "Adopt existing workloads into a new VPC while maintaining accurate VPC View display during control plane churn.", "resources": [{"type": "vpc", "label": "Churn Resilient Brownfield VPC"}]}]};
+window.STATIC_SCENARIOS = [{"id": "scenario-10b27780", "title": "1. Single VPC", "description": "Simplest cloud network with one public subnet.", "resource_order": [{"type": "vpc", "label": "Web VPC"}], "created_at": "2026-01-02T11:40:40"}, {"id": "scenario-a621e5cc", "title": "2. Multi-tier VPC", "description": "Professional VPC with public/private segmentation.", "resource_order": [{"type": "vpc", "label": "Production VPC"}], "created_at": "2026-01-02T11:40:40"}, {"id": "scenario-2069f5e7", "title": "3. Secure Database Tier", "description": "Isolation of sensitive data between web DMZ and secure backend.", "resource_order": [{"type": "vpc", "label": "Production Environment"}], "created_at": "2026-01-02T11:40:41"}, {"id": "scenario-2325e087", "title": "4. Public Load Balancer & Private Backend", "description": "Ingress traffic management with a public listener and private workers.", "resource_order": [{"type": "vpc", "label": "Application Service"}], "created_at": "2026-01-02T11:40:42"}, {"id": "scenario-c5927a3e", "title": "5. NAT Router for Private Subnets", "description": "Controlled internet access for isolated instances.", "resource_order": [{"type": "vpc", "label": "Egress Gateway VPC"}], "created_at": "2026-01-02T11:40:42"}, {"id": "scenario-a38b4857", "title": "6. Secure Microservices Mesh", "description": "Secure service-to-service communication.", "resource_order": [{"type": "vpc", "label": "Platform VPC"}], "created_at": "2026-01-02T11:40:43"}, {"id": "scenario-3efb8033", "title": "7. Managed VPN", "description": "Secure cloud-to-on-prem or region-to-region connectivity.", "resource_order": [{"type": "vpc", "label": "us-east-vpc"}, {"type": "vpc", "label": "us-west-vpc"}], "created_at": "2026-01-02T11:40:43"}, {"id": "scenario-799d5ffb", "title": "8. Private Mesh Overlay", "description": "Zero-trust mesh overlay networking.", "resource_order": [{"type": "vpc", "label": "Mesh Node West"}, {"type": "vpc", "label": "Mesh Node East"}], "created_at": "2026-01-02T11:40:44"}, {"id": "scenario-39c7ecab", "title": "9. VPC Peering", "description": "Simple VPC-to-VPC connectivity within the same region.", "resource_order": [{"type": "vpc", "label": "Frontend VPC"}, {"type": "vpc", "label": "Backend VPC"}], "created_at": "2026-01-02T11:40:46"}, {"id": "scenario-55ec13a0", "title": "10. Private Service Connectivity", "description": "Private service connectivity without full network peering.", "resource_order": [{"type": "vpc", "label": "Consumer VPC"}, {"type": "vpc", "label": "Provider VPC"}], "created_at": "2026-01-02T11:40:47"}, {"id": "scenario-10bf169b", "title": "11. Collaborative Shared Network", "description": "Centralized network management with departmental isolation.", "resource_order": [{"type": "vpc", "label": "Shared Network VPC"}], "created_at": "2026-01-02T11:40:48"}, {"id": "scenario-0f2e7683", "title": "12. Kubernetes Hybrid Network", "description": "Complex enterprise connectivity with secondary addressing.", "resource_order": [{"type": "vpc", "label": "Kubernetes Cluster 1"}, {"type": "vpc", "label": "Kubernetes Cluster 2"}, {"type": "hub", "label": "Cloud Routing Hub (NAT Flows)"}, {"type": "hub", "label": "Cloud Routing Hub (Non-NAT Flows)"}, {"type": "vpc", "label": "Shared Services"}, {"type": "standalone_dc", "label": "On-Premise Data Center"}], "created_at": "2026-01-02T11:40:48"}, {"id": "scenario-e88308fb", "title": "13. Secure Application Service Mesh", "description": "High-level application-layer mesh across multiple tiers.", "resource_order": [{"type": "vpc", "label": "Frontend Mesh VPC"}, {"type": "vpc", "label": "Backend Mesh VPC"}, {"type": "vpc", "label": "Data Mesh VPC"}], "created_at": "2026-01-02T11:40:51"}, {"id": "scenario-7d686db8", "title": "14. Network Lifecycle: Automated vs Manual", "description": "Contrast automated regional coverage with manual precision.", "resource_order": [{"type": "vpc", "label": "Automated Regional VPC"}, {"type": "vpc", "label": "Manual Controlled VPC"}], "created_at": "2026-01-02T11:40:53"}, {"id": "scenario-7a5a5dcd", "title": "15. Policy Enforcement", "description": "Demonstrate network restriction and security baseline enforcement.", "resource_order": [{"type": "vpc", "label": "Restricted VPC"}], "created_at": "2026-01-02T11:40:54"}, {"id": "scenario-3241d752", "title": "16. Hybrid Connectivity: Dedicated & Redundant VPN", "description": "High-speed dedicated cloud connectivity with encrypted fallback.", "resource_order": [{"type": "vpc", "label": "Corporate Hub VPC"}, {"type": "standalone_dc", "label": "MegaCorp DC"}], "created_at": "2026-01-02T11:40:55"}, {"id": "scenario-834f2e66", "title": "17. Enterprise Hub-and-Spoke", "description": "Large-scale topology with central policy management.", "resource_order": [{"type": "hub", "label": "Enterprise Policy Hub"}, {"type": "vpc", "label": "Engineering Spoke"}, {"type": "vpc", "label": "Finance Spoke"}, {"type": "vpc", "label": "HR Spoke"}, {"type": "vpc", "label": "Security Services VPC"}], "created_at": "2026-01-02T11:40:56"}, {"id": "scenario-85654b3c", "title": "18. Virtual Appliance Routing", "description": "Route traffic through a security appliance in a hub VPC.", "resource_order": [{"type": "vpc", "label": "Spoke Application VPC"}, {"type": "vpc", "label": "Transit Security VPC"}, {"type": "hub", "label": "Transit Backbone Hub"}], "created_at": "2026-01-02T11:40:58"}, {"id": "scenario-89d3bf3f", "title": "19. Hub Gateway Transit", "description": "Spokes use a central hub's VPN gateway.", "resource_order": [{"type": "standalone_dc", "label": "On-Premises Data Center"}, {"type": "hub", "label": "Central Hybrid Hub"}, {"type": "vpc", "label": "Remote Spoke VPC"}], "created_at": "2026-01-02T11:40:59"}, {"id": "scenario-79c7fd2a", "title": "20. Data-Scale Network: Secondary CIDR Expansion & Pre-initialized Instances", "description": "High-density networking with secondary CIDR ranges to provide ready-state instance pools", "resource_order": [{"type": "vpc", "label": "High-Density Cluster VPC"}], "created_at": "2026-01-02T11:41:01"}, {"id": "scenario-6695af33", "title": "21. Subnet-Level Peering", "description": "Restrict peering connectivity to specific subnets.", "resource_order": [{"type": "vpc", "label": "Producer Service VPC"}, {"type": "vpc", "label": "Consumer Client VPC"}], "created_at": "2026-01-02T11:41:01"}, {"id": "scenario-4ac3eee8", "title": "22. Shared Cluster Infrastructure", "description": "Shared VPC for multiple teams with governance.", "resource_order": [{"type": "vpc", "label": "Enterprise Shared VPC"}], "created_at": "2026-01-02T11:41:02"}, {"id": "scenario-5a319c5e", "title": "23. Cloud-Native Service Hub", "description": "Identity-based service connectivity layer.", "resource_order": [{"type": "hub", "label": "Service Mesh Hub"}, {"type": "vpc", "label": "Checkout VPC"}, {"type": "vpc", "label": "Inventory VPC"}, {"type": "vpc", "label": "Client VPC"}], "created_at": "2026-01-02T11:41:03"}, {"id": "scenario-3e403869", "title": "24. Hybrid Appliance Bridge", "description": "Managed cloud VPN connecting to a custom software appliance.", "resource_order": [{"type": "vpc", "label": "Provider Network (Managed)"}, {"type": "vpc", "label": "Consumer Network (Software Appliance)"}], "created_at": "2026-01-02T11:41:05"}, {"id": "scenario-abaf439f", "title": "25. AI Infrastructure: Accelerated RDMA Network", "description": "Specialized high-performance networking for AI/ML training workloads", "resource_order": [{"type": "vpc", "label": "AI Training VPC"}], "created_at": "2026-01-02T11:41:06"}, {"id": "scenario-8b8faf37", "title": "26. Global Transit: Multi-Region Hubs with GRE Support", "description": "Integration of SASE and SD-WAN using GRE tunneling over global transit hubs", "resource_order": [{"type": "hub", "label": "Regional Hub A"}, {"type": "hub", "label": "Regional Hub B"}, {"type": "vpc", "label": "Security Appliance VPC"}], "created_at": "2026-01-02T11:41:06"}, {"id": "scenario-9c81e7de", "title": "27. Dual-Stack Infrastructure: IPv4 & IPv6 Coexistence", "description": "Modern network design supporting concurrent IPv4 and IPv6 traffic flows", "resource_order": [{"type": "vpc", "label": "Dual-Stack VPC"}], "created_at": "2026-01-02T11:41:07"}, {"id": "scenario-501cf6ee", "title": "28. Cloud Native NAT Router", "description": "Linux-based NAT router managing ingress and egress.", "resource_order": [{"type": "vpc", "label": "NAT Router VPC"}], "created_at": "2026-01-02T11:41:08"}, {"id": "scenario-c0dbfebd", "title": "29. Heterogeneous Load Balancing", "description": "Load Balancer distributing traffic across mixed-os backends.", "resource_order": [{"type": "vpc", "label": "Load Balanced VPC"}], "created_at": "2026-01-02T11:41:08"}, {"id": "scenario-180d64b4", "title": "30. Standard IPsec VPN (Site-to-Site)", "description": "Secure IPsec tunnel between a VPC and on-prem.", "resource_order": [{"type": "vpc", "label": "Cloud VPC"}, {"type": "standalone_dc", "label": "On-Premises Network"}], "created_at": "2026-01-02T11:41:09"}, {"id": "scenario-3a48ddd8", "title": "31. Remote Access VPN", "description": "Road Warrior connectivity via IKEv2/IPsec.", "resource_order": [{"type": "vpc", "label": "Remote Access Hub VPC"}], "created_at": "2026-01-02T11:41:10"}, {"id": "scenario-032c4610", "title": "32. Private DNS Discovery", "description": "Internal zone management with private resolution.", "resource_order": [{"type": "vpc", "label": "DNS Managed VPC"}], "created_at": "2026-01-02T11:41:11"}, {"id": "scenario-38aec401", "title": "33. Legacy Windows Integration", "description": "Legacy workloads with multiple interfaces.", "resource_order": [{"type": "vpc", "label": "Legacy Windows VPC"}], "created_at": "2026-01-02T11:41:11"}, {"id": "scenario-40704bf1", "title": "34. Brownfield Endpoint Adoption", "description": "Adopt existing workloads into a new VPC without redeployment, ensuring accurate VPC View mapping.", "resource_order": [{"type": "vpc", "label": "Brownfield VPC"}], "created_at": "2026-01-02T13:35:55"}, {"id": "scenario-b34feaad", "title": "35. Partial Brownfield Adoption", "description": "Adopt a subset of existing workloads while rejecting conflicting endpoints, with VPC View reflecting accurate endpoint placement.", "resource_order": [{"type": "vpc", "label": "Partial Brownfield VPC"}], "created_at": "2026-01-02T13:53:10"}, {"id": "scenario-6de481bd", "title": "36. Brownfield Adoption Under Churn", "description": "Adopt existing workloads into a new VPC while maintaining accurate VPC View display during control plane churn.", "resource_order": [{"type": "vpc", "label": "Churn Resilient Brownfield VPC"}], "created_at": "2026-01-02T13:53:11"}];</script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VPC View</title>
+<style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #fafafa;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #232f3e;
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            background: #00897b;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .btn:hover {
+            background: #00796b;
+        }
+
+        .btn-secondary {
+            background: #545b64;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #6b7280;
+        }
+
+        .btn-secondary.active {
+            background: #0073bb;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 4px;
+        }
+
+        .main-container {
+            padding: 20px;
+            position: relative;
+        }
+
+        /* SVG Overlay for connections */
+        .svg-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .architecture-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: flex-start;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        /* VPC Box */
+        .vpc {
+            background: linear-gradient(135deg, #fffde7 0%, #fff9c4 100%);
+            border: 3px solid #827717;
+            border-radius: 8px;
+            padding: 20px;
+            min-width: 300px;
+            max-width: 550px;
+            position: relative;
+        }
+
+        .vpc-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #c0ca33;
+        }
+
+        .vpc-icon {
+            width: 28px;
+            height: 28px;
+            background: #827717;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .vpc-title {
+            font-weight: bold;
+            font-size: 13px;
+            color: #33691e;
+        }
+
+        .vpc-cidr {
+            font-size: 10px;
+            color: #689f38;
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-family: monospace;
+        }
+
+        /* Internet Gateway at VPC level */
+        .vpc-gateways {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .igw-icon {
+            background: #e0f2f1;
+            border: 2px solid #00897b;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: bold;
+            color: #004d40;
+        }
+
+        /* Data Center Box */
+        .dc-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .dc {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #1565c0;
+            border-radius: 6px;
+            padding: 12px;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .dc-header {
+            font-size: 10px;
+            font-weight: bold;
+            color: #0d47a1;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dc-icon {
+            width: 16px;
+            height: 16px;
+            background: #1565c0;
+            border-radius: 2px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+        }
+
+        /* Hub Resource Box (Standalone) */
+        .hub {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border: 3px solid #c62828;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .hub-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 2px solid #c62828;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #c62828;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .hub-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #b71c1c;
+            margin-bottom: 5px;
+        }
+
+        .hub-region {
+            display: none;
+        }
+
+        /* Subnet Box */
+        .subnets {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .subnet {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 2px solid #2e7d32;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 9px;
+        }
+
+        .subnet.private {
+            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+            border-color: #3949ab;
+        }
+
+        .subnet.cgnat {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #7b1fa2;
+        }
+
+        .subnet.ngw-dc {
+            background: linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%);
+            border-color: #512da8;
+        }
+
+        .subnet.server {
+            background: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%);
+            border-color: #455a64;
+        }
+
+        .subnet-name {
+            font-weight: bold;
+            color: #1b5e20;
+        }
+
+        .subnet.private .subnet-name {
+            color: #1a237e;
+        }
+
+        .subnet.cgnat .subnet-name {
+            color: #4a148c;
+        }
+
+        .subnet.ngw-dc .subnet-name {
+            color: #311b92;
+        }
+
+        .subnet.server .subnet-name {
+            color: #263238;
+        }
+
+        .subnet-cidr {
+            color: #666;
+            font-family: monospace;
+            font-size: 8px;
+        }
+
+        /* Gateway inside DC */
+        .gateway {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border: 2px solid #00897b;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 8px;
+            font-weight: bold;
+            color: #00695c;
+            margin-top: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .gateway-icon {
+            width: 12px;
+            height: 12px;
+            background: #00897b;
+            border-radius: 2px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6px;
+        }
+
+        /* Route Tables (Detailed View) */
+        .route-tables {
+            margin-top: 15px;
+            /* Always visible now */
+            display: block;
+        }
+
+        .route-table {
+            border: 1px solid #00897b;
+            border-radius: 4px;
+            overflow: hidden;
+            font-size: 8px;
+            margin-bottom: 8px;
+        }
+
+        .route-table-header {
+            background: #00897b;
+            color: white;
+            padding: 4px 8px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .route-table-body {
+            background: white;
+        }
+
+        .route-row {
+            display: flex;
+            border-bottom: 1px solid #eee;
+        }
+
+        .route-row:last-child {
+            border-bottom: none;
+        }
+
+        .route-cell {
+            padding: 3px 6px;
+            flex: 1;
+            font-family: monospace;
+        }
+
+        .route-cell:first-child {
+            border-right: 1px solid #eee;
+        }
+
+        /* Connections Section - Multiple Types */
+        .connections-section {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .connections-section.peering {
+            background: #f3e5f5;
+            border: 2px dashed #7b1fa2;
+        }
+
+        .connections-section.vpn {
+            background: #e8eaf6;
+            border: 2px solid #3949ab;
+        }
+
+        .connections-section.mesh {
+            background: #e8f5e9;
+            border: 2px dotted #2e7d32;
+        }
+
+        .connections-section.cloud-routing-hub {
+            background: #ffebee;
+            border: 2px solid #c62828;
+        }
+
+        .connections-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connections-title.peering {
+            color: #4a148c;
+        }
+
+        .connections-title.vpn {
+            color: #283593;
+        }
+
+        .connections-title.mesh {
+            color: #1b5e20;
+        }
+
+        .connections-title.cloud-routing-hub {
+            color: #b71c1c;
+        }
+
+        .connections-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .connection-item {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connection-item.peering {
+            border: 1px solid #ce93d8;
+        }
+
+        .connection-item.vpn {
+            border: 1px solid #9fa8da;
+        }
+
+        .connection-item.mesh {
+            border: 1px solid #a5d6a7;
+        }
+
+        .connection-item.cloud-routing-hub {
+            border: 1px solid #90caf9;
+        }
+
+        /* Cloud Routing Hub */
+        .routing-hub-section {
+            margin-top: 20px;
+        }
+
+        .routing-hub-section.visible {
+            display: block;
+        }
+
+        .network-hub {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 3px solid #1976d2;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .hub-icon {
+            width: 50px;
+            height: 50px;
+            background: #1976d2;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .hub-title {
+            font-weight: bold;
+            color: #0d47a1;
+            font-size: 12px;
+        }
+
+        .hub-subtitle {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .connection-arrow {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .connection-arrow.peering {
+            color: #7b1fa2;
+        }
+
+        .connection-arrow.vpn {
+            color: #3949ab;
+        }
+
+        .connection-arrow.mesh {
+            color: #2e7d32;
+        }
+
+        .connection-arrow.cloud-routing-hub {
+            color: #c62828;
+        }
+
+        .connection-type-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .connection-type-icon.peering {
+            background: #7b1fa2;
+        }
+
+        .connection-type-icon.vpn {
+            background: #3949ab;
+        }
+
+        .connection-type-icon.mesh {
+            background: #2e7d32;
+        }
+
+        .connection-type-icon.cloud-routing-hub {
+            background: #c62828;
+        }
+
+        .connection-destination {
+            font-family: monospace;
+            font-size: 9px;
+            color: #666;
+            margin-left: auto;
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+
+
+        .cloud-routing-hub-section.visible {
+            display: block;
+        }
+
+        .cloud-routing-hub {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border: 3px solid #00897b;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .crh-icon {
+            width: 50px;
+            height: 50px;
+            background: #00897b;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .crh-title {
+            font-weight: bold;
+            color: #00695c;
+            font-size: 12px;
+        }
+
+        .node-group {
+            border: 1px dashed #1976d2;
+            background: #e3f2fd;
+            padding: 8px;
+            margin-top: 8px;
+            border-radius: 4px;
+            /* Always visible */
+            display: block;
+        }
+
+        .node-group.visible {
+            display: block;
+        }
+
+        .node-group-title {
+            font-size: 10px;
+            font-weight: bold;
+            color: #1565c0;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Status bar */
+        .status {
+            padding: 10px 24px;
+            font-size: 11px;
+            color: #666;
+            background: #f5f5f5;
+            border-top: 1px solid #ddd;
+            border-top: 1px solid #ddd;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        /* Legend */
+        .legend {
+            position: fixed;
+            bottom: 50px;
+            right: 20px;
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 9px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #232f3e;
+            font-size: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 2px;
+        }
+
+        .gateway-icon.vpn {
+            background: #ef6c00;
+            border-color: #e65100;
+        }
+
+        .gateway-icon.mesh {
+            background: #2e7d32;
+            border-color: #1b5e20;
+        }
+
+        /* Scenario Grouping */
+        .scenario-group {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            width: 100%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .scenario-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #232f3e;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #00897b;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .scenario-desc {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .scenario-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .vpc-secondary-cidrs {
+            font-size: 9px;
+            color: #666;
+            margin-top: 2px;
+            font-family: monospace;
+            display: block;
+        }
+
+        /* High-Fidelity Grid Layout */
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 40px;
+            width: 100%;
+        }
+
+        .scenario-column {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .propagation-arrow {
+            fill: none;
+            stroke: #3949ab;
+            stroke-width: 2;
+            stroke-dasharray: 5, 5;
+            marker-end: url(#arrowhead);
+        }
+
+        .propagation-label {
+            font-size: 9px;
+            fill: #3949ab;
+            font-weight: bold;
+        }
+
+        /* Standalone Data Center (no VPC wrapper) */
+        .standalone-dc {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            border: 2px solid #757575;
+            border-radius: 8px;
+            padding: 15px;
+            min-width: 280px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .standalone-dc-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #bdbdbd;
+        }
+
+        .standalone-dc-icon {
+            width: 32px;
+            height: 32px;
+            background: #616161;
+            color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .standalone-dc-title {
+            font-weight: bold;
+            color: #424242;
+            font-size: 13px;
+        }
+
+        .standalone-dc-cidr {
+            font-size: 10px;
+            color: #757575;
+            font-family: monospace;
+            margin-left: auto;
+        }
+
+        .standalone-dc .dc-icon {
+            background: #616161;
+        }
+
+        .standalone-dc .dc-container {
+            margin-top: 10px;
+        }
+    </style>
+<!-- Scenario-specific rendering logic -->
+<script src="/scripts/scenario_hybrid.js"></script>
+<script src="/scripts/scenario_vpn.js"></script>
+<script src="/scripts/scenario_mesh.js"></script>
+</head>
+<body>
+<header>
+<h1>VPC View</h1>
+<div class="controls">
+<button class="btn" onclick="loadData()">Refresh</button>
+</div>
+</header>
+<div class="main-container">
+<svg class="svg-overlay" id="svg-connections">
+<defs>
+<marker id="arrowhead" markerheight="7" markerwidth="10" orient="auto" refx="9" refy="3.5">
+<polygon fill="#3949ab" points="0 0, 10 3.5, 0 7"></polygon>
+</marker>
+</defs>
+</svg>
+<div class="architecture-container" id="content">
+<p>Loading...</p>
+</div>
+<div id="peering-container"></div>
+</div>
+<div class="legend">
+<div class="legend-title">Resource Types</div>
+<div class="legend-item">
+<div class="legend-dot" style="background: #fffde7; border: 2px solid #827717;"></div> VPC
+        </div>
+<div class="legend-item">
+<div class="legend-dot" style="background: #e3f2fd; border: 2px solid #1565c0;"></div> Cloud Data Center
+        </div>
+<div class="legend-item">
+<div class="legend-dot" style="background: #f5f5f5; border: 2px solid #757575;"></div> On-Premise Data
+            Center
+        </div>
+<div class="legend-item">
+<div class="legend-dot" style="background: #e8f5e9; border: 2px solid #2e7d32;"></div> Public Subnet
+        </div>
+<div class="legend-item">
+<div class="legend-dot" style="background: #e8eaf6; border: 2px solid #3949ab;"></div> Private Subnet
+        </div>
+<div class="legend-item">
+<div class="legend-dot" style="background: #f3e5f5; border: 2px solid #7b1fa2;"></div> CGNAT Subnet
+        </div>
+<div class="legend-item">
+<div class="legend-dot" style="background: #ede7f6; border: 2px solid #512da8;"></div> NGW-DC Subnet
+        </div>
+<div class="legend-item">
+<div class="legend-dot" style="background: #eceff1; border: 2px solid #455a64;"></div> Server
+        </div>
+<div class="legend-item">
+<div class="legend-dot" style="background: #fff; border: 2px solid #00897b;"></div> Routing Table
+        </div>
+<div class="legend-item">
+<div class="legend-dot" style="background: #fff3e0; border: 2px solid #ef6c00;"></div> Gateway
+        </div>
+<div class="legend-item">
+<div class="legend-dot" style="background: #ffebee; border: 2px solid #c62828;"></div> Cloud Routing Hub
+        </div>
+</div>
+<div class="status" id="status">Initializing...</div>
+<script>
+        let currentView = 'detailed';
+        let cachedData = null;
+
+        // View toggle logic removed, default to detailed
+
+        function getSubnetClass(name, type) {
+            const lower = name.toLowerCase();
+            if (type === 'server' || lower.includes('server')) return 'server';
+            if (lower.includes('private') || lower.includes('data')) return 'private';
+            if (lower.includes('cgnat') || lower.includes('reserved')) return 'cgnat';
+            if (lower.includes('ngw-dc')) return 'ngw-dc';
+            return '';
+        }
+
+        function generateRouteTable(vpcName, routes) {
+            if (!routes || routes.length === 0) {
+                // Generate sample routes based on VPC
+                routes = [
+                    { destination: 'local', target: 'local' },
+                    { destination: '0.0.0.0/0', target: 'igw-xxx' }
+                ];
+            }
+
+            let html = `
+                <div class="route-table">
+                    <div class="route-table-header">
+                        <span>Destination</span>
+                        <span>Target</span>
+                    </div>
+                    <div class="route-table-body">
+            `;
+
+            routes.forEach(r => {
+                const targetDisplay = r.target || r.next_hop || 'undefined';
+                html += `
+                    <div class="route-row">
+                        <div class="route-cell">${r.destination}</div>
+                        <div class="route-cell">${targetDisplay}</div>
+                    </div>
+                `;
+            });
+
+            html += '</div></div>';
+            return html;
+        }
+
+        async function loadData() {
+            try {
+                let data;
+                if (window.STATIC_VPC_DATA) {
+                    console.log("Using static VPC data");
+                    data = window.STATIC_VPC_DATA;
+                    // Disable auto-refresh in static mode
+                    const statusEl = document.getElementById('status');
+                    if (statusEl) statusEl.innerText = 'Static Reference Mode';
+                } else {
+                    const response = await fetch('/vpc');
+                    if (!response.ok) throw new Error('API unstable or not responding');
+                    data = await response.json();
+                }
+                cachedData = data;
+
+                const vpcs = Array.from(new Map(data.nodes.filter(n => n.type === 'vpc').map(v => [v.label, v])).values());
+                const hubs = Array.from(new Map(data.nodes.filter(n => n.type === 'hub').map(h => [h.label, h])).values());
+                const standaloneDCs = Array.from(new Map(data.nodes.filter(n => n.type === 'standalone_dc').map(s => [s.label, s])).values());
+                const dcs = data.nodes.filter(n => n.type === 'dc');
+                const subnets = data.nodes.filter(n => n.type === 'subnet' || n.type === 'server');
+                const gateways = data.nodes.filter(n => n.type === 'nat' || n.type === 'igw');
+                const vpnGateways = data.nodes.filter(n => n.type === 'vpn_gateway');
+                const meshNodes = data.nodes.filter(n => n.type === 'mesh_node');
+                const peeringEdges = data.edges.filter(e => e.type === 'peering');
+
+                let html = '';
+
+                // Helper to strip "1.", "30." etc for matching and display
+                const getCleanTitle = (t) => t ? t.replace(/^\d+[\.\s\-\:]+/, '').trim() : '';
+
+                // Deduplicate scenarios based on clean title
+                const rawScenarios = data.scenarios || [];
+                const scenarios = [];
+                const seenTitles = new Set();
+                rawScenarios.forEach(s => {
+                    const clean = getCleanTitle(s.title);
+                    if (clean && !seenTitles.has(clean)) {
+                         seenTitles.add(clean);
+                         scenarios.push(s);
+                    }
+                });
+
+                const formatVpcHtml = (vpc) => {
+                    const vpcDcs = dcs.filter(d => d.parent === vpc.id);
+                    const vpcIgws = gateways.filter(g => g.parent === vpc.id && g.type === 'igw');
+
+                    let innerHtml = `
+                        <div class="vpc" data-vpc-id="${vpc.id}">
+                            <div class="vpc-gateways">
+                                ${vpcIgws.length > 0 ? vpcIgws.map(igw => `<div class="igw-icon" title="${igw.label}">IGW</div>`).join('') : ''}
+                                ${vpnGateways.filter(g => g.parent === vpc.id).map(g => `<div class="gateway-icon vpn" title="${g.label}">WG</div>`).join('')}
+                                ${meshNodes.filter(m => m.parent === vpc.id).map(m => `<div class="gateway-icon mesh" title="${m.label}">HS</div>`).join('')}
+                            </div>
+                            <div class="vpc-header">
+                                <div class="vpc-icon">VPC</div>
+                                <span class="vpc-title">${vpc.label.replace(/\n/g, '<br>')}</span>
+                                <span class="vpc-cidr">${vpc.cidr || ''}</span>
+                                ${vpc.secondary_cidrs && vpc.secondary_cidrs.length > 0 ?
+                            `<span class="vpc-secondary-cidrs">+ ${vpc.secondary_cidrs.join(', ')}</span>` : ''}
+                            </div>
+                            <div class="dc-container">
+                                ${vpc.secondary_cidrs && vpc.secondary_cidrs.length > 0 ? `
+                                    <div class="node-group visible">
+                                        <div class="node-group-title">
+                                            <span>⎈</span> Kubernetes Node Group
+                                        </div>
+                                        <div style="font-size: 9px; color: #666;">Pool: default-pool</div>
+                                    </div>
+                                ` : ''}
+                    `;
+
+                    if (vpcDcs.length === 0) {
+                        const vpcSubnets = subnets.filter(s => s.parent === vpc.id || (data.nodes.find(n => n.id === s.parent && n.parent === vpc.id)));
+                        innerHtml += '<div class="subnets">';
+                        vpcSubnets.forEach(subnet => {
+                            const subnetClass = getSubnetClass(subnet.label, subnet.type);
+                            innerHtml += `
+                                <div class="subnet ${subnetClass}">
+                                    <span class="subnet-name">${subnet.label}</span>
+                                    ${subnet.cidr ? `<div class="subnet-cidr">${subnet.cidr}</div>` : ''}
+                                </div>
+                            `;
+                        });
+                        innerHtml += '</div>';
+                    } else {
+                        vpcDcs.forEach(dc => {
+                            const dcSubnets = subnets.filter(s => s.parent === dc.id);
+                            const dcGateways = gateways.filter(g => g.parent === dc.id);
+
+                            innerHtml += `
+                                <div class="dc">
+                                    <div class="dc-header">
+                                        <div class="dc-icon">CDC</div>
+                                        ${dc.label.replace('Cloud Data Center: ', '').replace('Data Center: ', '')}
+                                    </div>
+                                    <div class="subnets">
+                            `;
+
+                            dcSubnets.forEach(subnet => {
+                                const subnetClass = getSubnetClass(subnet.label, subnet.type);
+                                innerHtml += `
+                                    <div class="subnet ${subnetClass}">
+                                        <span class="subnet-name">${subnet.label.split(' (')[0]}</span>
+                                        <div class="subnet-cidr">${subnet.cidr || ''}</div>
+                                    </div>
+                                `;
+                            });
+
+                            dcGateways.forEach(gw => {
+                                innerHtml += `
+                                    <div class="gateway">
+                                        <div class="gateway-icon">${gw.type === 'nat' ? 'N' : 'I'}</div>
+                                        ${gw.label}
+                                    </div>
+                                `;
+                            });
+
+                            innerHtml += '</div></div>';
+                        });
+                    }
+                    innerHtml += '</div>'; // Close dc-container
+
+                    // Route tables
+                    const vpcRoutes = data.edges
+                        .filter(e => e.source === vpc.id)
+                        .map(e => {
+                            const targetNode = data.nodes.find(n => n.id === e.target);
+                            return {
+                                destination: e.destination || '0.0.0.0/0',
+                                target: targetNode ? targetNode.label : e.target
+                            };
+                        });
+
+                    innerHtml += `
+                        <div class="route-tables ${currentView === 'detailed' ? 'visible' : ''}">
+                            ${generateRouteTable(vpc.label, vpcRoutes)}
+                        </div>
+                    `;
+
+                    innerHtml += '</div>'; // Close vpc div
+                    return innerHtml;
+                };
+
+                const formatHubHtml = (hub) => {
+                    const rawHubRoutes = hub.routes || [];
+                    const hubRoutes = rawHubRoutes.map(r => {
+                        // Attempt to find a human-readable label for the next_hop ID
+                        const targetNode = data.nodes.find(n => n.id === r.next_hop || n.id === `vpc-${r.next_hop}` || n.id === `hub-${r.next_hop}`);
+                        return {
+                            ...r,
+                            target: targetNode ? targetNode.label : r.next_hop
+                        };
+                    });
+
+                    return `
+                        <div class="hub" data-hub-id="${hub.id}">
+                            <div class="hub-icon">H</div>
+                            <div class="hub-title">${hub.label}</div>
+                            <div class="subnets">
+                                ${generateRouteTable(hub.label, hubRoutes)}
+                            </div>
+                        </div>
+                    `;
+                };
+
+                const formatStandaloneDCHtml = (sdc) => {
+                    const sdcDcs = dcs.filter(d => d.parent === sdc.id);
+
+                    let innerHtml = `
+                        <div class="standalone-dc" data-dc-id="${sdc.id}">
+                            <div class="dc-header">
+                                <div class="dc-icon">ODC</div>
+                                <span class="standalone-dc-title">${sdc.label}</span>
+                                <span class="standalone-dc-cidr">${sdc.cidr || ''}</span>
+                            </div>
+                            <div class="dc-container">
+                                <div class="subnets">
+                        `;
+
+                    const dcSubnets = subnets.filter(s => s.parent === sdc.id || (data.nodes.filter(d => d.parent === sdc.id).some(d => d.id === s.parent)));
+                    dcSubnets.forEach(subnet => {
+                        const subnetClass = getSubnetClass(subnet.label, subnet.type);
+                        innerHtml += `
+                                <div class="subnet ${subnetClass}">
+                                    <span class="subnet-name">${subnet.label.split(' (')[0]}</span>
+                                    <div class="subnet-cidr">${subnet.cidr || ''}</div>
+                                </div>
+                            `;
+                    });
+                    innerHtml += '</div>';
+
+                    innerHtml += '</div></div>'; // Close dc-container and standalone-dc
+                    return innerHtml;
+                };
+
+                const formatConnectionsHtml = (resourceIds) => {
+                    const scenarioEdges = data.edges.filter(e => resourceIds.includes(e.source) || resourceIds.includes(e.target));
+
+                    if (scenarioEdges.length === 0) return '';
+
+                    const connectionTypes = {
+                        peering: { edges: [], title: 'VPC Peering Connections', icon: 'P', desc: 'Same-location, no gateway' },
+                        vpn: { edges: [], title: 'VPN Gateway Connections', icon: 'V', desc: '' },
+                        mesh: { edges: [], title: 'Mesh VPN Connections', icon: 'M', desc: '' }
+                    };
+
+                    scenarioEdges.forEach(edge => {
+                        if (connectionTypes[edge.type]) {
+                            connectionTypes[edge.type].edges.push(edge);
+                        }
+                    });
+
+                    let connectionsHtml = '';
+                    Object.keys(connectionTypes).forEach(type => {
+                        const conn = connectionTypes[type];
+                        if (conn.edges.length > 0) {
+                            connectionsHtml += `
+                                <div class="connections-section ${type}">
+                                    <div class="connections-title ${type}">
+                                        <div class="connection-type-icon ${type}">${conn.icon}</div>
+                                        ${conn.title}
+                                        ${conn.desc ? `<span style="font-weight: normal; font-size: 10px; color: #666;">(${conn.desc})</span>` : ''}
+                                    </div>
+                                    <div class="connections-list">
+                            `;
+
+                            conn.edges.forEach(edge => {
+                                const sourceNode = data.nodes.find(n => n.id === edge.source);
+                                const targetNode = data.nodes.find(n => n.id === edge.target);
+                                const sourceName = sourceNode ? sourceNode.label : edge.source;
+                                const targetName = targetNode ? targetNode.label : edge.target;
+
+                                connectionsHtml += `
+                                    <div class="connection-item ${type}">
+                                        <span>${sourceName}</span>
+                                        <span class="connection-arrow ${type}">→</span>
+                                        <span>${targetName}</span>
+                                        ${edge.destination ? `<span class="connection-destination">${edge.destination}</span>` : ''}
+                                    </div>
+                                `;
+                            });
+                            connectionsHtml += '</div></div>';
+                        }
+                    });
+                    return connectionsHtml;
+                };
+
+                // Track global rendered IDs only to determine "Miscellaneous" content.
+                // We use this to prevent nodes appearing in both Scenarios AND Miscellaneous.
+                const globalRenderedIds = new Set();
+                let displayCounter = 1;
+
+                // Render Scenarios
+                scenarios.forEach(scenario => {
+                    const cleanScenarioTitle = getCleanTitle(scenario.title);
+                    const scenarioNodes = [];
+
+                    // 1. Find explicit resources from the scenario definition
+                    if (scenario.resources) {
+                        scenario.resources.forEach(res => {
+                            let found = null;
+                            if (res.type === 'vpc') {
+                                found = vpcs.find(v => v.label === res.label);
+                            } else if (res.type === 'hub') {
+                                found = hubs.find(h => h.label === res.label);
+                            } else if (res.type === 'standalone_dc') {
+                                found = standaloneDCs.find(s => s.label === res.label);
+                            }
+                            // Strictly check renderedIds to prevent "count mismatch" / double rendering across scenarios
+                            if (found && !globalRenderedIds.has(found.id)) {
+                                scenarioNodes.push(found);
+                            }
+                        });
+                    }
+
+                    // 2. Find resources that claim belonging to this scenario via their 'scenario' property
+                    [vpcs, hubs, standaloneDCs].forEach(collection => {
+                        collection.forEach(node => {
+                            if (node.scenario && getCleanTitle(node.scenario) === cleanScenarioTitle && !globalRenderedIds.has(node.id)) {
+                                scenarioNodes.push(node);
+                            }
+                        });
+                    });
+
+                    // Deduplicate nodes for this specific scenario
+                    const uniqueNodes = Array.from(new Set(scenarioNodes.map(n => n.id)))
+                        .map(id => scenarioNodes.find(n => n.id === id));
+
+                    if (uniqueNodes.length > 0) {
+                        // Mark as seen globally to prevent re-rendering in later scenarios or miscellaneous
+                        uniqueNodes.forEach(n => globalRenderedIds.add(n.id));
+                        
+                        const resourceIds = uniqueNodes.map(n => n.id);
+                        
+                        // Update title for display to force sequential numbering
+                        scenario.title = `${displayCounter}. ${cleanScenarioTitle}`;
+                        
+                        let scenarioHtml = '';
+
+                        // Dispatch to scenario-specific rendering function if available
+                        if (cleanScenarioTitle.includes('Kubernetes Hybrid') && typeof renderScenarioHybrid === 'function') {
+                            scenarioHtml = renderScenarioHybrid(scenario, uniqueNodes, vpcs, hubs, standaloneDCs, data, formatVpcHtml, formatHubHtml, formatStandaloneDCHtml, formatConnectionsHtml, displayCounter);
+                        } else if (cleanScenarioTitle.includes('VPN') && typeof renderScenarioVPN === 'function') {
+                            scenarioHtml = renderScenarioVPN(scenario, uniqueNodes, vpcs, hubs, data, formatVpcHtml, formatHubHtml, formatConnectionsHtml, displayCounter);
+                        } else if (cleanScenarioTitle.includes('Mesh') && typeof renderScenarioMesh === 'function') {
+                            scenarioHtml = renderScenarioMesh(scenario, uniqueNodes, vpcs, hubs, data, formatVpcHtml, formatHubHtml, formatConnectionsHtml, displayCounter);
+                        } else {
+                            // Fallback standard rendering
+                            scenarioHtml = `
+                                <div class="scenario-group">
+                                    <div class="scenario-title">${scenario.title}</div>
+                                    <div class="scenario-desc">${scenario.description}</div>
+                                    <div class="scenario-connections">
+                                        ${formatConnectionsHtml(resourceIds)}
+                                    </div>
+                                    <div class="scenario-content">
+                                        ${uniqueNodes.map(r => {
+                                            if (r.type === 'vpc') return formatVpcHtml(r);
+                                            if (r.type === 'hub') return formatHubHtml(r);
+                                            if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (scenarioHtml) {
+                            html += scenarioHtml;
+                            displayCounter++;
+                        }
+                    }
+                });
+
+                // Render Unassigned VPCs/Hubs (not in any scenario)
+                const unassignedVpcs = vpcs.filter(v => !globalRenderedIds.has(v.id));
+                const unassignedHubs = hubs.filter(h => !globalRenderedIds.has(h.id));
+
+                if (unassignedVpcs.length > 0 || unassignedHubs.length > 0) {
+                    const unassignedIds = [...unassignedVpcs.map(v => v.id), ...unassignedHubs.map(h => h.id)];
+                    html += `
+                        <div class="scenario-group">
+                            <div class="scenario-title">Miscellaneous</div>
+                            <div class="scenario-connections">
+                                    ${formatConnectionsHtml(unassignedIds)}
+                            </div>
+                             <div class="scenario-content">
+                                ${unassignedHubs.map(h => formatHubHtml(h)).join('')}
+                                ${unassignedVpcs.map(v => formatVpcHtml(v)).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                document.getElementById('content').innerHTML = html;
+
+
+                const statusLabel = window.STATIC_VPC_DATA ? 'Static Reference Mode | ' : 'Last updated: ' + new Date().toLocaleTimeString() + ' | ';
+                document.getElementById('status').innerText = statusLabel + 'VPCs: ' + vpcs.length + ' | Subnets: ' + subnets.length;
+
+                // Draw arrows after DOM is updated
+                setTimeout(() => drawPropagationArrows(vpcs, standaloneDCs, hubs), 500);
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('content').innerHTML = '<p style="color: #c62828;">Error loading data: ' + err.message + '</p>';
+                document.getElementById('status').innerText = 'Error: ' + err.message;
+            }
+        }
+
+        function drawPropagationArrows(vpcs, standaloneDCs, hubs) {
+            const svg = document.getElementById('svg-connections');
+            // Ensure the SVG covers the full scrollable area, not just the viewport
+            const mainContainer = document.querySelector('.main-container');
+            if (mainContainer) {
+                 svg.style.height = mainContainer.scrollHeight + 'px';
+            }
+
+            // Clear existing propagation arrows
+            const existingExtras = svg.querySelectorAll('.propagation-arrow, .propagation-label');
+            existingExtras.forEach(e => e.remove());
+
+            const hubNat = hubs.find(h => h.label.includes('NAT Flows'));
+            const hubInternal = hubs.find(h => h.label.includes('Non-NAT Flows'));
+            if (!hubNat || !hubInternal) return;
+
+            const draw = (entityId, hubId, offsetIndex, side, isStandaloneDC = false) => {
+                const selector = isStandaloneDC ? `[data-dc-id="${entityId}"]` : `[data-vpc-id="${entityId}"]`;
+                const entity = document.querySelector(selector);
+                const hub = document.querySelector(`[data-hub-id="${hubId}"]`);
+                if (!entity || !hub) return;
+
+                const eRect = entity.getBoundingClientRect();
+                const hRect = hub.getBoundingClientRect();
+                const sRect = svg.getBoundingClientRect();
+
+                // Vertical offset to prevent overlapping paths
+                const verticalOffset = (offsetIndex - 1.5) * 12;
+
+                let x1, y1, x2, y2;
+                if (side === 'left') {
+                    x1 = eRect.right - sRect.left;
+                    // Adjust Y based on scroll because bounding client rect is viewport relative
+                    // But our SVG is absolute positioned at top:0
+                    y1 = eRect.top + eRect.height / 2 - sRect.top + verticalOffset; 
+                    x2 = hRect.left - sRect.left;
+                    y2 = hRect.top + hRect.height / 2 - sRect.top + verticalOffset;
+                } else {
+                    x1 = eRect.left - sRect.left;
+                    y1 = eRect.top + eRect.height / 2 - sRect.top + verticalOffset;
+                    x2 = hRect.right - sRect.left;
+                    y2 = hRect.top + hRect.height / 2 - sRect.top + verticalOffset;
+                }
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                // Use a slight curve for better visual separation
+                const midX = (x1 + x2) / 2;
+                path.setAttribute("d", `M ${x1} ${y1} Q ${midX} ${y1} ${x2} ${y2}`);
+                path.setAttribute("class", "propagation-arrow");
+                svg.appendChild(path);
+            };
+
+            const addHubLabel = (hubId, side) => {
+                const hub = document.querySelector(`[data-hub-id="${hubId}"]`);
+                if (!hub) return;
+
+                const hRect = hub.getBoundingClientRect();
+                const sRect = svg.getBoundingClientRect();
+
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                const labelX = side === 'left' ? hRect.left - sRect.left - 60 : hRect.right - sRect.left + 60;
+                const labelY = hRect.top + hRect.height / 2 - sRect.top;
+                text.setAttribute("x", labelX);
+                text.setAttribute("y", labelY);
+                text.setAttribute("class", "propagation-label");
+                text.setAttribute("text-anchor", "middle");
+                text.textContent = "Propagations";
+                svg.appendChild(text);
+            };
+
+            // Identify VPCs by column/role
+            const col1Vpcs = vpcs.filter(v => v.label.includes('Cluster 1') || v.label.includes('Cluster 2'));
+            const col3Vpcs = vpcs.filter(v => v.label.includes('Shared Services'));
+            const col3StandaloneDCs = standaloneDCs.filter(s => s.label.includes('On-Premise Data Center'));
+
+            // Draw from Column 1 (Left)
+            col1Vpcs.forEach((vpc, idx) => {
+                draw(vpc.id, hubNat.id, idx, 'left', false);
+                draw(vpc.id, hubInternal.id, idx + 2, 'left', false);
+            });
+
+            // Draw from Column 3 (Right) - VPCs
+            col3Vpcs.forEach((vpc, idx) => {
+                draw(vpc.id, hubNat.id, idx, 'right', false);
+                draw(vpc.id, hubInternal.id, idx + 2, 'right', false);
+            });
+
+            // Draw from Column 3 (Right) - Standalone DCs
+            col3StandaloneDCs.forEach((sdc, idx) => {
+                const offset = col3Vpcs.length + idx; // Offset after VPCs
+                draw(sdc.id, hubNat.id, offset, 'right', true);
+                draw(sdc.id, hubInternal.id, offset + 2, 'right', true);
+            });
+
+            // Add single label per hub
+            if (col1Vpcs.length > 0) {
+                addHubLabel(hubNat.id, 'left');
+                addHubLabel(hubInternal.id, 'left');
+            }
+            if (col3Vpcs.length > 0 || col3StandaloneDCs.length > 0) {
+                addHubLabel(hubNat.id, 'right');
+                addHubLabel(hubInternal.id, 'right');
+            }
+        }
+
+        // Load on start
+        loadData();
+        // Auto-refresh every 15 seconds
+        setInterval(loadData, 15000);
+    </script>
+</body>
+</html>

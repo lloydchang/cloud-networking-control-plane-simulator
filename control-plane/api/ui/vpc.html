@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPC View</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #fafafa;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #232f3e;
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            background: #00897b;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .btn:hover {
+            background: #00796b;
+        }
+
+        .btn-secondary {
+            background: #545b64;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #6b7280;
+        }
+
+        .btn-secondary.active {
+            background: #0073bb;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 4px;
+        }
+
+        .main-container {
+            padding: 20px;
+            position: relative;
+        }
+
+        /* SVG Overlay for connections */
+        .svg-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .architecture-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: flex-start;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        /* VPC Box */
+        .vpc {
+            background: linear-gradient(135deg, #fffde7 0%, #fff9c4 100%);
+            border: 3px solid #827717;
+            border-radius: 8px;
+            padding: 20px;
+            min-width: 300px;
+            max-width: 550px;
+            position: relative;
+        }
+
+        .vpc-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #c0ca33;
+        }
+
+        .vpc-icon {
+            width: 28px;
+            height: 28px;
+            background: #827717;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .vpc-title {
+            font-weight: bold;
+            font-size: 13px;
+            color: #33691e;
+        }
+
+        .vpc-cidr {
+            font-size: 10px;
+            color: #689f38;
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-family: monospace;
+        }
+
+        /* Internet Gateway at VPC level */
+        .vpc-gateways {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .igw-icon {
+            background: #e0f2f1;
+            border: 2px solid #00897b;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: bold;
+            color: #004d40;
+        }
+
+        /* Data Center Box */
+        .dc-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .dc {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #1565c0;
+            border-radius: 6px;
+            padding: 12px;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .dc-header {
+            font-size: 10px;
+            font-weight: bold;
+            color: #0d47a1;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dc-icon {
+            width: 16px;
+            height: 16px;
+            background: #1565c0;
+            border-radius: 2px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+        }
+
+        /* Hub Resource Box (Standalone) */
+        .hub {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border: 3px solid #c62828;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .hub-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 2px solid #c62828;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #c62828;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .hub-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #b71c1c;
+            margin-bottom: 5px;
+        }
+
+        .hub-region {
+            display: none;
+        }
+
+        /* Subnet Box */
+        .subnets {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .subnet {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 2px solid #2e7d32;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 9px;
+        }
+
+        .subnet.private {
+            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+            border-color: #3949ab;
+        }
+
+        .subnet.cgnat {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #7b1fa2;
+        }
+
+        .subnet.ngw-dc {
+            background: linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%);
+            border-color: #512da8;
+        }
+
+        .subnet.server {
+            background: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%);
+            border-color: #455a64;
+        }
+
+        .subnet-name {
+            font-weight: bold;
+            color: #1b5e20;
+        }
+
+        .subnet.private .subnet-name {
+            color: #1a237e;
+        }
+
+        .subnet.cgnat .subnet-name {
+            color: #4a148c;
+        }
+
+        .subnet.ngw-dc .subnet-name {
+            color: #311b92;
+        }
+
+        .subnet.server .subnet-name {
+            color: #263238;
+        }
+
+        .subnet-cidr {
+            color: #666;
+            font-family: monospace;
+            font-size: 8px;
+        }
+
+        /* Gateway inside DC */
+        .gateway {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border: 2px solid #00897b;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 8px;
+            font-weight: bold;
+            color: #00695c;
+            margin-top: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .gateway-icon {
+            width: 12px;
+            height: 12px;
+            background: #00897b;
+            border-radius: 2px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6px;
+        }
+
+        /* Route Tables (Detailed View) */
+        .route-tables {
+            margin-top: 15px;
+            /* Always visible now */
+            display: block;
+        }
+
+        .route-table {
+            border: 1px solid #00897b;
+            border-radius: 4px;
+            overflow: hidden;
+            font-size: 8px;
+            margin-bottom: 8px;
+        }
+
+        .route-table-header {
+            background: #00897b;
+            color: white;
+            padding: 4px 8px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .route-table-body {
+            background: white;
+        }
+
+        .route-row {
+            display: flex;
+            border-bottom: 1px solid #eee;
+        }
+
+        .route-row:last-child {
+            border-bottom: none;
+        }
+
+        .route-cell {
+            padding: 3px 6px;
+            flex: 1;
+            font-family: monospace;
+        }
+
+        .route-cell:first-child {
+            border-right: 1px solid #eee;
+        }
+
+        /* Connections Section - Multiple Types */
+        .connections-section {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .connections-section.peering {
+            background: #f3e5f5;
+            border: 2px dashed #7b1fa2;
+        }
+
+        .connections-section.vpn {
+            background: #e8eaf6;
+            border: 2px solid #3949ab;
+        }
+
+        .connections-section.mesh {
+            background: #e8f5e9;
+            border: 2px dotted #2e7d32;
+        }
+
+        .connections-section.cloud-routing-hub {
+            background: #ffebee;
+            border: 2px solid #c62828;
+        }
+
+        .connections-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connections-title.peering {
+            color: #4a148c;
+        }
+
+        .connections-title.vpn {
+            color: #283593;
+        }
+
+        .connections-title.mesh {
+            color: #1b5e20;
+        }
+
+        .connections-title.cloud-routing-hub {
+            color: #b71c1c;
+        }
+
+        .connections-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .connection-item {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connection-item.peering {
+            border: 1px solid #ce93d8;
+        }
+
+        .connection-item.vpn {
+            border: 1px solid #9fa8da;
+        }
+
+        .connection-item.mesh {
+            border: 1px solid #a5d6a7;
+        }
+
+        .connection-item.cloud-routing-hub {
+            border: 1px solid #90caf9;
+        }
+
+        /* Cloud Routing Hub */
+        .routing-hub-section {
+            margin-top: 20px;
+        }
+
+        .routing-hub-section.visible {
+            display: block;
+        }
+
+        .network-hub {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 3px solid #1976d2;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .hub-icon {
+            width: 50px;
+            height: 50px;
+            background: #1976d2;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .hub-title {
+            font-weight: bold;
+            color: #0d47a1;
+            font-size: 12px;
+        }
+
+        .hub-subtitle {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .connection-arrow {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .connection-arrow.peering {
+            color: #7b1fa2;
+        }
+
+        .connection-arrow.vpn {
+            color: #3949ab;
+        }
+
+        .connection-arrow.mesh {
+            color: #2e7d32;
+        }
+
+        .connection-arrow.cloud-routing-hub {
+            color: #c62828;
+        }
+
+        .connection-type-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .connection-type-icon.peering {
+            background: #7b1fa2;
+        }
+
+        .connection-type-icon.vpn {
+            background: #3949ab;
+        }
+
+        .connection-type-icon.mesh {
+            background: #2e7d32;
+        }
+
+        .connection-type-icon.cloud-routing-hub {
+            background: #c62828;
+        }
+
+        .connection-destination {
+            font-family: monospace;
+            font-size: 9px;
+            color: #666;
+            margin-left: auto;
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+
+
+        .cloud-routing-hub-section.visible {
+            display: block;
+        }
+
+        .cloud-routing-hub {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border: 3px solid #00897b;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .crh-icon {
+            width: 50px;
+            height: 50px;
+            background: #00897b;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .crh-title {
+            font-weight: bold;
+            color: #00695c;
+            font-size: 12px;
+        }
+
+        .node-group {
+            border: 1px dashed #1976d2;
+            background: #e3f2fd;
+            padding: 8px;
+            margin-top: 8px;
+            border-radius: 4px;
+            /* Always visible */
+            display: block;
+        }
+
+        .node-group.visible {
+            display: block;
+        }
+
+        .node-group-title {
+            font-size: 10px;
+            font-weight: bold;
+            color: #1565c0;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Status bar */
+        .status {
+            padding: 10px 24px;
+            font-size: 11px;
+            color: #666;
+            background: #f5f5f5;
+            border-top: 1px solid #ddd;
+            border-top: 1px solid #ddd;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        /* Legend */
+        .legend {
+            position: fixed;
+            bottom: 50px;
+            right: 20px;
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 9px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #232f3e;
+            font-size: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 2px;
+        }
+
+        .gateway-icon.vpn {
+            background: #ef6c00;
+            border-color: #e65100;
+        }
+
+        .gateway-icon.mesh {
+            background: #2e7d32;
+            border-color: #1b5e20;
+        }
+
+        /* Scenario Grouping */
+        .scenario-group {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            width: 100%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .scenario-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #232f3e;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #00897b;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .scenario-desc {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .scenario-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .vpc-secondary-cidrs {
+            font-size: 9px;
+            color: #666;
+            margin-top: 2px;
+            font-family: monospace;
+            display: block;
+        }
+
+        /* High-Fidelity Grid Layout */
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 40px;
+            width: 100%;
+        }
+
+        .scenario-column {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .propagation-arrow {
+            fill: none;
+            stroke: #3949ab;
+            stroke-width: 2;
+            stroke-dasharray: 5, 5;
+            marker-end: url(#arrowhead);
+        }
+
+        .propagation-label {
+            font-size: 9px;
+            fill: #3949ab;
+            font-weight: bold;
+        }
+
+        /* Standalone Data Center (no VPC wrapper) */
+        .standalone-dc {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            border: 2px solid #757575;
+            border-radius: 8px;
+            padding: 15px;
+            min-width: 280px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .standalone-dc-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #bdbdbd;
+        }
+
+        .standalone-dc-icon {
+            width: 32px;
+            height: 32px;
+            background: #616161;
+            color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .standalone-dc-title {
+            font-weight: bold;
+            color: #424242;
+            font-size: 13px;
+        }
+
+        .standalone-dc-cidr {
+            font-size: 10px;
+            color: #757575;
+            font-family: monospace;
+            margin-left: auto;
+        }
+
+        .standalone-dc .dc-icon {
+            background: #616161;
+        }
+
+        .standalone-dc .dc-container {
+            margin-top: 10px;
+        }
+    </style>
+    <!-- Scenario-specific rendering logic -->
+    <script src="/scripts/scenario_hybrid.js"></script>
+    <script src="/scripts/scenario_vpn.js"></script>
+    <script src="/scripts/scenario_mesh.js"></script>
+</head>
+
+<body>
+    <header>
+        <h1>VPC View</h1>
+        <div class="controls">
+            <button class="btn" onclick="loadData()">Refresh</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <svg class="svg-overlay" id="svg-connections">
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#3949ab" />
+                </marker>
+            </defs>
+        </svg>
+
+        <div id="content" class="architecture-container">
+            <p>Loading...</p>
+        </div>
+
+        <div id="peering-container"></div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-title">Resource Types</div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #fffde7; border: 2px solid #827717;"></div> VPC
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #e3f2fd; border: 2px solid #1565c0;"></div> Cloud Data Center
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #f5f5f5; border: 2px solid #757575;"></div> On-Premise Data
+            Center
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #e8f5e9; border: 2px solid #2e7d32;"></div> Public Subnet
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #e8eaf6; border: 2px solid #3949ab;"></div> Private Subnet
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #f3e5f5; border: 2px solid #7b1fa2;"></div> CGNAT Subnet
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #ede7f6; border: 2px solid #512da8;"></div> NGW-DC Subnet
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #eceff1; border: 2px solid #455a64;"></div> Server
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #fff; border: 2px solid #00897b;"></div> Routing Table
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #fff3e0; border: 2px solid #ef6c00;"></div> Gateway
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #ffebee; border: 2px solid #c62828;"></div> Cloud Routing Hub
+        </div>
+    </div>
+
+    <div class="status" id="status">Initializing...</div>
+
+    <script>
+        let currentView = 'detailed';
+        let cachedData = null;
+
+        // View toggle logic removed, default to detailed
+
+        function getSubnetClass(name, type) {
+            const lower = name.toLowerCase();
+            if (type === 'server' || lower.includes('server')) return 'server';
+            if (lower.includes('private') || lower.includes('data')) return 'private';
+            if (lower.includes('cgnat') || lower.includes('reserved')) return 'cgnat';
+            if (lower.includes('ngw-dc')) return 'ngw-dc';
+            return '';
+        }
+
+        function generateRouteTable(vpcName, routes) {
+            if (!routes || routes.length === 0) {
+                // Generate sample routes based on VPC
+                routes = [
+                    { destination: 'local', target: 'local' },
+                    { destination: '0.0.0.0/0', target: 'igw-xxx' }
+                ];
+            }
+
+            let html = `
+                <div class="route-table">
+                    <div class="route-table-header">
+                        <span>Destination</span>
+                        <span>Target</span>
+                    </div>
+                    <div class="route-table-body">
+            `;
+
+            routes.forEach(r => {
+                const targetDisplay = r.target || r.next_hop || 'undefined';
+                html += `
+                    <div class="route-row">
+                        <div class="route-cell">${r.destination}</div>
+                        <div class="route-cell">${targetDisplay}</div>
+                    </div>
+                `;
+            });
+
+            html += '</div></div>';
+            return html;
+        }
+
+        async function loadData() {
+            try {
+                let data;
+                if (window.STATIC_VPC_DATA) {
+                    console.log("Using static VPC data");
+                    data = window.STATIC_VPC_DATA;
+                    // Disable auto-refresh in static mode
+                    const statusEl = document.getElementById('status');
+                    if (statusEl) statusEl.innerText = 'Static Reference Mode';
+                } else {
+                    const response = await fetch('/vpc');
+                    if (!response.ok) throw new Error('API unstable or not responding');
+                    data = await response.json();
+                }
+                cachedData = data;
+
+                const vpcs = Array.from(new Map(data.nodes.filter(n => n.type === 'vpc').map(v => [v.label, v])).values());
+                const hubs = Array.from(new Map(data.nodes.filter(n => n.type === 'hub').map(h => [h.label, h])).values());
+                const standaloneDCs = Array.from(new Map(data.nodes.filter(n => n.type === 'standalone_dc').map(s => [s.label, s])).values());
+                const dcs = data.nodes.filter(n => n.type === 'dc');
+                const subnets = data.nodes.filter(n => n.type === 'subnet' || n.type === 'server');
+                const gateways = data.nodes.filter(n => n.type === 'nat' || n.type === 'igw');
+                const vpnGateways = data.nodes.filter(n => n.type === 'vpn_gateway');
+                const meshNodes = data.nodes.filter(n => n.type === 'mesh_node');
+                const peeringEdges = data.edges.filter(e => e.type === 'peering');
+
+                let html = '';
+
+                // Helper to strip "1.", "30." etc for matching and display
+                const getCleanTitle = (t) => t ? t.replace(/^\d+[\.\s\-\:]+/, '').trim() : '';
+
+                // Deduplicate scenarios based on clean title
+                const rawScenarios = data.scenarios || [];
+                const scenarios = [];
+                const seenTitles = new Set();
+                rawScenarios.forEach(s => {
+                    const clean = getCleanTitle(s.title);
+                    if (clean && !seenTitles.has(clean)) {
+                         seenTitles.add(clean);
+                         scenarios.push(s);
+                    }
+                });
+
+                const formatVpcHtml = (vpc) => {
+                    const vpcDcs = dcs.filter(d => d.parent === vpc.id);
+                    const vpcIgws = gateways.filter(g => g.parent === vpc.id && g.type === 'igw');
+
+                    let innerHtml = `
+                        <div class="vpc" data-vpc-id="${vpc.id}">
+                            <div class="vpc-gateways">
+                                ${vpcIgws.length > 0 ? vpcIgws.map(igw => `<div class="igw-icon" title="${igw.label}">IGW</div>`).join('') : ''}
+                                ${vpnGateways.filter(g => g.parent === vpc.id).map(g => `<div class="gateway-icon vpn" title="${g.label}">WG</div>`).join('')}
+                                ${meshNodes.filter(m => m.parent === vpc.id).map(m => `<div class="gateway-icon mesh" title="${m.label}">HS</div>`).join('')}
+                            </div>
+                            <div class="vpc-header">
+                                <div class="vpc-icon">VPC</div>
+                                <span class="vpc-title">${vpc.label.replace(/\n/g, '<br>')}</span>
+                                <span class="vpc-cidr">${vpc.cidr || ''}</span>
+                                ${vpc.secondary_cidrs && vpc.secondary_cidrs.length > 0 ?
+                            `<span class="vpc-secondary-cidrs">+ ${vpc.secondary_cidrs.join(', ')}</span>` : ''}
+                            </div>
+                            <div class="dc-container">
+                                ${vpc.secondary_cidrs && vpc.secondary_cidrs.length > 0 ? `
+                                    <div class="node-group visible">
+                                        <div class="node-group-title">
+                                            <span>⎈</span> Kubernetes Node Group
+                                        </div>
+                                        <div style="font-size: 9px; color: #666;">Pool: default-pool</div>
+                                    </div>
+                                ` : ''}
+                    `;
+
+                    if (vpcDcs.length === 0) {
+                        const vpcSubnets = subnets.filter(s => s.parent === vpc.id || (data.nodes.find(n => n.id === s.parent && n.parent === vpc.id)));
+                        innerHtml += '<div class="subnets">';
+                        vpcSubnets.forEach(subnet => {
+                            const subnetClass = getSubnetClass(subnet.label, subnet.type);
+                            innerHtml += `
+                                <div class="subnet ${subnetClass}">
+                                    <span class="subnet-name">${subnet.label}</span>
+                                    ${subnet.cidr ? `<div class="subnet-cidr">${subnet.cidr}</div>` : ''}
+                                </div>
+                            `;
+                        });
+                        innerHtml += '</div>';
+                    } else {
+                        vpcDcs.forEach(dc => {
+                            const dcSubnets = subnets.filter(s => s.parent === dc.id);
+                            const dcGateways = gateways.filter(g => g.parent === dc.id);
+
+                            innerHtml += `
+                                <div class="dc">
+                                    <div class="dc-header">
+                                        <div class="dc-icon">CDC</div>
+                                        ${dc.label.replace('Cloud Data Center: ', '').replace('Data Center: ', '')}
+                                    </div>
+                                    <div class="subnets">
+                            `;
+
+                            dcSubnets.forEach(subnet => {
+                                const subnetClass = getSubnetClass(subnet.label, subnet.type);
+                                innerHtml += `
+                                    <div class="subnet ${subnetClass}">
+                                        <span class="subnet-name">${subnet.label.split(' (')[0]}</span>
+                                        <div class="subnet-cidr">${subnet.cidr || ''}</div>
+                                    </div>
+                                `;
+                            });
+
+                            dcGateways.forEach(gw => {
+                                innerHtml += `
+                                    <div class="gateway">
+                                        <div class="gateway-icon">${gw.type === 'nat' ? 'N' : 'I'}</div>
+                                        ${gw.label}
+                                    </div>
+                                `;
+                            });
+
+                            innerHtml += '</div></div>';
+                        });
+                    }
+                    innerHtml += '</div>'; // Close dc-container
+
+                    // Route tables
+                    const vpcRoutes = data.edges
+                        .filter(e => e.source === vpc.id)
+                        .map(e => {
+                            const targetNode = data.nodes.find(n => n.id === e.target);
+                            return {
+                                destination: e.destination || '0.0.0.0/0',
+                                target: targetNode ? targetNode.label : e.target
+                            };
+                        });
+
+                    innerHtml += `
+                        <div class="route-tables ${currentView === 'detailed' ? 'visible' : ''}">
+                            ${generateRouteTable(vpc.label, vpcRoutes)}
+                        </div>
+                    `;
+
+                    innerHtml += '</div>'; // Close vpc div
+                    return innerHtml;
+                };
+
+                const formatHubHtml = (hub) => {
+                    const rawHubRoutes = hub.routes || [];
+                    const hubRoutes = rawHubRoutes.map(r => {
+                        // Attempt to find a human-readable label for the next_hop ID
+                        const targetNode = data.nodes.find(n => n.id === r.next_hop || n.id === `vpc-${r.next_hop}` || n.id === `hub-${r.next_hop}`);
+                        return {
+                            ...r,
+                            target: targetNode ? targetNode.label : r.next_hop
+                        };
+                    });
+
+                    return `
+                        <div class="hub" data-hub-id="${hub.id}">
+                            <div class="hub-icon">H</div>
+                            <div class="hub-title">${hub.label}</div>
+                            <div class="subnets">
+                                ${generateRouteTable(hub.label, hubRoutes)}
+                            </div>
+                        </div>
+                    `;
+                };
+
+                const formatStandaloneDCHtml = (sdc) => {
+                    const sdcDcs = dcs.filter(d => d.parent === sdc.id);
+
+                    let innerHtml = `
+                        <div class="standalone-dc" data-dc-id="${sdc.id}">
+                            <div class="dc-header">
+                                <div class="dc-icon">ODC</div>
+                                <span class="standalone-dc-title">${sdc.label}</span>
+                                <span class="standalone-dc-cidr">${sdc.cidr || ''}</span>
+                            </div>
+                            <div class="dc-container">
+                                <div class="subnets">
+                        `;
+
+                    const dcSubnets = subnets.filter(s => s.parent === sdc.id || (data.nodes.filter(d => d.parent === sdc.id).some(d => d.id === s.parent)));
+                    dcSubnets.forEach(subnet => {
+                        const subnetClass = getSubnetClass(subnet.label, subnet.type);
+                        innerHtml += `
+                                <div class="subnet ${subnetClass}">
+                                    <span class="subnet-name">${subnet.label.split(' (')[0]}</span>
+                                    <div class="subnet-cidr">${subnet.cidr || ''}</div>
+                                </div>
+                            `;
+                    });
+                    innerHtml += '</div>';
+
+                    innerHtml += '</div></div>'; // Close dc-container and standalone-dc
+                    return innerHtml;
+                };
+
+                const formatConnectionsHtml = (resourceIds) => {
+                    const scenarioEdges = data.edges.filter(e => resourceIds.includes(e.source) || resourceIds.includes(e.target));
+
+                    if (scenarioEdges.length === 0) return '';
+
+                    const connectionTypes = {
+                        peering: { edges: [], title: 'VPC Peering Connections', icon: 'P', desc: 'Same-location, no gateway' },
+                        vpn: { edges: [], title: 'VPN Gateway Connections', icon: 'V', desc: '' },
+                        mesh: { edges: [], title: 'Mesh VPN Connections', icon: 'M', desc: '' }
+                    };
+
+                    scenarioEdges.forEach(edge => {
+                        if (connectionTypes[edge.type]) {
+                            connectionTypes[edge.type].edges.push(edge);
+                        }
+                    });
+
+                    let connectionsHtml = '';
+                    Object.keys(connectionTypes).forEach(type => {
+                        const conn = connectionTypes[type];
+                        if (conn.edges.length > 0) {
+                            connectionsHtml += `
+                                <div class="connections-section ${type}">
+                                    <div class="connections-title ${type}">
+                                        <div class="connection-type-icon ${type}">${conn.icon}</div>
+                                        ${conn.title}
+                                        ${conn.desc ? `<span style="font-weight: normal; font-size: 10px; color: #666;">(${conn.desc})</span>` : ''}
+                                    </div>
+                                    <div class="connections-list">
+                            `;
+
+                            conn.edges.forEach(edge => {
+                                const sourceNode = data.nodes.find(n => n.id === edge.source);
+                                const targetNode = data.nodes.find(n => n.id === edge.target);
+                                const sourceName = sourceNode ? sourceNode.label : edge.source;
+                                const targetName = targetNode ? targetNode.label : edge.target;
+
+                                connectionsHtml += `
+                                    <div class="connection-item ${type}">
+                                        <span>${sourceName}</span>
+                                        <span class="connection-arrow ${type}">→</span>
+                                        <span>${targetName}</span>
+                                        ${edge.destination ? `<span class="connection-destination">${edge.destination}</span>` : ''}
+                                    </div>
+                                `;
+                            });
+                            connectionsHtml += '</div></div>';
+                        }
+                    });
+                    return connectionsHtml;
+                };
+
+                // Track global rendered IDs only to determine "Miscellaneous" content.
+                // We use this to prevent nodes appearing in both Scenarios AND Miscellaneous.
+                const globalRenderedIds = new Set();
+                let displayCounter = 1;
+
+                // Render Scenarios
+                scenarios.forEach(scenario => {
+                    const cleanScenarioTitle = getCleanTitle(scenario.title);
+                    const scenarioNodes = [];
+
+                    // 1. Find explicit resources from the scenario definition
+                    if (scenario.resources) {
+                        scenario.resources.forEach(res => {
+                            let found = null;
+                            if (res.type === 'vpc') {
+                                found = vpcs.find(v => v.label === res.label);
+                            } else if (res.type === 'hub') {
+                                found = hubs.find(h => h.label === res.label);
+                            } else if (res.type === 'standalone_dc') {
+                                found = standaloneDCs.find(s => s.label === res.label);
+                            }
+                            // Strictly check renderedIds to prevent "count mismatch" / double rendering across scenarios
+                            if (found && !globalRenderedIds.has(found.id)) {
+                                scenarioNodes.push(found);
+                            }
+                        });
+                    }
+
+                    // 2. Find resources that claim belonging to this scenario via their 'scenario' property
+                    [vpcs, hubs, standaloneDCs].forEach(collection => {
+                        collection.forEach(node => {
+                            if (node.scenario && getCleanTitle(node.scenario) === cleanScenarioTitle && !globalRenderedIds.has(node.id)) {
+                                scenarioNodes.push(node);
+                            }
+                        });
+                    });
+
+                    // Deduplicate nodes for this specific scenario
+                    const uniqueNodes = Array.from(new Set(scenarioNodes.map(n => n.id)))
+                        .map(id => scenarioNodes.find(n => n.id === id));
+
+                    if (uniqueNodes.length > 0) {
+                        // Mark as seen globally to prevent re-rendering in later scenarios or miscellaneous
+                        uniqueNodes.forEach(n => globalRenderedIds.add(n.id));
+                        
+                        const resourceIds = uniqueNodes.map(n => n.id);
+                        
+                        // Update title for display to force sequential numbering
+                        scenario.title = `${displayCounter}. ${cleanScenarioTitle}`;
+                        
+                        let scenarioHtml = '';
+
+                        // Dispatch to scenario-specific rendering function if available
+                        if (cleanScenarioTitle.includes('Kubernetes Hybrid') && typeof renderScenarioHybrid === 'function') {
+                            scenarioHtml = renderScenarioHybrid(scenario, uniqueNodes, vpcs, hubs, standaloneDCs, data, formatVpcHtml, formatHubHtml, formatStandaloneDCHtml, formatConnectionsHtml, displayCounter);
+                        } else if (cleanScenarioTitle.includes('VPN') && typeof renderScenarioVPN === 'function') {
+                            scenarioHtml = renderScenarioVPN(scenario, uniqueNodes, vpcs, hubs, data, formatVpcHtml, formatHubHtml, formatConnectionsHtml, displayCounter);
+                        } else if (cleanScenarioTitle.includes('Mesh') && typeof renderScenarioMesh === 'function') {
+                            scenarioHtml = renderScenarioMesh(scenario, uniqueNodes, vpcs, hubs, data, formatVpcHtml, formatHubHtml, formatConnectionsHtml, displayCounter);
+                        } else {
+                            // Fallback standard rendering
+                            scenarioHtml = `
+                                <div class="scenario-group">
+                                    <div class="scenario-title">${scenario.title}</div>
+                                    <div class="scenario-desc">${scenario.description}</div>
+                                    <div class="scenario-connections">
+                                        ${formatConnectionsHtml(resourceIds)}
+                                    </div>
+                                    <div class="scenario-content">
+                                        ${uniqueNodes.map(r => {
+                                            if (r.type === 'vpc') return formatVpcHtml(r);
+                                            if (r.type === 'hub') return formatHubHtml(r);
+                                            if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (scenarioHtml) {
+                            html += scenarioHtml;
+                            displayCounter++;
+                        }
+                    }
+                });
+
+                // Render Unassigned VPCs/Hubs (not in any scenario)
+                const unassignedVpcs = vpcs.filter(v => !globalRenderedIds.has(v.id));
+                const unassignedHubs = hubs.filter(h => !globalRenderedIds.has(h.id));
+
+                if (unassignedVpcs.length > 0 || unassignedHubs.length > 0) {
+                    const unassignedIds = [...unassignedVpcs.map(v => v.id), ...unassignedHubs.map(h => h.id)];
+                    html += `
+                        <div class="scenario-group">
+                            <div class="scenario-title">Miscellaneous</div>
+                            <div class="scenario-connections">
+                                    ${formatConnectionsHtml(unassignedIds)}
+                            </div>
+                             <div class="scenario-content">
+                                ${unassignedHubs.map(h => formatHubHtml(h)).join('')}
+                                ${unassignedVpcs.map(v => formatVpcHtml(v)).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                document.getElementById('content').innerHTML = html;
+
+
+                const statusLabel = window.STATIC_VPC_DATA ? 'Static Reference Mode | ' : 'Last updated: ' + new Date().toLocaleTimeString() + ' | ';
+                document.getElementById('status').innerText = statusLabel + 'VPCs: ' + vpcs.length + ' | Subnets: ' + subnets.length;
+
+                // Draw arrows after DOM is updated
+                setTimeout(() => drawPropagationArrows(vpcs, standaloneDCs, hubs), 500);
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('content').innerHTML = '<p style="color: #c62828;">Error loading data: ' + err.message + '</p>';
+                document.getElementById('status').innerText = 'Error: ' + err.message;
+            }
+        }
+
+        function drawPropagationArrows(vpcs, standaloneDCs, hubs) {
+            const svg = document.getElementById('svg-connections');
+            // Ensure the SVG covers the full scrollable area, not just the viewport
+            const mainContainer = document.querySelector('.main-container');
+            if (mainContainer) {
+                 svg.style.height = mainContainer.scrollHeight + 'px';
+            }
+
+            // Clear existing propagation arrows
+            const existingExtras = svg.querySelectorAll('.propagation-arrow, .propagation-label');
+            existingExtras.forEach(e => e.remove());
+
+            const hubNat = hubs.find(h => h.label.includes('NAT Flows'));
+            const hubInternal = hubs.find(h => h.label.includes('Non-NAT Flows'));
+            if (!hubNat || !hubInternal) return;
+
+            const draw = (entityId, hubId, offsetIndex, side, isStandaloneDC = false) => {
+                const selector = isStandaloneDC ? `[data-dc-id="${entityId}"]` : `[data-vpc-id="${entityId}"]`;
+                const entity = document.querySelector(selector);
+                const hub = document.querySelector(`[data-hub-id="${hubId}"]`);
+                if (!entity || !hub) return;
+
+                const eRect = entity.getBoundingClientRect();
+                const hRect = hub.getBoundingClientRect();
+                const sRect = svg.getBoundingClientRect();
+
+                // Vertical offset to prevent overlapping paths
+                const verticalOffset = (offsetIndex - 1.5) * 12;
+
+                let x1, y1, x2, y2;
+                if (side === 'left') {
+                    x1 = eRect.right - sRect.left;
+                    // Adjust Y based on scroll because bounding client rect is viewport relative
+                    // But our SVG is absolute positioned at top:0
+                    y1 = eRect.top + eRect.height / 2 - sRect.top + verticalOffset; 
+                    x2 = hRect.left - sRect.left;
+                    y2 = hRect.top + hRect.height / 2 - sRect.top + verticalOffset;
+                } else {
+                    x1 = eRect.left - sRect.left;
+                    y1 = eRect.top + eRect.height / 2 - sRect.top + verticalOffset;
+                    x2 = hRect.right - sRect.left;
+                    y2 = hRect.top + hRect.height / 2 - sRect.top + verticalOffset;
+                }
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                // Use a slight curve for better visual separation
+                const midX = (x1 + x2) / 2;
+                path.setAttribute("d", `M ${x1} ${y1} Q ${midX} ${y1} ${x2} ${y2}`);
+                path.setAttribute("class", "propagation-arrow");
+                svg.appendChild(path);
+            };
+
+            const addHubLabel = (hubId, side) => {
+                const hub = document.querySelector(`[data-hub-id="${hubId}"]`);
+                if (!hub) return;
+
+                const hRect = hub.getBoundingClientRect();
+                const sRect = svg.getBoundingClientRect();
+
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                const labelX = side === 'left' ? hRect.left - sRect.left - 60 : hRect.right - sRect.left + 60;
+                const labelY = hRect.top + hRect.height / 2 - sRect.top;
+                text.setAttribute("x", labelX);
+                text.setAttribute("y", labelY);
+                text.setAttribute("class", "propagation-label");
+                text.setAttribute("text-anchor", "middle");
+                text.textContent = "Propagations";
+                svg.appendChild(text);
+            };
+
+            // Identify VPCs by column/role
+            const col1Vpcs = vpcs.filter(v => v.label.includes('Cluster 1') || v.label.includes('Cluster 2'));
+            const col3Vpcs = vpcs.filter(v => v.label.includes('Shared Services'));
+            const col3StandaloneDCs = standaloneDCs.filter(s => s.label.includes('On-Premise Data Center'));
+
+            // Draw from Column 1 (Left)
+            col1Vpcs.forEach((vpc, idx) => {
+                draw(vpc.id, hubNat.id, idx, 'left', false);
+                draw(vpc.id, hubInternal.id, idx + 2, 'left', false);
+            });
+
+            // Draw from Column 3 (Right) - VPCs
+            col3Vpcs.forEach((vpc, idx) => {
+                draw(vpc.id, hubNat.id, idx, 'right', false);
+                draw(vpc.id, hubInternal.id, idx + 2, 'right', false);
+            });
+
+            // Draw from Column 3 (Right) - Standalone DCs
+            col3StandaloneDCs.forEach((sdc, idx) => {
+                const offset = col3Vpcs.length + idx; // Offset after VPCs
+                draw(sdc.id, hubNat.id, offset, 'right', true);
+                draw(sdc.id, hubInternal.id, offset + 2, 'right', true);
+            });
+
+            // Add single label per hub
+            if (col1Vpcs.length > 0) {
+                addHubLabel(hubNat.id, 'left');
+                addHubLabel(hubInternal.id, 'left');
+            }
+            if (col3Vpcs.length > 0 || col3StandaloneDCs.length > 0) {
+                addHubLabel(hubNat.id, 'right');
+                addHubLabel(hubInternal.id, 'right');
+            }
+        }
+
+        // Load on start
+        loadData();
+        // Auto-refresh every 15 seconds
+        setInterval(loadData, 15000);
+    </script>
+</body>
+
+</html>

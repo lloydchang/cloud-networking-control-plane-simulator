@@ -1,0 +1,412 @@
+# Cloud Networking Control Plane Simulator - Full Topology
+# Simulates EVPN-VXLAN fabric with VPCs, NAT, Firewall, LB, and Observability
+
+services:
+  # ============================================================================
+  # SPINE SWITCHES (Route Reflectors)
+  # ============================================================================
+  spine-1:
+    image: frrouting/frr:v8.4.1
+    privileged: true
+    hostname: spine-1
+    volumes:
+      - ./configs/evpn/spine-1:/etc/frr
+      - ./configs/evpn/spine_bootstrap.sh:/usr/local/bin/spine_bootstrap.sh
+    entrypoint: ["/usr/local/bin/spine_bootstrap.sh"]
+    networks:
+      fabric:
+        ipv4_address: 10.0.0.1
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+
+  spine-2:
+    image: frrouting/frr:v8.4.1
+    privileged: true
+    hostname: spine-2
+    volumes:
+      - ./configs/evpn/spine-2:/etc/frr
+      - ./configs/evpn/spine_bootstrap.sh:/usr/local/bin/spine_bootstrap.sh
+    entrypoint: ["/usr/local/bin/spine_bootstrap.sh"]
+    networks:
+      fabric:
+        ipv4_address: 10.0.0.2
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+
+  spine-3:
+    image: frrouting/frr:v8.4.1
+    privileged: true
+    hostname: spine-3
+    volumes:
+      - ./configs/evpn/spine-3:/etc/frr
+      - ./configs/evpn/spine_bootstrap.sh:/usr/local/bin/spine_bootstrap.sh
+    entrypoint: ["/usr/local/bin/spine_bootstrap.sh"]
+    networks:
+      fabric:
+        ipv4_address: 10.0.0.3
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+
+  # ============================================================================
+  # LEAF SWITCHES (ToR with EVPN-VXLAN)
+  # ============================================================================
+  leaf-1:
+    image: frrouting/frr:v8.4.1
+    privileged: true
+    hostname: leaf-1
+    volumes:
+      - ./configs/evpn/leaf-1:/etc/frr
+      - ./configs/evpn/leaf_bootstrap.sh:/usr/local/bin/leaf_bootstrap.sh
+    entrypoint: ["/usr/local/bin/leaf_bootstrap.sh"]
+    networks:
+      fabric:
+        ipv4_address: 10.0.0.11
+      vpc-100-leaf-1:
+        ipv4_address: 10.1.1.1
+      vpc-200-leaf-1:
+        ipv4_address: 10.2.1.1
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+
+  leaf-2:
+    image: frrouting/frr:v8.4.1
+    privileged: true
+    hostname: leaf-2
+    volumes:
+      - ./configs/evpn/leaf-2:/etc/frr
+      - ./configs/evpn/leaf_bootstrap.sh:/usr/local/bin/leaf_bootstrap.sh
+    entrypoint: ["/usr/local/bin/leaf_bootstrap.sh"]
+    networks:
+      fabric:
+        ipv4_address: 10.0.0.12
+      vpc-100-leaf-2:
+        ipv4_address: 10.1.2.1
+      vpc-200-leaf-2:
+        ipv4_address: 10.2.2.1
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+
+  leaf-3:
+    image: frrouting/frr:v8.4.1
+    privileged: true
+    hostname: leaf-3
+    volumes:
+      - ./configs/evpn/leaf-3:/etc/frr
+      - ./configs/evpn/leaf_bootstrap.sh:/usr/local/bin/leaf_bootstrap.sh
+    entrypoint: ["/usr/local/bin/leaf_bootstrap.sh"]
+    networks:
+      fabric:
+        ipv4_address: 10.0.0.13
+      vpc-100-leaf-3:
+        ipv4_address: 10.1.3.1
+      vpc-200-leaf-3:
+        ipv4_address: 10.2.3.1
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+
+  # ============================================================================
+  # SERVERS (Workloads in VPCs)
+  # ============================================================================
+  # VPC100 Servers
+  server-1:
+    image: alpine:3.18
+    hostname: server-1
+    command: >
+      sh -c "apk add --no-cache iproute2 iputils curl python3 && 
+             ip route replace default via 10.1.1.1 &&
+             mkdir -p /app/www &&
+             echo '<h1>Server-1 (VPC-100)</h1><p>Cloud Networking Control Plane Simulator - Workload Node</p>' > /app/www/index.html &&
+             python3 -m http.server 80 --directory /app/www"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      vpc-100-leaf-1:
+        ipv4_address: 10.1.1.10
+    labels:
+      vpc: vpc-100
+      rack: leaf-1
+
+  server-2:
+    image: alpine:3.18
+    hostname: server-2
+    command: >
+      sh -c "apk add --no-cache iproute2 iputils curl python3 && 
+             ip route replace default via 10.1.2.1 &&
+             mkdir -p /app/www &&
+             echo '<h1>Server-2 (VPC-100)</h1><p>Cloud Networking Control Plane Simulator - Workload Node</p>' > /app/www/index.html &&
+             python3 -m http.server 80 --directory /app/www"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      vpc-100-leaf-2:
+        ipv4_address: 10.1.2.10
+    labels:
+      vpc: vpc-100
+      rack: leaf-2
+
+  server-3:
+    image: alpine:3.18
+    hostname: server-3
+    command: >
+      sh -c "apk add --no-cache iproute2 iputils curl python3 && 
+             ip route replace default via 10.1.3.1 &&
+             mkdir -p /app/www &&
+             echo '<h1>Server-3 (VPC-100)</h1><p>Cloud Networking Control Plane Simulator - Workload Node</p>' > /app/www/index.html &&
+             python3 -m http.server 8080 --directory /app/www"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      vpc-100-leaf-3:
+        ipv4_address: 10.1.3.10
+    labels:
+      vpc: vpc-100
+      rack: leaf-3
+
+  # VPC200 Servers
+  server-4:
+    image: alpine:3.18
+    hostname: server-4
+    command: >
+      sh -c "apk add --no-cache iproute2 iputils curl python3 && 
+             ip route replace default via 10.2.1.1 &&
+             mkdir -p /app/www &&
+             echo '<h1>Server-4 (VPC-200)</h1><p>Cloud Networking Control Plane Simulator - Workload Node</p>' > /app/www/index.html &&
+             python3 -m http.server 80 --directory /app/www"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      vpc-200-leaf-1:
+        ipv4_address: 10.2.1.10
+    labels:
+      vpc: vpc-200
+      rack: leaf-1
+
+  server-5:
+    image: alpine:3.18
+    hostname: server-5
+    command: >
+      sh -c "apk add --no-cache iproute2 iputils curl python3 && 
+             ip route replace default via 10.2.2.1 &&
+             mkdir -p /app/www &&
+             echo '<h1>Server-5 (VPC-200)</h1><p>Cloud Networking Control Plane Simulator - Workload Node</p>' > /app/www/index.html &&
+             python3 -m http.server 80 --directory /app/www"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      vpc-200-leaf-2:
+        ipv4_address: 10.2.2.10
+    labels:
+      vpc: vpc-200
+      rack: leaf-2
+
+  server-6:
+    image: alpine:3.18
+    hostname: server-6
+    command: >
+      sh -c "apk add --no-cache iproute2 iputils curl python3 && 
+             ip route replace default via 10.2.3.1 &&
+             mkdir -p /app/www &&
+             echo '<h1>Server-6 (VPC-200)</h1><p>Cloud Networking Control Plane Simulator - Workload Node</p>' > /app/www/index.html &&
+             python3 -m http.server 80 --directory /app/www"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      vpc-200-leaf-3:
+        ipv4_address: 10.2.3.10
+    labels:
+      vpc: vpc-200
+      rack: leaf-3
+
+  # ============================================================================
+  # NETWORK SERVICES
+  # ============================================================================
+  nat-gateway:
+    build: ./services/nat-gateway
+    hostname: nat-gateway
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    networks:
+      fabric:
+        ipv4_address: 10.0.0.100
+      internet:
+        ipv4_address: 203.0.113.1
+    volumes:
+      - ./services/nat-gateway/nftables.conf:/etc/nftables.conf
+
+  internet-gateway:
+    build: ./services/internet-gateway
+    hostname: internet-gateway
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    networks:
+      fabric:
+        ipv4_address: 10.0.0.101
+      internet:
+        ipv4_address: 203.0.113.2
+
+  firewall:
+    build: ./services/firewall
+    hostname: firewall
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    networks:
+      fabric:
+        ipv4_address: 10.0.0.102
+    volumes:
+      - ./services/firewall:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  load-balancer:
+    build: ./services/load-balancer
+    hostname: load-balancer
+    ports:
+      - "127.0.0.1:8080:80"
+      - "127.0.0.1:8443:443"
+    networks:
+      fabric:
+        ipv4_address: 10.0.0.103
+      vpc-100-leaf-1:
+        ipv4_address: 10.1.1.100
+    cap_add:
+      - NET_ADMIN
+    entrypoint: >
+      sh -c "ip route add 10.1.0.0/16 via 10.1.1.1 && 
+             python3 -u lb_controller.py"
+    volumes:
+      - ./services/load-balancer:/app
+
+  # ============================================================================
+  # CONTROL PLANE
+  # ============================================================================
+  control-plane:
+    build: ./control-plane
+    hostname: control-plane
+    ports:
+      - "127.0.0.1:8000:8000"   # REST API
+      - "127.0.0.1:50051:50051" # gRPC
+    networks:
+      fabric:
+        ipv4_address: 10.0.0.200
+    volumes:
+      - ./control-plane:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=sqlite:///app/data/network.db
+      - PYTHONPATH=/app:/app/api
+      - REST_PORT=8000
+      - GRPC_PORT=50051
+    depends_on:
+      - spine-1
+      - spine-2
+      - spine-3
+      - leaf-1
+      - leaf-2
+      - leaf-3
+
+  # ============================================================================
+  # OBSERVABILITY
+  # ============================================================================
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    hostname: prometheus
+    ports:
+      - "127.0.0.1:9999:9090"
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      fabric:
+        ipv4_address: 10.0.0.210
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+  grafana:
+    image: grafana/grafana:10.1.0
+    hostname: grafana
+    ports:
+      - "127.0.0.1:3333:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=change-this-password
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      fabric:
+        ipv4_address: 10.0.0.211
+    depends_on:
+      - prometheus
+
+ 
+
+# ============================================================================
+# NETWORKS
+# ============================================================================
+networks:
+  # Underlay fabric network (spine-leaf interconnect)
+  fabric:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
+          gateway: 10.0.0.254
+
+  # VPC100 subnets (one per leaf for isolation demo)
+  vpc-100-leaf-1:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.1.1.0/24
+          gateway: 10.1.1.254
+  vpc-100-leaf-2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.1.2.0/24
+          gateway: 10.1.2.254
+  vpc-100-leaf-3:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.1.3.0/24
+          gateway: 10.1.3.254
+
+  # VPC200 subnets (one per leaf for isolation demo)
+  vpc-200-leaf-1:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.2.1.0/24
+          gateway: 10.2.1.254
+  vpc-200-leaf-2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.2.2.0/24
+          gateway: 10.2.2.254
+  vpc-200-leaf-3:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.2.3.0/24
+          gateway: 10.2.3.254
+
+  # External/Internet Simulator
+  internet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 203.0.113.0/24
+          gateway: 203.0.113.254

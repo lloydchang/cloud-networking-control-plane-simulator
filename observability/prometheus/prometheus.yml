@@ -1,0 +1,56 @@
+# Prometheus Configuration
+# Scrapes metrics from all Simulator components
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files: []
+
+scrape_configs:
+  # Control Plane API metrics
+  - job_name: 'control-plane'
+    static_configs:
+      - targets: ['control-plane:8000']
+    metrics_path: /metrics
+    scrape_interval: 10s
+
+  # HAProxy Load Balancer stats
+  - job_name: 'haproxy'
+    static_configs:
+      - targets: ['10.0.0.103:8404']
+    metrics_path: /metrics
+    scrape_interval: 10s
+
+  # FRR switches - using SNMP exporter would be typical
+  # For Simulator, we'll use a custom exporter or direct scrape
+  - job_name: 'spine-switches'
+    static_configs:
+      - targets: ['10.0.0.1:9100', '10.0.0.2:9100', '10.0.0.3:9100']
+    scrape_interval: 30s
+
+  - job_name: 'leaf-switches'
+    static_configs:
+      - targets: ['10.0.0.11:9100', '10.0.0.12:9100', '10.0.0.13:9100']
+    scrape_interval: 30s
+
+  # Network services
+  - job_name: 'nat-gateway'
+    static_configs:
+      - targets: ['10.0.0.100:9100']
+    scrape_interval: 15s
+
+  - job_name: 'firewall'
+    static_configs:
+      - targets: ['10.0.0.102:9100']
+    scrape_interval: 15s
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
