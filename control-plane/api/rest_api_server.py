@@ -31,7 +31,7 @@ from .models import (
     NATGateway as NATModel,
     Route as RouteModel,
     InternetGateway as InternetGatewayModel,
-    VPNGuardGateway as VPNGatewayModel,
+    VPNGateway as VPNGatewayModel,
     MeshNode as MeshNodeModel,
     CloudRoutingHub as HubModel,
     StandaloneDataCenter as StandaloneDCModel,

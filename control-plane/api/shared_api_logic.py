@@ -14,7 +14,7 @@ from .models import (
     Scenario as ScenarioModel,
     StandaloneDataCenter as StandaloneDCModel,
     StandaloneDCSubnet as StandaloneDCSubnetModel,
-    VPNGuardGateway as VPNGatewayModel,
+    VPNGateway as VPNGatewayModel,
     MeshNode as MeshNodeModel,
 )
 from metrics import METRICS

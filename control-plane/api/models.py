@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, JSON, DateTime, func, create_engine
+from sqlalchemy import Column, String, Integer, ForeignKey, JSON, DateTime, func, create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -161,7 +161,8 @@ SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
 
 with engine.connect() as conn:
-    result = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    result = conn.execute(text("SELECT name FROM sqlite_master WHERE type='table';"))
+
     print([row[0] for row in result])
 
 # Create all tables that do not exist yet
