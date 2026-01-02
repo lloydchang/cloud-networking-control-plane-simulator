@@ -28,7 +28,12 @@ lint:
 proto:
 	@echo "=== Generating gRPC Stubs ==="
 	docker compose build control-plane
-	@docker run --rm -v $(shell pwd)/control-plane/api:/out cloud-networking-control-plane-simulator-control-plane sh -c "cp /app/api/cloud_networking_control_plane_simulator_pb2.py /app/api/cloud_networking_control_plane_simulator_pb2_grpc.py /out/"
+	docker run --rm -v $(shell pwd)/control-plane/proto:/proto -v $(shell pwd)/control-plane/api:/out cloud-networking-control-plane-simulator-control-plane sh -c "\
+	    python -m grpc_tools.protoc \
+	        -I/proto \
+	        --python_out=/out \
+	        --grpc_python_out=/out \
+	        /proto/cloud_networking_control_plane_simulator.proto"
 	@echo "Stubs generated in control-plane/api/"
 
 lint-extreme:
@@ -76,7 +81,8 @@ canary:
 
 # Helper to ensure gRPC stubs exist
 ensure-proto:
-	@if [ ! -f control-plane/api/cloud_networking_control_plane_simulator_pb2.py ] || [ ! -f control-plane/api/cloud_networking_control_plane_simulator_pb2_grpc.py ]; then \
+	@if [ ! -f control-plane/api/cloud_networking_control_plane_simulator_pb2.py ] || \
+	   [ ! -f control-plane/api/cloud_networking_control_plane_simulator_pb2_grpc.py ]; then \
 		$(MAKE) proto; \
 	fi
 
