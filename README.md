@@ -210,6 +210,8 @@ cloud-networking-control-plane-simulator/
 *   [FRR Documentation](https://docs.frrouting.org/)
 *   [nftables Wiki](https://wiki.nftables.org/wiki-nftables/index.php/Main_Page)
 
+## Logo
+![CNCPS Logo](control-plane/api/ui/assets/images/cncps_logo.svg)
+
 ## License
 GNU Affero General Public License v3.0 (AGPL-3.0)
-
