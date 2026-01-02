@@ -7,6 +7,10 @@ import os
 
 Base = declarative_base()
 
+class VniCounter(Base):
+    __tablename__ = "vni_counter"
+    id = Column(Integer, primary_key=True)
+    current = Column(Integer, nullable=False)
 
 class VPC(Base):
     __tablename__ = "vpcs"

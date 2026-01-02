@@ -1,3 +1,4 @@
+# services/shared_api_logic.py
 import uuid
 import asyncio
 from datetime import datetime
@@ -19,11 +20,30 @@ from .models import (
 )
 from metrics import METRICS
 
-def get_next_vni(db: Session):
-    max_vni = db.query(VPCModel.vni).order_by(VPCModel.vni.desc()).first()
-    if max_vni:
-        return max_vni[0] + 1
-    return 1000
+from sqlalchemy.orm import Session
+from api.models import VniCounter
+
+def get_next_vni(db: Session) -> int:
+    """
+    Get the next available VNI and increment the counter in the database.
+    Ensures the increment is persisted and returns a unique VNI each call.
+    """
+    # Try to get the counter row (assumes only one row exists)
+    counter = db.query(VniCounter).first()
+
+    if counter is None:
+        # First time: initialize the counter
+        counter = VniCounter(current=1003)  # or your starting VNI
+        db.add(counter)
+        db.commit()
+        db.refresh(counter)
+        return counter.current
+
+    # Increment the counter
+    counter.current += 1
+    db.commit()
+    db.refresh(counter)
+    return counter.current
 
 
 # VPC Services

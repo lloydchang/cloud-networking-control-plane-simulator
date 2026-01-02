@@ -1,3 +1,4 @@
+# tests/test_shared_api_logic.py
 import sys
 import os
 import pytest
@@ -130,9 +131,11 @@ async def test_deprovision_subnet_task():
 
 
 def test_vni_increment(db):
-    v1 = services.get_next_vni()
-    v2 = services.get_next_vni()
-    assert v2 == v1 + 1
+    # Get the first VNI
+    v1 = services.get_next_vni(db)
+    # Get the next VNI
+    v2 = services.get_next_vni(db)
+    assert v2 == v1 + 1, f"Expected VNI to increment by 1, got {v1} -> {v2}"
 
 
 def test_create_subnet(db):
