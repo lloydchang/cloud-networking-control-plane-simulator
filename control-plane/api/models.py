@@ -96,7 +96,9 @@ class VPNGateway(Base):
     __tablename__ = "vpn_gateways"
     id = Column(String, primary_key=True)
     vpc_id = Column(String, ForeignKey("vpcs.id"))
-    name = Column(String)
+    endpoint = Column(String)
+    public_key = Column(String)
+    allowed_ips = Column(String)
     status = Column(String)
 
 
@@ -104,8 +106,8 @@ class MeshNode(Base):
     __tablename__ = "mesh_nodes"
     id = Column(String, primary_key=True)
     vpc_id = Column(String, ForeignKey("vpcs.id"))
-    name = Column(String)
-    cidr = Column(String)
+    node_key = Column(String)
+    tailnet = Column(String)
     status = Column(String)
 
 
