@@ -210,9 +210,20 @@ def attach_endpoint_to_vpc(endpoint_name, vpc_id, subnet_name):
     """
     Attach a brownfield endpoint to the given VPC and subnet.
     """
+    # Get the endpoint IP from the existing endpoints
+    endpoints = discover_existing_endpoints()
+    endpoint_ip = None
+    for ep in endpoints:
+        if ep.get("name") == endpoint_name:
+            endpoint_ip = ep.get("ip")
+            break
+    
+    if not endpoint_ip:
+        raise Exception(f"Endpoint {endpoint_name} not found in existing endpoints")
+    
     payload = {
-        "endpoint_name": endpoint_name,
-        "subnet_name": subnet_name
+        "name": endpoint_name,
+        "ip": endpoint_ip
     }
     run_request("POST", f"/vpcs/{vpc_id}/endpoints", data=payload)
 

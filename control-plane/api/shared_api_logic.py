@@ -372,11 +372,14 @@ def create_vpc_endpoint(db: Session, vpc_id: str, name: str, ip: str):
     # Find the subnet this IP belongs to
     subnets = db.query(SubnetModel).filter(SubnetModel.vpc_id == vpc_id).all()
     import ipaddress
-    target_subnet_id = "unknown"
+    target_subnet_id = None
     for s in subnets:
         if ipaddress.ip_address(ip) in ipaddress.ip_network(s.cidr):
             target_subnet_id = s.id
             break
+
+    if not target_subnet_id:
+        raise ValueError(f"IP {ip} does not belong to any subnet in VPC {vpc_id}")
 
     endpoint_id = f"vpe-{uuid.uuid4().hex[:8]}"
     new_endpoint = VPCEndpointModel(
