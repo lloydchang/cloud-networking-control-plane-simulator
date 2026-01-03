@@ -20,7 +20,29 @@ def run_request(method, path, data=None):
     try:
         with urllib.request.urlopen(req) as response:
             res_data = response.read().decode('utf-8')
+            status_code = response.getcode()
+            if status_code >= 400:
+                error_detail = ""
+                try:
+                    error_json = json.loads(res_data)
+                    if 'detail' in error_json:
+                        error_detail = f" - {error_json['detail']}"
+                except:
+                    pass
+                print(f"Request failed: {url} HTTP Error {status_code}: {response.reason}{error_detail}")
+                return None
             return json.loads(res_data) if res_data else {}
+    except urllib.error.HTTPError as e:
+        error_detail = ""
+        try:
+            error_data = e.read().decode('utf-8')
+            error_json = json.loads(error_data)
+            if 'detail' in error_json:
+                error_detail = f" - {error_json['detail']}"
+        except:
+            pass
+        print(f"Request failed: {url} HTTP Error {e.code}: {e.reason}{error_detail}")
+        return None
     except Exception as e:
         print(f"Request failed: {url} {e}")
         return None
@@ -210,6 +232,13 @@ def attach_endpoint_to_vpc(endpoint_name, vpc_id, subnet_name):
     """
     Attach a brownfield endpoint to the given VPC and subnet.
     """
+    # Check if endpoint already exists in the VPC
+    existing_endpoints = run_request("GET", f"/vpcs/{vpc_id}/endpoints") or []
+    for existing_ep in existing_endpoints:
+        if existing_ep.get("name") == endpoint_name:
+            log_scenario("DEBUG", f"Endpoint {endpoint_name} already exists in VPC {vpc_id}, skipping creation")
+            return
+    
     # Get the endpoint IP from the existing endpoints
     endpoints = discover_existing_endpoints()
     endpoint_ip = None

@@ -644,8 +644,15 @@ def create_vpc_endpoint(vpc_id: str, payload: VPCEndpointCreate, db: Session = D
         print(f"DEBUG: VPC {vpc_id} NOT FOUND in database")
         raise HTTPException(status_code=404, detail="VPC not found")
     print(f"DEBUG: Found VPC: {vpc.name}. Attempting to create endpoint: {payload.name} ({payload.ip})")
-    endpoint = services.create_vpc_endpoint(db, vpc_id, payload.name, payload.ip)
-    return endpoint
+    try:
+        endpoint = services.create_vpc_endpoint(db, vpc_id, payload.name, payload.ip)
+        return endpoint
+    except ValueError as e:
+        # Handle conflict detection errors with proper HTTP status
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        # Handle other unexpected errors
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.delete("/vpcs/{vpc_id}/endpoints/{endpoint_id}")
 def delete_vpc_endpoint(vpc_id: str, endpoint_id: str, db: Session = Depends(get_db)):
