@@ -1070,9 +1070,18 @@
                         .filter(e => e.source === vpc.id)
                         .map(e => {
                             const targetNode = data.nodes.find(n => n.id === e.target);
+                            let targetDisplay = targetNode ? targetNode.label : e.target;
+                            
+                            // Add explanation for internal IDs
+                            if (e.target.includes('igw-') && e.target !== 'igw-auto') {
+                                targetDisplay = `Internet Gateway (${targetDisplay})`;
+                            } else if (e.target.includes('vpc-dc-') || e.target.includes('standalone-dc-')) {
+                                targetDisplay = `${targetDisplay} (On-Prem DC)`;
+                            }
+                            
                             return {
                                 destination: e.destination || '0.0.0.0/0',
-                                target: targetNode ? targetNode.label : e.target
+                                target: targetDisplay
                             };
                         });
 
@@ -1175,11 +1184,22 @@
                                 const sourceName = sourceNode ? sourceNode.label : edge.source;
                                 const targetName = targetNode ? targetNode.label : edge.target;
 
+                                // Add explanation for internal IDs
+                                let sourceExplanation = '';
+                                let targetExplanation = '';
+                                
+                                if (edge.source.includes('vpc-dc-') || edge.source.includes('standalone-dc-')) {
+                                    sourceExplanation = ' <span style="color: #666; font-size: 9px;">(On-Prem DC)</span>';
+                                }
+                                if (edge.target.includes('vpc-dc-') || edge.target.includes('standalone-dc-')) {
+                                    targetExplanation = ' <span style="color: #666; font-size: 9px;">(On-Prem DC)</span>';
+                                }
+
                                 connectionsHtml += `
                                     <div class="connection-item ${type}">
-                                        <span>${sourceName}</span>
+                                        <span>${sourceName}${sourceExplanation}</span>
                                         <span class="connection-arrow ${type}">→</span>
-                                        <span>${targetName}</span>
+                                        <span>${targetName}${targetExplanation}</span>
                                         ${edge.destination ? `<span class="connection-destination">${edge.destination}</span>` : ''}
                                     </div>
                                 `;
@@ -1250,14 +1270,41 @@
                         } else if (cleanScenarioTitle.includes('Mesh') && typeof renderScenarioMesh === 'function') {
                             scenarioHtml = renderScenarioMesh(scenario, uniqueNodes, vpcs, hubs, data, formatVpcHtml, formatHubHtml, formatConnectionsHtml, displayCounter);
                         } else {
-                            // Fallback standard rendering
-                            scenarioHtml = `
-                                <div class="scenario-group">
-                                    <div class="scenario-title">${scenario.title}</div>
-                                    <div class="scenario-desc">${scenario.description}</div>
-                                    <div class="scenario-connections">
-                                        ${formatConnectionsHtml(resourceIds)}
+                            // Fallback standard rendering with hub auto-centering
+                            const hubNodes = uniqueNodes.filter(n => n.type === 'hub');
+                            const nonHubNodes = uniqueNodes.filter(n => n.type !== 'hub');
+                            
+                            // Auto-position hubs in the middle if there are multiple resources
+                            let scenarioLayout = '';
+                            if (hubNodes.length > 0 && nonHubNodes.length > 1) {
+                                // Create a layout with hubs in the center
+                                const leftColumn = nonHubNodes.slice(0, Math.ceil(nonHubNodes.length / 2));
+                                const rightColumn = nonHubNodes.slice(Math.ceil(nonHubNodes.length / 2));
+                                
+                                scenarioLayout = `
+                                    <div class="scenario-content" style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 30px; align-items: start;">
+                                        <div class="scenario-column">
+                                            ${leftColumn.map(r => {
+                                                if (r.type === 'vpc') return formatVpcHtml(r);
+                                                if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
+                                                return '';
+                                            }).join('')}
+                                        </div>
+                                        <div class="hub-column">
+                                            ${hubNodes.map(h => formatHubHtml(h)).join('')}
+                                        </div>
+                                        <div class="scenario-column">
+                                            ${rightColumn.map(r => {
+                                                if (r.type === 'vpc') return formatVpcHtml(r);
+                                                if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
+                                                return '';
+                                            }).join('')}
+                                        </div>
                                     </div>
+                                `;
+                            } else {
+                                // Standard linear layout
+                                scenarioLayout = `
                                     <div class="scenario-content">
                                         ${uniqueNodes.map(r => {
                                             if (r.type === 'vpc') return formatVpcHtml(r);
@@ -1266,6 +1313,17 @@
                                             return '';
                                         }).join('')}
                                     </div>
+                                `;
+                            }
+                            
+                            scenarioHtml = `
+                                <div class="scenario-group">
+                                    <div class="scenario-title">${scenario.title}</div>
+                                    <div class="scenario-desc">${scenario.description}</div>
+                                    <div class="scenario-connections">
+                                        ${formatConnectionsHtml(resourceIds)}
+                                    </div>
+                                    ${scenarioLayout}
                                 </div>
                             `;
                         }

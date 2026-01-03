@@ -132,6 +132,22 @@ def create_subnet_logic(
 def create_route_logic(
     db: Session, vpc_id: str, destination: str, next_hop: str, next_hop_type: str
 ):
+    # Resolve igw-auto placeholder to actual IGW ID
+    if next_hop == "igw-auto" and next_hop_type == "internet_gateway":
+        actual_igw = db.query(InternetGatewayModel).filter(InternetGatewayModel.vpc_id == vpc_id).first()
+        if actual_igw:
+            next_hop = actual_igw.id
+        else:
+            # If no IGW exists, create one first
+            new_igw = create_igw_logic(db, vpc_id)
+            next_hop = new_igw.id
+    
+    # Resolve vpn-auto placeholder to actual VPN Gateway ID
+    if next_hop == "vpn-auto" and next_hop_type == "vpn_gateway":
+        actual_vpn = db.query(VPNGatewayModel).filter(VPNGatewayModel.vpc_id == vpc_id).first()
+        if actual_vpn:
+            next_hop = actual_vpn.id
+    
     route_id = f"rtb-{uuid.uuid4().hex[:8]}"
     new_route = RouteModel(
         id=route_id,

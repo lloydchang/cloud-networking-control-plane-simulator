@@ -522,8 +522,14 @@ def get_vpc_view(request: Request, db: Session = Depends(get_db)):
                 # Determine target - could be another VPC, a hub, or a gateway
                 if str(route.next_hop).startswith("hub-"):
                     target_id = f"hub-{route.next_hop}"
-                elif route.next_hop_type in ["vpc_peering", "vpn_gateway", "mesh_vpn"]:
+                elif route.next_hop_type in ["vpc_peering", "mesh_vpn"]:
                     target_id = f"vpc-{route.next_hop}"
+                elif route.next_hop_type == "vpn_gateway":
+                    # Handle VPN gateway targets - could be VPC or standalone DC
+                    if str(route.next_hop).startswith("dc-"):
+                        target_id = f"standalone-dc-{route.next_hop}"
+                    else:
+                        target_id = f"vpc-{route.next_hop}"
                 else:
                     target_id = route.next_hop
                 
@@ -574,7 +580,16 @@ def get_vpc_view(request: Request, db: Session = Depends(get_db)):
             }
             if route.next_hop_type in edge_type_map:
                 edge_type, edge_label = edge_type_map[route.next_hop_type]
-                target_id = f"hub-{route.next_hop}" if str(route.next_hop).startswith("hub-") else route.next_hop
+                # Handle VPN gateway targets - could be VPC or standalone DC
+                if str(route.next_hop).startswith("hub-"):
+                    target_id = f"hub-{route.next_hop}"
+                elif route.next_hop_type == "vpn_gateway":
+                    if str(route.next_hop).startswith("vpc-"):
+                        target_id = f"vpc-{route.next_hop}"
+                    else:
+                        target_id = f"standalone-dc-{route.next_hop}"
+                else:
+                    target_id = route.next_hop
                 edges.append({
                     "source": sdc_node_id,
                     "target": target_id,
