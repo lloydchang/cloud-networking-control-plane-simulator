@@ -60,9 +60,9 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# ============================================================================
+# ==========================================================================
 # Static Assets
-# ============================================================================
+# ==========================================================================
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "scripts")
 if os.path.exists(SCRIPTS_DIR):
@@ -72,11 +72,11 @@ ASSETS_DIR = "/app/assets"
 if os.path.exists(ASSETS_DIR):
     app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
 
-# ============================================================================
-# Database Configuration
-# ============================================================================
+# ==========================================================================
+# Database Configuration (Serverless-safe)
+# ==========================================================================
 
-DB_DIR = os.getenv("DB_DIR", "/app/data")
+DB_DIR = os.getenv("DB_DIR", "/tmp")
 DB_PATH = os.getenv("DB_PATH", f"{DB_DIR}/network.db")
 
 if not DB_PATH.startswith(":memory:"):
@@ -94,28 +94,27 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Only create schema at import
 Base.metadata.create_all(bind=engine)
 
-# ============================================================================
+# ==========================================================================
 # Startup Hooks
-# ============================================================================
+# ==========================================================================
 
 @app.on_event("startup")
 def initialize_database_and_metrics():
     db = SessionLocal()
     try:
-        # Ensure vni_counter table exists using SQLAlchemy
-        if not engine.dialect.has_table(engine, "vni_counter"):
-            Base.metadata.tables["vni_counter"].create(bind=engine)
-
-        # Ensure singleton row exists safely
+        # Ensure vni_counter table exists safely
         try:
-            if not db.query(VniCounterModel).filter_by(id=1).first():
-                db.add(VniCounterModel(id=1, current=1))
-                db.commit()
-        except Exception as e:
-            db.rollback()
-            print("Failed to initialize vni_counter row:", e)
+            db.execute(text("SELECT 1 FROM vni_counter LIMIT 1;"))
+        except Exception:
+            db.execute(text("CREATE TABLE IF NOT EXISTS vni_counter (id INTEGER PRIMARY KEY, current INTEGER NOT NULL);"))
+            db.commit()
 
-        # Initialize Prometheus metrics
+        # Ensure singleton vni_counter row exists
+        if not db.query(VniCounterModel).filter_by(id=1).first():
+            db.add(VniCounterModel(id=1, current=1))
+            db.commit()
+
+        # Initialize Prometheus metrics if available
         if PROMETHEUS_AVAILABLE:
             METRICS["vpcs_total"].set(db.query(VPCModel).count())
             METRICS["subnets_total"].set(db.query(SubnetModel).count())
@@ -126,9 +125,9 @@ def initialize_database_and_metrics():
     finally:
         db.close()
 
-# ============================================================================
+# ==========================================================================
 # Dependencies
-# ============================================================================
+# ==========================================================================
 
 def get_db():
     db = SessionLocal()
@@ -137,9 +136,9 @@ def get_db():
     finally:
         db.close()
 
-# ============================================================================
+# ==========================================================================
 # Pydantic Models
-# ============================================================================
+# ==========================================================================
 
 class VPCCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=64)
@@ -190,9 +189,9 @@ class SecurityGroup(BaseModel):
     rules: List[dict]
     created_at: datetime
 
-# ============================================================================
+# ==========================================================================
 # Health and Metrics
-# ============================================================================
+# ==========================================================================
 
 @app.get("/health")
 def health():
@@ -213,9 +212,9 @@ async def prometheus_middleware(request: Request, call_next):
     _ = (time.time() - start) * 1000
     return response
 
-# ============================================================================
+# ==========================================================================
 # Core Endpoints
-# ============================================================================
+# ==========================================================================
 
 @app.post("/vpcs", response_model=VPC, status_code=201)
 def create_vpc(vpc: VPCCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
