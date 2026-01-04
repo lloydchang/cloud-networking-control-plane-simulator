@@ -110,15 +110,13 @@ def create_subnet_logic(
     db: Session, vpc_id: str, name: str, cidr: str, az: str = "us-east-1a"
 ):
     subnet_id = f"subnet-{uuid.uuid4().hex[:8]}"
-    gateway = cidr.rsplit(".", 1)[0] + ".1"
     new_subnet = SubnetModel(
         id=subnet_id,
         vpc_id=vpc_id,
         name=name,
         cidr=cidr,
-        gateway=gateway,
-        az=az,
-        status="provisioning",
+        availability_zone=az,
+        status="active"
     )
     db.add(new_subnet)
     db.commit()
@@ -126,6 +124,23 @@ def create_subnet_logic(
     if METRICS:
         METRICS["subnets_total"].set(db.query(SubnetModel).count())
     return new_subnet
+
+def list_subnets(vpc_id: str):
+    """List subnets for a VPC. Creates a new session for the query."""
+    db = _get_db_session()
+    try:
+        subnets = db.query(SubnetModel).filter(SubnetModel.vpc_id == vpc_id).all()
+        return subnets
+    finally:
+        db.close()
+
+def delete_subnet_logic(db: Session, subnet_id: str):
+    """Delete a subnet. Returns the deleted subnet or None if not found."""
+    subnet = db.query(SubnetModel).filter(SubnetModel.id == subnet_id).first()
+    if subnet:
+        db.delete(subnet)
+    return subnet
+    return None
 
 
 # Route Services
@@ -205,6 +220,47 @@ def create_igw_logic(db: Session, vpc_id: str):
 
 
 # VPN Gateway Services
+def list_routes(vpc_id: str):
+    """List routes for a VPC. Creates a new session for the query."""
+    db = _get_db_session()
+    try:
+        routes = db.query(RouteModel).filter(RouteModel.vpc_id == vpc_id).all()
+        return routes
+    finally:
+        db.close()
+
+def delete_route_logic(db: Session, route_id: str):
+    """Delete a route. Returns the deleted route or None if not found."""
+    route = db.query(RouteModel).filter(RouteModel.id == route_id).first()
+    if route:
+        db.delete(route)
+    return route
+    return None
+
+def create_security_group_logic(db: Session, name: str, description: str, rules: list):
+    """Create a security group. Creates a new session for the operation."""
+    sg_id = f"sg-{uuid.uuid4().hex[:8]}"
+    new_sg = SGModel(id=sg_id, name=name, description=description, rules=rules)
+    db.add(new_sg)
+    db.commit()
+    return new_sg
+
+def list_security_groups():
+    """List all security groups. Creates a new session for the query."""
+    db = _get_db_session()
+    try:
+        return db.query(SGModel).all()
+    finally:
+        db.close()
+
+def create_internet_gateway_logic(db: Session, vpc_id: str):
+    """Create an internet gateway. Creates a new session for the operation."""
+    igw_id = f"igw-{uuid.uuid4().hex[:8]}"
+    new_igw = InternetGatewayModel(id=igw_id, vpc_id=vpc_id)
+    db.add(new_igw)
+    db.commit()
+    return new_igw
+
 def create_vpn_gateway_logic(vpc_id: str, endpoint: str, public_key: str, allowed_ips: str):
     """Create a VPN gateway. Creates a new session for the operation."""
     db = _get_db_session()

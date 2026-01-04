@@ -15,13 +15,19 @@ from typing import Optional, Dict, Any
 import json
 
 # Configure diagnostic logging
+handlers = [logging.StreamHandler(sys.stdout)]
+
+# Only add file handler if not in test environment
+if not os.getenv("VERCEL"):
+    # Ensure directory exists
+    log_dir = '/app/data'
+    os.makedirs(log_dir, exist_ok=True)
+    handlers.append(logging.FileHandler(f'{log_dir}/diagnostic.log'))
+
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('/app/data/diagnostic.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+    handlers=handlers
 )
 
 logger = logging.getLogger("diagnostic")

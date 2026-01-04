@@ -213,6 +213,53 @@ class SecurityGroup(BaseModel):
     rules: List[dict]
     created_at: datetime
 
+class SubnetCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=64)
+    cidr: str
+    availability_zone: str = "us-east-1a"
+    data_center: str = "CDC-1"
+
+class Subnet(BaseModel):
+    id: str
+    vpc_id: str
+    name: str
+    cidr: str
+    availability_zone: str
+    data_center: str
+    status: str
+    created_at: datetime
+
+class RouteCreate(BaseModel):
+    destination: str
+    next_hop: str
+    next_hop_type: str
+
+class Route(BaseModel):
+    id: str
+    vpc_id: str
+    destination: str
+    next_hop: str
+    next_hop_type: str
+    status: str
+    created_at: datetime
+
+class NATGatewayCreate(BaseModel):
+    subnet_id: str
+
+class NATGateway(BaseModel):
+    id: str
+    vpc_id: str
+    subnet_id: str
+    public_ip: str
+    status: str
+    created_at: datetime
+
+class InternetGateway(BaseModel):
+    id: str
+    vpc_id: str
+    status: str
+    created_at: datetime
+
 @app.get("/health")
 def health():
     return {"status": "healthy"}
@@ -342,3 +389,64 @@ async def redoc(request: Request):
     </body>
     </html>
     """)
+
+# Subnet endpoints
+@app.post("/vpcs/{vpc_id}/subnets", response_model=Subnet, status_code=201)
+def create_subnet(vpc_id: str, subnet: SubnetCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    new_subnet = services.create_subnet_logic(db, vpc_id, subnet.name, subnet.cidr, subnet.availability_zone)
+    background_tasks.add_task(services.provision_subnet_task, SessionLocal, new_subnet.id)
+    return new_subnet
+
+@app.get("/vpcs/{vpc_id}/subnets", response_model=List[Subnet])
+def list_subnets(vpc_id: str, db: Session = Depends(get_db)):
+    return services.list_subnets(vpc_id)
+
+@app.delete("/subnets/{subnet_id}")
+def delete_subnet(subnet_id: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    subnet = services.delete_subnet_logic(db, subnet_id)
+    if not subnet:
+        raise HTTPException(status_code=404, detail="Subnet not found")
+    background_tasks.add_task(services.deprovision_subnet_task, SessionLocal, subnet_id)
+    return {"message": "Subnet deletion initiated"}
+
+# Route endpoints
+@app.post("/vpcs/{vpc_id}/routes", response_model=Route, status_code=201)
+def create_route(vpc_id: str, route: RouteCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    new_route = services.create_route_logic(db, vpc_id, route.destination, route.next_hop, route.next_hop_type)
+    background_tasks.add_task(services.provision_route_task, SessionLocal, new_route.id)
+    return new_route
+
+@app.get("/vpcs/{vpc_id}/routes", response_model=List[Route])
+def list_routes(vpc_id: str, db: Session = Depends(get_db)):
+    return services.list_routes(vpc_id)
+
+@app.delete("/routes/{route_id}")
+def delete_route(route_id: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    route = services.delete_route_logic(db, route_id)
+    if not route:
+        raise HTTPException(status_code=404, detail="Route not found")
+    background_tasks.add_task(services.deprovision_route_task, SessionLocal, route_id)
+    return {"message": "Route deletion initiated"}
+
+# Security Group endpoints
+@app.post("/security-groups", response_model=SecurityGroup, status_code=201)
+def create_security_group(security_group: SecurityGroupCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    new_sg = services.create_security_group_logic(db, security_group.name, security_group.description, security_group.rules)
+    return new_sg
+
+@app.get("/security-groups", response_model=List[SecurityGroup])
+def list_security_groups(db: Session = Depends(get_db)):
+    return services.list_security_groups()
+
+# Gateway endpoints
+@app.post("/vpcs/{vpc_id}/internet-gateways", response_model=InternetGateway, status_code=201)
+def create_internet_gateway(vpc_id: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    igw = services.create_internet_gateway_logic(db, vpc_id)
+    background_tasks.add_task(services.provision_internet_gateway_task, SessionLocal, igw.id)
+    return igw
+
+@app.post("/vpcs/{vpc_id}/nat-gateways", response_model=NATGateway, status_code=201)
+def create_nat_gateway(vpc_id: str, nat: NATGatewayCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    nat_gw = services.create_nat_logic(db, vpc_id, nat.subnet_id)
+    background_tasks.add_task(services.provision_nat_gateway_task, SessionLocal, nat_gw.id)
+    return nat_gw

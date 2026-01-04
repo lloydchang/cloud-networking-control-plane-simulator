@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 # Set these BEFORE importing any project modules
 os.environ["DB_DIR"] = "."
 os.environ["DB_PATH"] = "./network_test.db"
+os.environ["VERCEL"] = "1"  # Prevent directory creation during tests
 
 # Add the control-plane and api directories to sys.path
 # Required for gRPC generated stubs to find each other
