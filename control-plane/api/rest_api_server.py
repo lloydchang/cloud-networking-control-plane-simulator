@@ -272,4 +272,5 @@ async def redoc(request: Request):
       <redoc spec-url='{openapi_path}'></redoc>
       <script src='https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js'></script>
     </body>
-    </html>""")
+    </html>
+    """)
