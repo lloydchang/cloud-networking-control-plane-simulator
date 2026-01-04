@@ -23,7 +23,7 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.openapi.docs import get_redoc_html
-from starlette.responses import Response
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 
 from sqlalchemy import create_engine, text
@@ -241,6 +241,14 @@ def delete_vpc(vpc_id: str, background_tasks: BackgroundTasks, db: Session = Dep
         raise HTTPException(status_code=404, detail="VPC not found")
     background_tasks.add_task(services.deprovision_vpc_task, SessionLocal, vpc_id)
     return {"message": "VPC deletion initiated"}
+
+# ==========================================================================
+# OpenAPI JSON Endpoint
+# ==========================================================================
+
+@app.get("/openapi.json", include_in_schema=False)
+async def openapi_json():
+    return JSONResponse(app.openapi())
 
 # ==========================================================================
 # ReDoc Endpoint
