@@ -19,6 +19,7 @@ RUN pip install --no-cache-dir \
     psutil \
     grpcio \
     grpcio-tools \
+    httpx \
     && mkdir -p /app/data
 
 WORKDIR /app

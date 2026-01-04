@@ -250,6 +250,23 @@ async def get_vpc_data():
     try:
         vpcs = db.query(VPCModel).all()
         
+        # If no VPCs exist, fetch static data from GitHub Pages
+        if not vpcs:
+            try:
+                import httpx
+                async with httpx.AsyncClient() as client:
+                    response = await client.get("https://lloydchang.github.io/cloud-networking-control-plane-simulator/")
+                    if response.status_code == 200:
+                        # Extract STATIC_VPC_DATA from the GitHub Pages HTML
+                        import re
+                        match = re.search(r'window\.STATIC_VPC_DATA\s*=\s*({.+?});', response.text)
+                        if match:
+                            import json
+                            static_data = json.loads(match.group(1))
+                            return static_data
+            except Exception as e:
+                logging.warning(f"Could not fetch static data from GitHub Pages: {e}")
+        
         # Transform VPCs into nodes format
         nodes = []
         edges = []
