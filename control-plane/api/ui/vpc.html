@@ -420,7 +420,7 @@
             border: 2px dotted #2e7d32;
         }
 
-        .connections-section.cloud-routing-hub {
+        .connections-section.cloud_routing_hub {
             background: #ffebee;
             border: 2px solid #c62828;
         }
@@ -447,7 +447,7 @@
         }
 
         .connections-title.cloud-routing-hub {
-            color: #b71c1c;
+            color: #c62828;
         }
 
         .connections-list {
@@ -480,6 +480,7 @@
 
         .connection-item.cloud-routing-hub {
             border: 1px solid #90caf9;
+            color: #c62828 !important;
         }
 
         /* Cloud Routing Hub */
@@ -541,7 +542,7 @@
             color: #2e7d32;
         }
 
-        .connection-arrow.cloud-routing-hub {
+        .connection-arrow.cloud_routing_hub {
             color: #c62828;
         }
 
@@ -569,8 +570,22 @@
             background: #2e7d32;
         }
 
-        .connection-type-icon.cloud-routing-hub {
-            background: #c62828;
+        .connection-type-icon.cloud_routing_hub {
+            background: #c62828 !important;
+            font-size: 8px !important;
+            font-weight: bold !important;
+            color: white !important;
+            width: 24px !important;
+            height: 24px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 3px !important;
+        }
+
+        .connections-title.cloud_routing_hub .connection-type-icon.cloud_routing_hub {
+            background: #c62828 !important;
+            color: white !important;
         }
 
         .connection-destination {
@@ -822,10 +837,6 @@
             margin-top: 10px;
         }
     </style>
-    <!-- Scenario-specific rendering logic -->
-    <script src="/scripts/scenario_hybrid.js"></script>
-    <script src="/scripts/scenario_vpn.js"></script>
-    <script src="/scripts/scenario_mesh.js"></script>
 </head>
 
 <body>
@@ -1268,71 +1279,62 @@
                         
                         let scenarioHtml = '';
 
-                        // Dispatch to scenario-specific rendering function if available
-                        if (cleanScenarioTitle.includes('Kubernetes Hybrid') && typeof renderScenarioHybrid === 'function') {
-                            scenarioHtml = renderScenarioHybrid(scenario, uniqueNodes, vpcs, hubs, standaloneDCs, data, formatVpcHtml, formatHubHtml, formatStandaloneDCHtml, formatConnectionsHtml, displayCounter);
-                        } else if (cleanScenarioTitle.includes('VPN') && typeof renderScenarioVPN === 'function') {
-                            scenarioHtml = renderScenarioVPN(scenario, uniqueNodes, vpcs, hubs, data, formatVpcHtml, formatHubHtml, formatConnectionsHtml, displayCounter);
-                        } else if (cleanScenarioTitle.includes('Mesh') && typeof renderScenarioMesh === 'function') {
-                            scenarioHtml = renderScenarioMesh(scenario, uniqueNodes, vpcs, hubs, data, formatVpcHtml, formatHubHtml, formatConnectionsHtml, displayCounter);
-                        } else {
-                            // Fallback standard rendering with hub auto-centering
-                            const hubNodes = uniqueNodes.filter(n => n.type === 'hub');
-                            const nonHubNodes = uniqueNodes.filter(n => n.type !== 'hub');
+                        // Use automatic hub centering for all scenarios
+                        const hubNodes = uniqueNodes.filter(n => n.type === 'hub');
+                        const nonHubNodes = uniqueNodes.filter(n => n.type !== 'hub');
+                        
+                        // Auto-position hubs in the middle if there are multiple resources
+                        let scenarioLayout = '';
+                        if (hubNodes.length > 0 && nonHubNodes.length > 1) {
+                            // Create a layout with hubs in the center
+                            const leftColumn = nonHubNodes.slice(0, Math.ceil(nonHubNodes.length / 2));
+                            const rightColumn = nonHubNodes.slice(Math.ceil(nonHubNodes.length / 2));
                             
-                            // Auto-position hubs in the middle if there are multiple resources
-                            let scenarioLayout = '';
-                            if (hubNodes.length > 0 && nonHubNodes.length > 1) {
-                                // Create a layout with hubs in the center
-                                const leftColumn = nonHubNodes.slice(0, Math.ceil(nonHubNodes.length / 2));
-                                const rightColumn = nonHubNodes.slice(Math.ceil(nonHubNodes.length / 2));
-                                
-                                scenarioLayout = `
-                                    <div class="scenario-content" style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 30px; align-items: start;">
-                                        <div class="scenario-column">
-                                            ${leftColumn.map(r => {
-                                                if (r.type === 'vpc') return formatVpcHtml(r);
-                                                if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
-                                                return '';
-                                            }).join('')}
-                                        </div>
-                                        <div class="hub-column">
-                                            ${hubNodes.map(h => formatHubHtml(h)).join('')}
-                                        </div>
-                                        <div class="scenario-column">
-                                            ${rightColumn.map(r => {
-                                                if (r.type === 'vpc') return formatVpcHtml(r);
-                                                if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
-                                                return '';
-                                            }).join('')}
-                                        </div>
-                                    </div>
-                                `;
-                            } else {
-                                // Standard linear layout
-                                scenarioLayout = `
-                                    <div class="scenario-content">
-                                        ${uniqueNodes.map(r => {
+                            scenarioLayout = `
+                                <div class="scenario-content" style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 30px; align-items: start;">
+                                    <div class="scenario-column">
+                                        ${leftColumn.map(r => {
                                             if (r.type === 'vpc') return formatVpcHtml(r);
-                                            if (r.type === 'hub') return formatHubHtml(r);
                                             if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
                                             return '';
                                         }).join('')}
                                     </div>
-                                `;
-                            }
-                            
-                            scenarioHtml = `
-                                <div class="scenario-group">
-                                    <div class="scenario-title">${scenario.title} <span style="font-size: 11px; color: #666; font-weight: normal;">(${vpcCount} VPC${vpcCount !== 1 ? 's' : ''}${hubCount > 0 ? `, ${hubCount} Hub${hubCount !== 1 ? 's' : ''}` : ''}${dcCount > 0 ? `, ${dcCount} DC${dcCount !== 1 ? 's' : ''}` : ''})</span></div>
-                                    <div class="scenario-desc">${scenario.description}</div>
-                                    <div class="scenario-connections">
-                                        ${formatConnectionsHtml(resourceIds)}
+                                    <div class="hub-column">
+                                        ${hubNodes.map(h => formatHubHtml(h)).join('')}
                                     </div>
-                                    ${scenarioLayout}
+                                    <div class="scenario-column">
+                                        ${rightColumn.map(r => {
+                                            if (r.type === 'vpc') return formatVpcHtml(r);
+                                            if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            // Standard linear layout
+                            scenarioLayout = `
+                                <div class="scenario-content">
+                                    ${uniqueNodes.map(r => {
+                                        if (r.type === 'vpc') return formatVpcHtml(r);
+                                        if (r.type === 'hub') return formatHubHtml(r);
+                                        if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
+                                        return '';
+                                    }).join('')}
                                 </div>
                             `;
                         }
+                        
+                        scenarioHtml = `
+                            <div class="scenario-group">
+                                <div class="scenario-title">${scenario.title} <span style="font-size: 11px; color: #666; font-weight: normal;">(${vpcCount} VPC${vpcCount !== 1 ? 's' : ''}${hubCount > 0 ? `, ${hubCount} CRH${hubCount !== 1 ? 's' : ''}` : ''}${dcCount > 0 ? `, ${dcCount} ODC${dcCount !== 1 ? 's' : ''}` : ''})</span></div>
+                                <div class="scenario-desc">${scenario.description}</div>
+                                <div class="scenario-connections">
+                                    ${formatConnectionsHtml(resourceIds)}
+                                </div>
+                                ${scenarioLayout}
+                            </div>
+                        `;
                         
                         if (scenarioHtml) {
                             html += scenarioHtml;
@@ -1354,7 +1356,7 @@
                     
                     html += `
                         <div class="scenario-group">
-                            <div class="scenario-title">Miscellaneous <span style="font-size: 11px; color: #666; font-weight: normal;">(${vpcCount} VPC${vpcCount !== 1 ? 's' : ''}${hubCount > 0 ? `, ${hubCount} Hub${hubCount !== 1 ? 's' : ''}` : ''}${dcCount > 0 ? `, ${dcCount} ODC${dcCount !== 1 ? 's' : ''}` : ''})</span></div>
+                            <div class="scenario-title">Miscellaneous <span style="font-size: 11px; color: #666; font-weight: normal;">(${vpcCount} VPC${vpcCount !== 1 ? 's' : ''}${hubCount > 0 ? `, ${hubCount} CRH${hubCount !== 1 ? 's' : ''}` : ''}${dcCount > 0 ? `, ${dcCount} ODC${dcCount !== 1 ? 's' : ''}` : ''})</span></div>
                             <div class="scenario-connections">
                                     ${formatConnectionsHtml(unassignedIds)}
                             </div>

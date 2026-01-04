@@ -2,7 +2,7 @@
  * Scenario: Managed VPN (WireGuard)
  * Standard flex layout.
  */
-function renderScenarioVPN(scenario, scenarioResources, vpcs, hubs, data, formatVpcHtml, formatHubHtml, formatConnectionsHtml) {
+function renderScenarioVPN(scenario, scenarioResources, vpcs, hubs, data, formatVpcHtml, formatHubHtml, formatConnectionsHtml, displayCounter, vpcCount, hubCount, dcCount) {
     const resourceIds = scenarioResources.map(r => r.id);
 
     const scenarioBody = `
@@ -17,7 +17,7 @@ function renderScenarioVPN(scenario, scenarioResources, vpcs, hubs, data, format
 
     return `
         <div class="scenario-group">
-            <div class="scenario-title">${scenario.title}</div>
+            <div class="scenario-title">${scenario.title} <span style="font-size: 11px; color: #666; font-weight: normal;">(${vpcCount} VPC${vpcCount !== 1 ? 's' : ''}${hubCount > 0 ? `, ${hubCount} CRH${hubCount !== 1 ? 's' : ''}` : ''}${dcCount > 0 ? `, ${dcCount} ODC${dcCount !== 1 ? 's' : ''}` : ''})</span></div>
             <div class="scenario-desc">${scenario.description}</div>
             <div class="scenario-connections">
                 ${formatConnectionsHtml(resourceIds)}
