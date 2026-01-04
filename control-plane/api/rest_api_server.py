@@ -29,6 +29,9 @@ from pydantic import BaseModel, Field
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 try:
     from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
     PROMETHEUS_AVAILABLE = True
@@ -85,16 +88,29 @@ Base.metadata.create_all(bind=engine)
 def initialize_database_and_metrics():
     db = SessionLocal()
     try:
+        # Ensure vni_counter table exists
+        result = db.execute(text("SELECT name FROM sqlite_master WHERE type='table' AND name='vni_counter';"))
+        if not result.first():
+            logging.info("Creating vni_counter table")
+        else:
+            logging.info("vni_counter table already exists")
+        db.execute(text("CREATE TABLE IF NOT EXISTS vni_counter (id INTEGER PRIMARY KEY, current INTEGER NOT NULL);"))
+        db.commit()
+
+        # Ensure there is a row with id=1
+        from sqlalchemy.exc import IntegrityError
         try:
-            db.execute(text("SELECT 1 FROM vni_counter LIMIT 1;"))
-        except Exception:
-            db.execute(text("CREATE TABLE IF NOT EXISTS vni_counter (id INTEGER PRIMARY KEY, current INTEGER NOT NULL);"))
-            db.commit()
+            if not db.query(VniCounterModel).filter_by(id=1).first():
+                db.add(VniCounterModel(id=1, current=1))
+                db.commit()
+                logging.info("Inserted initial row into vni_counter")
+            else:
+                logging.info("vni_counter row with id=1 already exists")
+        except IntegrityError as e:
+            logging.warning(f"IntegrityError while inserting vni_counter row: {e}")
+            db.rollback()
 
-        if not db.query(VniCounterModel).filter_by(id=1).first():
-            db.add(VniCounterModel(id=1, current=1))
-            db.commit()
-
+        # Initialize Prometheus metrics safely
         if PROMETHEUS_AVAILABLE:
             try:
                 METRICS["vpcs_total"].set(db.query(VPCModel).count())
@@ -106,6 +122,7 @@ def initialize_database_and_metrics():
             except Exception:
                 pass
 
+        # Write OpenAPI JSON to assets
         openapi_path = os.path.join(ASSETS_DIR, "openapi.json")
         with open(openapi_path, "w") as f:
             json.dump(app.openapi(), f)
