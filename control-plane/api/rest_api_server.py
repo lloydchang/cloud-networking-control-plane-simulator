@@ -1,4 +1,4 @@
-# File: rest_api_server.py
+# File: control-plane/api/rest_api_server.py
 #!/usr/bin/env python3
 """
 Cloud Networking REST API Server
@@ -23,7 +23,6 @@ from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.openapi.docs import get_redoc_html
 from fastapi.responses import JSONResponse, Response, HTMLResponse
 from pydantic import BaseModel, Field
 
@@ -62,10 +61,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# ==========================================================================
 # Static Assets
-# ==========================================================================
-
 SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "scripts")
 if os.path.exists(SCRIPTS_DIR):
     app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
@@ -74,42 +70,31 @@ ASSETS_DIR = "/app/assets"
 os.makedirs(ASSETS_DIR, exist_ok=True)
 app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
 
-# ==========================================================================
 # Database Configuration
-# ==========================================================================
-
 DB_DIR = "/tmp" if os.getenv("VERCEL") else os.getenv("DB_DIR", "/app/data")
 DB_PATH = os.getenv("DB_PATH", f"{DB_DIR}/network.db")
-
 if not DB_PATH.startswith(":memory:"):
     os.makedirs(DB_DIR, exist_ok=True)
-
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base.metadata.create_all(bind=engine)
 
-# ==========================================================================
 # Startup Hooks
-# ==========================================================================
-
 @app.on_event("startup")
 def initialize_database_and_metrics():
     db = SessionLocal()
     try:
-        # Ensure vni_counter table exists safely
         try:
             db.execute(text("SELECT 1 FROM vni_counter LIMIT 1;"))
         except Exception:
             db.execute(text("CREATE TABLE IF NOT EXISTS vni_counter (id INTEGER PRIMARY KEY, current INTEGER NOT NULL);"))
             db.commit()
 
-        # Initialize vni_counter row if missing
         if not db.query(VniCounterModel).filter_by(id=1).first():
             db.add(VniCounterModel(id=1, current=1))
             db.commit()
 
-        # Initialize Prometheus metrics if available
         if PROMETHEUS_AVAILABLE:
             try:
                 METRICS["vpcs_total"].set(db.query(VPCModel).count())
@@ -119,19 +104,15 @@ def initialize_database_and_metrics():
                 METRICS["nat_gateways_total"].set(db.query(NATModel).count())
                 METRICS["internet_gateways_total"].set(db.query(InternetGatewayModel).count())
             except Exception:
-                pass  # Fail silently for Prometheus on Vercel
+                pass
 
-        # Pre-generate OpenAPI JSON for Vercel static assets
         openapi_path = os.path.join(ASSETS_DIR, "openapi.json")
         with open(openapi_path, "w") as f:
             json.dump(app.openapi(), f)
     finally:
         db.close()
 
-# ==========================================================================
 # Dependencies
-# ==========================================================================
-
 def get_db():
     db = SessionLocal()
     try:
@@ -139,10 +120,7 @@ def get_db():
     finally:
         db.close()
 
-# ==========================================================================
 # Pydantic Models
-# ==========================================================================
-
 class VPCCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=64)
     cidr: str
@@ -192,10 +170,7 @@ class SecurityGroup(BaseModel):
     rules: List[dict]
     created_at: datetime
 
-# ==========================================================================
 # Health and Metrics
-# ==========================================================================
-
 @app.get("/health")
 def health():
     return {"status": "healthy"}
@@ -215,10 +190,7 @@ async def prometheus_middleware(request: Request, call_next):
     _ = (time.time() - start) * 1000
     return response
 
-# ==========================================================================
 # Core Endpoints
-# ==========================================================================
-
 @app.post("/vpcs", response_model=VPC, status_code=201)
 def create_vpc(vpc: VPCCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     new_vpc = services.create_vpc_logic(db, vpc.name, vpc.cidr, vpc.region, vpc.secondary_cidrs, vpc.scenario)
@@ -244,18 +216,12 @@ def delete_vpc(vpc_id: str, background_tasks: BackgroundTasks, db: Session = Dep
     background_tasks.add_task(services.deprovision_vpc_task, SessionLocal, vpc_id)
     return {"message": "VPC deletion initiated"}
 
-# ==========================================================================
 # OpenAPI JSON Endpoint
-# ==========================================================================
-
 @app.get("/openapi.json", include_in_schema=False)
 async def openapi_json():
     return JSONResponse(app.openapi())
 
-# ==========================================================================
-# ReDoc Endpoint (Fixed for Vercel / Proxy)
-# ==========================================================================
-
+# ReDoc Endpoint
 @app.get("/redoc", include_in_schema=False)
 async def redoc(request: Request):
     openapi_path = "/assets/openapi.json"
