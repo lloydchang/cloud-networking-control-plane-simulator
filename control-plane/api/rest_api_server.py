@@ -97,29 +97,23 @@ Base.metadata.create_all(bind=engine)
 def initialize_database_and_metrics():
     db = SessionLocal()
     try:
-        # Ensure vni_counter table exists safely
         try:
             db.execute(text("SELECT 1 FROM vni_counter LIMIT 1;"))
         except Exception:
             db.execute(text("CREATE TABLE IF NOT EXISTS vni_counter (id INTEGER PRIMARY KEY, current INTEGER NOT NULL);"))
             db.commit()
 
-        # Initialize vni_counter row if missing
         if not db.query(VniCounterModel).filter_by(id=1).first():
             db.add(VniCounterModel(id=1, current=1))
             db.commit()
 
-        # Initialize Prometheus metrics if available
         if PROMETHEUS_AVAILABLE:
-            try:
-                METRICS["vpcs_total"].set(db.query(VPCModel).count())
-                METRICS["subnets_total"].set(db.query(SubnetModel).count())
-                METRICS["routes_total"].set(db.query(RouteModel).count())
-                METRICS["security_groups_total"].set(db.query(SGModel).count())
-                METRICS["nat_gateways_total"].set(db.query(NATModel).count())
-                METRICS["internet_gateways_total"].set(db.query(InternetGatewayModel).count())
-            except Exception:
-                pass  # Fail silently for Prometheus on Vercel
+            METRICS["vpcs_total"].set(db.query(VPCModel).count())
+            METRICS["subnets_total"].set(db.query(SubnetModel).count())
+            METRICS["routes_total"].set(db.query(RouteModel).count())
+            METRICS["security_groups_total"].set(db.query(SGModel).count())
+            METRICS["nat_gateways_total"].set(db.query(NATModel).count())
+            METRICS["internet_gateways_total"].set(db.query(InternetGatewayModel).count())
 
         # Pre-generate OpenAPI JSON for Vercel static assets
         openapi_path = os.path.join(ASSETS_DIR, "openapi.json")
@@ -272,4 +266,4 @@ async def redoc(request: Request):
       <redoc spec-url='{openapi_path}'></redoc>
       <script src='https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js'></script>
     </body>
-    </html>
+    </html>""")
