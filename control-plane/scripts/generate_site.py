@@ -55,7 +55,7 @@ def extract_coverage_from_testing_md():
         return None
 
 def extract_architecture_from_md():
-    """Extract architecture content from ARCHITECTURE.md"""
+    """Extract architecture content from ARCHITECTURE.md and format diagrams as code blocks"""
     arch_md_path = "docs/ARCHITECTURE.md"
     if not os.path.exists(arch_md_path):
         print(f"Warning: {arch_md_path} not found, using default content")
@@ -63,7 +63,47 @@ def extract_architecture_from_md():
     
     try:
         with open(arch_md_path, 'r') as f:
-            return f.read()
+            content = f.read()
+        
+        # Convert text diagrams to properly formatted code blocks
+        lines = content.split('\n')
+        formatted_lines = []
+        in_code_block = False
+        in_diagram = False
+        
+        for line in lines:
+            # Detect diagram blocks (start with ```text or contain diagram patterns)
+            if line.strip().startswith('```text'):
+                formatted_lines.append(line)
+                in_code_block = True
+                in_diagram = True
+            elif line.strip() == '```' and in_diagram:
+                formatted_lines.append(line)
+                in_code_block = False
+                in_diagram = False
+            # Detect ASCII diagram patterns (box drawing characters, arrows, etc.)
+            elif any(char in line for char in ['┌', '┐', '└', '┘', '─', '│', '├', '┤', '┬', '┴', '┼', '▶', '───']):
+                if not in_code_block:
+                    formatted_lines.append('```text')
+                    in_code_block = True
+                    in_diagram = True
+                formatted_lines.append(line)
+            elif in_diagram and (line.strip() == '' or line.strip().startswith('```')):
+                if line.strip() == '```':
+                    formatted_lines.append(line)
+                    in_code_block = False
+                    in_diagram = False
+                else:
+                    formatted_lines.append(line)
+            else:
+                formatted_lines.append(line)
+        
+        # Close any open code block
+        if in_code_block:
+            formatted_lines.append('```')
+        
+        formatted_content = '\n'.join(formatted_lines)
+        return formatted_content
     except Exception as e:
         print(f"Error parsing ARCHITECTURE.md: {e}")
         return "<p>Error loading architecture documentation</p>"
@@ -243,58 +283,58 @@ def export_static_fully_offline():
     if arch_tab:
         # Replace the architecture tab content with dynamic content
         arch_content = f"""
-        <h3>🏗️ System Architecture</h3>
-        <p>The simulator provides a conceptual exploration of cloud networking internals using Linux networking primitives.</p>
-        
-        <h4>Core Concepts</h4>
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
-            <strong>Physical Fabric:</strong> Docker-based network providing basic reachability between Spines, Leafs, and Control Plane.<br><br>
-            <strong>Logical Overlay:</strong> VXLAN-EVPN overlay built on top using BGP EVPN for VPC isolation and routing.<br><br>
-            <strong>Cloud Routing Hub:</strong> Centralized routing aggregation point for hub-and-spoke architectures.
-        </div>
-        
-        <h4>Implementation Status</h4>
-        <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
-            <tr style="background: #f5f5f5;">
-                <th style="border: 1px solid #ddd; padding: 8px;">Feature</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">Control Plane</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">Data Plane</th>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">EVPN-VXLAN</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">✅ FRR</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">✅ Linux Kernel</td>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">VRFs</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">🔄 Simulated</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">🔄 iptables Fallback</td>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">VTEPs</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">✅ FRR</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">✅ VXLAN Interfaces</td>
-            </tr>
-        </table>
-        
-        <h4>Intent-Driven Orchestration</h4>
-        <div style="background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 10px 0;">
-            <strong>Reconciliation Loop:</strong><br>
-            1. <strong>Fetch:</strong> Query SQLite database for desired state<br>
-            2. <strong>Discover:</strong> Inspect leaf switches using <code>ip link</code><br>
-            3. <strong>Diff:</strong> Compute differences between intended and actual<br>
-            4. <strong>Action:</strong> Execute system commands to converge state
-        </div>
-        
-        <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
-            <h4>📚 Related Documentation</h4>
-            <ul style="margin: 0; padding-left: 20px;">
-                <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/ARCHITECTURE.md" target="_blank">📖 Full Architecture Details</a></li>
-                <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/NETWORKING_IMPLEMENTATION.md" target="_blank">🔧 Networking Implementation</a></li>
-                <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/IDEAS.md" target="_blank">💡 Design Ideas & Extensions</a></li>
-                <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/README.md" target="_blank">🏠 Project README</a></li>
-            </ul>
-        </div>
+        <style>
+        .architecture-content {{
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+        }}
+        .architecture-content h1, .architecture-content h2, .architecture-content h3, .architecture-content h4 {{
+            color: #232f3e;
+            margin: 20px 0 10px 0;
+        }}
+        .architecture-content pre {{
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }}
+        .architecture-content code {{
+            background: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }}
+        .architecture-content pre code {{
+            background: transparent;
+            padding: 0;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }}
+        .architecture-content blockquote {{
+            border-left: 4px solid #00897b;
+            padding-left: 16px;
+            margin: 15px 0;
+            color: #666;
+        }}
+        .architecture-content table {{
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }}
+        .architecture-content th, .architecture-content td {{
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }}
+        .architecture-content th {{
+            background: #f5f5f5;
+            font-weight: bold;
+        }}
+        </style>
+        <div class="architecture-content">{arch_data}</div>
         """
         
         # Create new content div

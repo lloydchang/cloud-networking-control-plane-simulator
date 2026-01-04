@@ -63,6 +63,59 @@ from .models import (
 )
 from . import shared_api_logic as services
 
+def get_processed_architecture_content():
+    """Extract and process architecture content with diagram formatting"""
+    arch_md_path = os.path.join(os.path.dirname(__file__), "..", "..", "docs", "ARCHITECTURE.md")
+    if not os.path.exists(arch_md_path):
+        return None
+    
+    try:
+        with open(arch_md_path, 'r') as f:
+            content = f.read()
+        
+        # Convert text diagrams to properly formatted code blocks
+        lines = content.split('\n')
+        formatted_lines = []
+        in_code_block = False
+        in_diagram = False
+        
+        for line in lines:
+            # Detect diagram blocks (start with ```text or contain diagram patterns)
+            if line.strip().startswith('```text'):
+                formatted_lines.append(line)
+                in_code_block = True
+                in_diagram = True
+            elif line.strip() == '```' and in_diagram:
+                formatted_lines.append(line)
+                in_code_block = False
+                in_diagram = False
+            # Detect ASCII diagram patterns (box drawing characters, arrows, etc.)
+            elif any(char in line for char in ['┌', '┐', '└', '┘', '─', '│', '├', '┤', '┬', '┴', '┼', '▶', '───']):
+                if not in_code_block:
+                    formatted_lines.append('```text')
+                    in_code_block = True
+                    in_diagram = True
+                formatted_lines.append(line)
+            elif in_diagram and (line.strip() == '' or line.strip().startswith('```')):
+                if line.strip() == '```':
+                    formatted_lines.append(line)
+                    in_code_block = False
+                    in_diagram = False
+                else:
+                    formatted_lines.append(line)
+            else:
+                formatted_lines.append(line)
+        
+        # Close any open code block
+        if in_code_block:
+            formatted_lines.append('```')
+        
+        formatted_content = '\n'.join(formatted_lines)
+        return formatted_content
+    except Exception as e:
+        logging.warning(f"Error processing ARCHITECTURE.md: {e}")
+        return None
+
 app = FastAPI(
     title="Cloud Networking Control Plane Simulator - Control Plane API",
     description="Cloud Networking Control Plane Simulator - Control Plane API",
@@ -363,7 +416,77 @@ async def vpc_view():
     vpc_html_path = os.path.join(os.path.dirname(__file__), "ui", "vpc.html")
     try:
         with open(vpc_html_path, "r") as f:
-            return HTMLResponse(f.read())
+            html_content = f.read()
+        
+        # Process architecture content with diagram formatting
+        arch_content = get_processed_architecture_content()
+        
+        # Replace the architecture tab content
+        if arch_content:
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(html_content, "html.parser")
+            arch_tab = soup.find("div", {"id": "content-architecture"})
+            if arch_tab:
+                new_arch_content = f"""
+                <style>
+                .architecture-content {{
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    line-height: 1.6;
+                }}
+                .architecture-content h1, .architecture-content h2, .architecture-content h3, .architecture-content h4 {{
+                    color: #232f3e;
+                    margin: 20px 0 10px 0;
+                }}
+                .architecture-content pre {{
+                    background: #f8f9fa;
+                    border: 1px solid #e9ecef;
+                    border-radius: 4px;
+                    padding: 16px;
+                    overflow-x: auto;
+                    margin: 15px 0;
+                }}
+                .architecture-content code {{
+                    background: #f8f9fa;
+                    padding: 2px 4px;
+                    border-radius: 3px;
+                    font-size: 0.9em;
+                }}
+                .architecture-content pre code {{
+                    background: transparent;
+                    padding: 0;
+                    font-family: 'Courier New', Consolas, monospace;
+                    font-size: 0.85em;
+                    line-height: 1.4;
+                }}
+                .architecture-content blockquote {{
+                    border-left: 4px solid #00897b;
+                    padding-left: 16px;
+                    margin: 15px 0;
+                    color: #666;
+                }}
+                .architecture-content table {{
+                    border-collapse: collapse;
+                    width: 100%;
+                    margin: 15px 0;
+                }}
+                .architecture-content th, .architecture-content td {{
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: left;
+                }}
+                .architecture-content th {{
+                    background: #f5f5f5;
+                    font-weight: bold;
+                }}
+                </style>
+                <div class="architecture-content">{arch_content}</div>
+                """
+                new_arch_div = soup.new_tag("div", **{"id": "content-architecture", "style": "display: none;"})
+                new_arch_div.append(BeautifulSoup(new_arch_content, "html.parser"))
+                arch_tab.replace_with(new_arch_div)
+                html_content = str(soup)
+        
+        return HTMLResponse(html_content)
     except FileNotFoundError:
         return HTMLResponse("<h1>VPC View Not Found</h1><p>The VPC view HTML file could not be found.</p>", status_code=404)
 
@@ -386,6 +509,49 @@ async def redoc(request: Request):
     <body>
       <redoc spec-url='{openapi_path}'></redoc>
       <script src='https://cdn.jsdelivr.net/npm/redoc@2.0.0/bundles/redoc.standalone.js'></script>
+    </body>
+    </html>
+    """)
+
+@app.get("/docs", include_in_schema=False)
+async def docs(request: Request):
+    openapi_path = "/openapi.json"
+    return HTMLResponse(f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Cloud Networking Control Plane Simulator - Swagger UI</title>
+      <meta charset='utf-8'/>
+      <meta name='viewport' content='width=device-width, initial-scale=1'>
+      <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui.css" />
+      <style>
+        html {{ box-sizing: border-box; overflow: -moz-scrollbars-vertical; overflow-y: scroll; }}
+        *, *:before, *:after {{ box-sizing: inherit; }}
+        body {{ margin:0; background: #fafafa; }}
+      </style>
+    </head>
+    <body>
+      <div id="swagger-ui"></div>
+      <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
+      <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
+      <script>
+        window.onload = function() {{
+          SwaggerUIBundle({{
+            url: '{openapi_path}',
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIStandalonePreset
+            ],
+            plugins: [
+              SwaggerUIBundle.plugins.DownloadUrl
+            ],
+            layout: "StandaloneLayout",
+            tryItOutEnabled: true
+          }});
+        }}
+      </script>
     </body>
     </html>
     """)
