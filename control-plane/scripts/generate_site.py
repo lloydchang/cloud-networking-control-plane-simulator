@@ -211,7 +211,7 @@ def export_static_fully_offline():
         logo_src = logo_img.get("src")
         if logo_src and logo_src.startswith("/ui/"):
             # Try to inline the SVG
-            logo_path = os.path.join(template_dir, logo_src[1:])  # Remove leading /
+            logo_path = os.path.join(template_dir, logo_src[4:])  # Remove leading /ui/
             if os.path.exists(logo_path):
                 with open(logo_path, 'r') as f:
                     svg_content = f.read()
