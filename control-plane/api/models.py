@@ -142,39 +142,5 @@ class StandaloneDCSubnet(Base):
 # Database Configuration (SQLite for Persistence)
 # ============================================================================
 
-# Default to /tmp for serverless environments if DB_DIR is not set
-DB_DIR = os.getenv("DB_DIR", "/tmp")
-DB_PATH = os.path.join(DB_DIR, "network.db")
-
-# Ensure data directory exists if it's not a special sqlite path
-if not os.path.exists(DB_DIR) and not DB_PATH.startswith(":memory:"):
-    try:
-        os.makedirs(DB_DIR, exist_ok=True)
-    except OSError:
-        # Fallback for read-only environments during testing if needed
-        pass
-
-SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
-
-# Create the engine pointing to your SQLite database
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    echo=True,
-    connect_args={"check_same_thread": False}  # Needed for SQLite in serverless
-)
-
-# Ensure /tmp is writable and create tables safely
-try:
-    if not DB_PATH.startswith(":memory:") and os.access(DB_DIR, os.W_OK):
-        os.makedirs(DB_DIR, exist_ok=True)
-        Base.metadata.create_all(bind=engine)
-except Exception as e:
-    print("Warning: could not create tables:", e)
-
-# Optional: query existing tables safely for debugging
-try:
-    with engine.connect() as conn:
-        result = conn.execute(text("SELECT name FROM sqlite_master WHERE type='table';"))
-        print("Existing tables:", [row[0] for row in result])
-except Exception as e:
-    print("SQLite query failed:", e)
+# Database configuration is handled in rest_api_server.py
+# This avoids conflicts in serverless environments like Vercel

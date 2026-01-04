@@ -26,7 +26,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, Response, HTMLResponse
 from pydantic import BaseModel, Field
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, Table, MetaData, select, insert, update
 from sqlalchemy.orm import sessionmaker, Session
 
 import logging
@@ -38,7 +38,11 @@ try:
 except ImportError:
     PROMETHEUS_AVAILABLE = False
 
-from metrics import METRICS
+try:
+    from metrics import METRICS
+except ImportError:
+    METRICS = {}
+    PROMETHEUS_AVAILABLE = False
 
 from .models import (
     Base,
@@ -64,7 +68,6 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Static Assets
 SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "scripts")
 if os.path.exists(SCRIPTS_DIR):
     app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
@@ -73,7 +76,6 @@ ASSETS_DIR = "/app/assets"
 os.makedirs(ASSETS_DIR, exist_ok=True)
 app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
 
-# Database Configuration
 DB_DIR = "/tmp" if os.getenv("VERCEL") else os.getenv("DB_DIR", "/app/data")
 DB_PATH = os.getenv("DB_PATH", f"{DB_DIR}/network.db")
 if not DB_PATH.startswith(":memory:"):
@@ -83,34 +85,32 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base.metadata.create_all(bind=engine)
 
-# Startup Hooks
 @app.on_event("startup")
 def initialize_database_and_metrics():
     db = SessionLocal()
     try:
-        # Ensure vni_counter table exists
-        result = db.execute(text("SELECT name FROM sqlite_master WHERE type='table' AND name='vni_counter';"))
-        if not result.first():
-            logging.info("Creating vni_counter table")
-        else:
-            logging.info("vni_counter table already exists")
-        db.execute(text("CREATE TABLE IF NOT EXISTS vni_counter (id INTEGER PRIMARY KEY, current INTEGER NOT NULL);"))
-        db.commit()
-
-        # Ensure there is a row with id=1
-        from sqlalchemy.exc import IntegrityError
+        # Initialize vni_counter table if it doesn't exist
         try:
-            if not db.query(VniCounterModel).filter_by(id=1).first():
-                db.add(VniCounterModel(id=1, current=1))
-                db.commit()
-                logging.info("Inserted initial row into vni_counter")
-            else:
-                logging.info("vni_counter row with id=1 already exists")
-        except IntegrityError as e:
-            logging.warning(f"IntegrityError while inserting vni_counter row: {e}")
-            db.rollback()
+            db.execute(text("CREATE TABLE IF NOT EXISTS vni_counter (id INTEGER PRIMARY KEY, current INTEGER NOT NULL);"))
+            db.commit()
+        except Exception as e:
+            logging.warning(f"Could not create vni_counter table: {e}")
 
-        # Initialize Prometheus metrics safely
+        # Initialize vni_counter row if it doesn't exist
+        try:
+            metadata = MetaData(bind=engine)
+            vni_counter = Table("vni_counter", metadata, autoload_with=engine)
+            row = db.execute(select(vni_counter).where(vni_counter.c.id == 1)).fetchone()
+            if not row:
+                db.execute(insert(vni_counter).values(id=1, current=1003))
+                db.commit()
+                logging.info("Inserted initial vni_counter row with id=1 and current=1003")
+            else:
+                logging.info(f"vni_counter exists with current={row['current']}")
+        except Exception as e:
+            logging.warning(f"Could not initialize vni_counter: {e}")
+
+        # Initialize metrics if available
         if PROMETHEUS_AVAILABLE:
             try:
                 METRICS["vpcs_total"].set(db.query(VPCModel).count())
@@ -119,17 +119,20 @@ def initialize_database_and_metrics():
                 METRICS["security_groups_total"].set(db.query(SGModel).count())
                 METRICS["nat_gateways_total"].set(db.query(NATModel).count())
                 METRICS["internet_gateways_total"].set(db.query(InternetGatewayModel).count())
-            except Exception:
-                pass
+            except Exception as e:
+                logging.warning(f"Could not initialize metrics: {e}")
 
-        # Write OpenAPI JSON to assets
-        openapi_path = os.path.join(ASSETS_DIR, "openapi.json")
-        with open(openapi_path, "w") as f:
-            json.dump(app.openapi(), f)
+        # Generate OpenAPI spec
+        try:
+            openapi_path = os.path.join(ASSETS_DIR, "openapi.json")
+            with open(openapi_path, "w") as f:
+                json.dump(app.openapi(), f)
+        except Exception as e:
+            logging.warning(f"Could not generate OpenAPI spec: {e}")
     finally:
         db.close()
 
-# Dependencies
+
 def get_db():
     db = SessionLocal()
     try:
@@ -137,7 +140,6 @@ def get_db():
     finally:
         db.close()
 
-# Pydantic Models
 class VPCCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=64)
     cidr: str
@@ -187,7 +189,6 @@ class SecurityGroup(BaseModel):
     rules: List[dict]
     created_at: datetime
 
-# Health and Metrics
 @app.get("/health")
 def health():
     return {"status": "healthy"}
@@ -207,7 +208,6 @@ async def prometheus_middleware(request: Request, call_next):
     _ = (time.time() - start) * 1000
     return response
 
-# Core Endpoints
 @app.post("/vpcs", response_model=VPC, status_code=201)
 def create_vpc(vpc: VPCCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     new_vpc = services.create_vpc_logic(db, vpc.name, vpc.cidr, vpc.region, vpc.secondary_cidrs, vpc.scenario)
@@ -233,12 +233,10 @@ def delete_vpc(vpc_id: str, background_tasks: BackgroundTasks, db: Session = Dep
     background_tasks.add_task(services.deprovision_vpc_task, SessionLocal, vpc_id)
     return {"message": "VPC deletion initiated"}
 
-# OpenAPI JSON Endpoint
 @app.get("/openapi.json", include_in_schema=False)
 async def openapi_json():
     return JSONResponse(app.openapi())
 
-# ReDoc Endpoint
 @app.get("/redoc", include_in_schema=False)
 async def redoc(request: Request):
     openapi_path = "/assets/openapi.json"
