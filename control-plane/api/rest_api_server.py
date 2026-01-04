@@ -240,9 +240,19 @@ def delete_vpc(vpc_id: str, background_tasks: BackgroundTasks, db: Session = Dep
 async def openapi_json():
     return JSONResponse(app.openapi())
 
+@app.get("/", include_in_schema=False)
+async def vpc_view():
+    """Serve the VPC view HTML page"""
+    vpc_html_path = os.path.join(os.path.dirname(__file__), "ui", "vpc.html")
+    try:
+        with open(vpc_html_path, "r") as f:
+            return HTMLResponse(f.read())
+    except FileNotFoundError:
+        return HTMLResponse("<h1>VPC View Not Found</h1><p>The VPC view HTML file could not be found.</p>", status_code=404)
+
 @app.get("/redoc", include_in_schema=False)
 async def redoc(request: Request):
-    openapi_path = "/assets/openapi.json"
+    openapi_path = "/openapi.json"
     return HTMLResponse(f"""
     <!DOCTYPE html>
     <html>
