@@ -31,13 +31,21 @@ High-level cloud abstractions map to standard Linux networking constructs:
 
 For a deep dive into schemas and sequences, see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Quick Start
+## 🌐 Live Demo
 
-### 1. Clone & Prepare
+**Primary URL (Recommended):**
+- **[GitHub Pages](https://lloydchang.github.io/cloud-networking-control-plane-simulator/)** - Static demo with rich content and documentation
+
+**Development URL:**
+- **[Vercel](https://cloud-networking-control-plane-simulator.vercel.app/)** - Live API testing and interactive features
+
+> **Note:** GitHub Pages provides the best first impression with rich demo content and reliable performance. Use Vercel for hands-on API testing and development work.
+
+## Quick Start
 
 ```bash
 # Clone the simulator repository
-git clone https://github.com/your-repo/cloud-networking-control-plane-simulator.git
+git clone https://github.com/lloydchang/cloud-networking-control-plane-simulator.git
 
 # Enter the project directory
 cd cloud-networking-control-plane-simulator
