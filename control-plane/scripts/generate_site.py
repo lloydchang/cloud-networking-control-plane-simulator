@@ -281,7 +281,7 @@ def export_static_fully_offline():
     # Find the architecture tab in the HTML and update it
     arch_tab = soup.find("div", {"id": "content-architecture"})
     if arch_tab:
-        # Replace the architecture tab content with dynamic content
+        # Replace the architecture tab content with processed markdown HTML
         arch_content = f"""
         <style>
         .architecture-content {{
