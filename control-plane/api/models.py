@@ -1,3 +1,5 @@
+# file: models.py
+
 from sqlalchemy import Column, String, Integer, ForeignKey, JSON, DateTime, func, create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -20,7 +22,7 @@ class VPC(Base):
     vni = Column(Integer, unique=True, nullable=False)
     vrf = Column(String, unique=True, nullable=False)
     region = Column(String, default="us-east-1")
-    secondary_cidrs = Column(JSON, default=list) # For EKS/Pod subnets
+    secondary_cidrs = Column(JSON, default=list) # For K8s/Pod subnets
     scenario = Column(String, nullable=True)     # For UI grouping
     status = Column(String, default="active")
     created_at = Column(DateTime, server_default=func.now())
