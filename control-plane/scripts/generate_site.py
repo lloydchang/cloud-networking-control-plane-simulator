@@ -103,7 +103,12 @@ def extract_architecture_from_md():
             formatted_lines.append('```')
         
         formatted_content = '\n'.join(formatted_lines)
-        return formatted_content
+        
+        # Convert markdown to HTML
+        import markdown
+        html_content = markdown.markdown(formatted_content, extensions=['fenced_code', 'codehilite', 'tables', 'toc'])
+        
+        return html_content
     except Exception as e:
         print(f"Error parsing ARCHITECTURE.md: {e}")
         return "<p>Error loading architecture documentation</p>"
