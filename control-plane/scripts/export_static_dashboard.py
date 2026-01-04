@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 API_BASE_URL = "http://localhost:8000"
 TEMPLATE_PATH = "control-plane/api/ui/vpc.html"
-OUTPUT_DIR = "docs/vpc-view"
+OUTPUT_DIR = "docs"
 
 # Scenario-specific scripts relative to TEMPLATE_PATH
 SCENARIO_SCRIPTS = [
