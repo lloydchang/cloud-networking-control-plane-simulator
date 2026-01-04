@@ -102,11 +102,9 @@ Base.metadata.create_all(bind=engine)
 def initialize_database_and_metrics():
     db = SessionLocal()
     try:
-        # Ensure singleton vni_counter row exists safely
-        vni_row = db.query(VniCounterModel).filter(VniCounterModel.id == 1).first()
-        if not vni_row:
-            new_counter = VniCounterModel(id=1, current=1)
-            db.add(new_counter)
+        # Ensure singleton vni_counter row exists safely using ORM
+        if not db.query(VniCounterModel).filter_by(id=1).first():
+            db.add(VniCounterModel(id=1, current=1))
             db.commit()
 
         # Initialize Prometheus metrics if available
