@@ -24,6 +24,7 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, Response, HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from sqlalchemy import create_engine, text, Table, MetaData, select, insert, update
@@ -67,6 +68,19 @@ app = FastAPI(
     description="Cloud Networking Control Plane Simulator - Control Plane API",
     version="1.0.0",
     redoc_url=None,  # Disable built-in ReDoc
+)
+
+# Add CORS middleware for GitHub Pages integration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://lloydchang.github.io",
+        "http://localhost:8000",
+        "http://localhost:3000"
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
 )
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "scripts")

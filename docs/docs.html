@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - Cloud Networking Control Plane Simulator</title>
+    <link rel="icon" type="image/svg+xml" href="https://lloydchang.github.io/cloud-networking-control-plane-simulator/assets/images/cncps_logo.svg">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .header {
+            background: #232f3e;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .header-links {
+            display: flex;
+            gap: 15px;
+        }
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            background: #00897b;
+            transition: background 0.3s;
+        }
+        .header-links a:hover {
+            background: #00796b;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #d32f2f;
+            background: #ffebee;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .docs-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        #swagger-ui {
+            height: calc(100vh - 200px);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>📚 API Documentation</h1>
+            <p style="margin: 5px 0; opacity: 0.9;">Interactive API Explorer - Swagger UI</p>
+        </div>
+        <div class="header-links">
+            <a href="/">🏠 Home</a>
+            <a href="/redoc">📖 ReDoc</a>
+            <a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator" target="_blank">🔧 GitHub</a>
+        </div>
+    </div>
+
+    <div id="loading" class="loading">
+        <div>🔄 Loading API Documentation...</div>
+        <p style="font-size: 0.9rem; margin-top: 10px;">Fetching from live server</p>
+    </div>
+
+    <div id="error" class="error" style="display: none;">
+        <div>❌ Failed to load API Documentation</div>
+        <p style="font-size: 0.9rem; margin-top: 10px;">Please check your connection and try again</p>
+        <button onclick="loadDocs()" style="margin-top: 15px; padding: 8px 16px; background: #d32f2f; color: white; border: none; border-radius: 4px; cursor: pointer;">Retry</button>
+    </div>
+
+    <div class="docs-container">
+        <div id="swagger-ui"></div>
+    </div>
+
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
+    <script>
+        const VERCEL_API_BASE = 'https://cloud-networking-control-plane-simulator.vercel.app';
+        
+        function loadDocs() {
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+            const swaggerContainer = document.getElementById('swagger-ui');
+            
+            loadingEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            swaggerContainer.innerHTML = '';
+            
+            // Try to load Swagger UI from Vercel
+            fetch(`${VERCEL_API_BASE}/openapi.json`)
+                .then(response => {
+                    if (!response.ok) throw new Error('API not available');
+                    return response.json();
+                })
+                .then(spec => {
+                    loadingEl.style.display = 'none';
+                    
+                    // Initialize Swagger UI
+                    SwaggerUIBundle({
+                        url: `${VERCEL_API_BASE}/openapi.json`,
+                        dom_id: '#swagger-ui',
+                        deepLinking: true,
+                        presets: [
+                            SwaggerUIBundle.presets.apis,
+                            SwaggerUIStandalonePreset
+                        ],
+                        plugins: [
+                            SwaggerUIBundle.plugins.DownloadUrl
+                        ],
+                        layout: "StandaloneLayout",
+                        tryItOutEnabled: true,
+                        requestInterceptor: (request) => {
+                            // Redirect API requests to Vercel
+                            if (request.url && request.url.startsWith('/')) {
+                                request.url = VERCEL_API_BASE + request.url;
+                            }
+                            return request;
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Failed to load API spec:', error);
+                    loadingEl.style.display = 'none';
+                    errorEl.style.display = 'block';
+                });
+        }
+        
+        // Load docs when page loads
+        document.addEventListener('DOMContentLoaded', loadDocs);
+        
+        // Refresh docs every 5 minutes
+        setInterval(loadDocs, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
