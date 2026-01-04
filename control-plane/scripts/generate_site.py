@@ -4,6 +4,7 @@ import os
 import re
 import requests
 import sys
+import base64
 from bs4 import BeautifulSoup
 
 API_BASE_URL = "http://localhost:8000"
@@ -200,9 +201,27 @@ def export_static_fully_offline():
                     with open(href_path, 'r') as f:
                         style_tag = soup.new_tag("style")
                         style_tag.string = f.read()
-                        link_tag.replace_with(style_tag)
+                    link_tag.replace_with(style_tag)
                 else:
                     print(f"Warning: local CSS file {href} not found, leaving link as-is.")
+
+    # Fix logo path for GitHub Pages
+    logo_img = soup.find("img", {"class": "logo"})
+    if logo_img:
+        logo_src = logo_img.get("src")
+        if logo_src and logo_src.startswith("/ui/"):
+            # Try to inline the SVG
+            logo_path = os.path.join(template_dir, logo_src[1:])  # Remove leading /
+            if os.path.exists(logo_path):
+                with open(logo_path, 'r') as f:
+                    svg_content = f.read()
+                # Create a new img tag with inline SVG
+                logo_img['src'] = f"data:image/svg+xml;base64,{base64.b64encode(svg_content.encode()).decode()}"
+                print(f"Inlined logo: {logo_path}")
+            else:
+                # Fallback to docs path for GitHub Pages
+                logo_img['src'] = logo_src.replace("/ui/", "/")
+                print(f"Updated logo path for GitHub Pages: {logo_img['src']}")
 
     # Extract coverage from TESTING.md and inject into HTML
     coverage_data = extract_coverage_from_testing_md()
