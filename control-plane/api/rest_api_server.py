@@ -73,8 +73,10 @@ if os.path.exists(SCRIPTS_DIR):
     app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
 
 ASSETS_DIR = "/app/assets"
-os.makedirs(ASSETS_DIR, exist_ok=True)
-app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
+# Only create assets directory if not in Vercel (read-only filesystem)
+if not os.getenv("VERCEL"):
+    os.makedirs(ASSETS_DIR, exist_ok=True)
+    app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
 
 DB_DIR = "/tmp" if os.getenv("VERCEL") else os.getenv("DB_DIR", "/app/data")
 DB_PATH = os.getenv("DB_PATH", f"{DB_DIR}/network.db")
@@ -124,9 +126,10 @@ def initialize_database_and_metrics():
 
         # Generate OpenAPI spec
         try:
-            openapi_path = os.path.join(ASSETS_DIR, "openapi.json")
-            with open(openapi_path, "w") as f:
-                json.dump(app.openapi(), f)
+            if not os.getenv("VERCEL"):
+                openapi_path = os.path.join(ASSETS_DIR, "openapi.json")
+                with open(openapi_path, "w") as f:
+                    json.dump(app.openapi(), f)
         except Exception as e:
             logging.warning(f"Could not generate OpenAPI spec: {e}")
     finally:
