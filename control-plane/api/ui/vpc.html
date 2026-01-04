@@ -1550,11 +1550,7 @@
         <div style="background-color: white; margin: 5% auto; padding: 20px; border-radius: 8px; width: 90%; max-width: 1200px; max-height: 80vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2>📋 Documentation Hub</h2>
-                <div style="display: flex; gap: 10px;">
-                    <button onclick="toggleApiGuide()" style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
-                    <a href="https://cloud-networking-control-plane-simulator.vercel.app/redoc" class="btn btn-secondary" target="_blank">📖 ReDoc</a>
-                    <a href="https://cloud-networking-control-plane-simulator.vercel.app/docs" class="btn btn-secondary" target="_blank">📚 Docs</a>
-                </div>
+                <button onclick="toggleApiGuide()" style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
             </div>
             
             <!-- Navigation Tabs -->
@@ -1564,6 +1560,8 @@
                 <button onclick="showTab('vpc-details')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-vpc-details">🌐 VPC Details</button>
                 <button onclick="showTab('examples')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-examples">💡 Examples</button>
                 <button onclick="showTab('testing')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-testing">🧪 Testing</button>
+                <a href="https://cloud-networking-control-plane-simulator.vercel.app/redoc" class="btn btn-secondary" target="_blank">📖 ReDoc</a>
+                <a href="https://cloud-networking-control-plane-simulator.vercel.app/docs" class="btn btn-secondary" target="_blank">📚 Docs</a>
             </div>
 
             <!-- API Guide Tab -->
