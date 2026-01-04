@@ -111,15 +111,12 @@ def initialize_database_and_metrics():
 
         # Initialize Prometheus metrics if available
         if PROMETHEUS_AVAILABLE:
-            try:
-                METRICS["vpcs_total"].set(db.query(VPCModel).count())
-                METRICS["subnets_total"].set(db.query(SubnetModel).count())
-                METRICS["routes_total"].set(db.query(RouteModel).count())
-                METRICS["security_groups_total"].set(db.query(SGModel).count())
-                METRICS["nat_gateways_total"].set(db.query(NATModel).count())
-                METRICS["internet_gateways_total"].set(db.query(InternetGatewayModel).count())
-            except Exception:
-                pass  # Fail silently for Prometheus on Vercel
+            METRICS["vpcs_total"].set(db.query(VPCModel).count())
+            METRICS["subnets_total"].set(db.query(SubnetModel).count())
+            METRICS["routes_total"].set(db.query(RouteModel).count())
+            METRICS["security_groups_total"].set(db.query(SGModel).count())
+            METRICS["nat_gateways_total"].set(db.query(NATModel).count())
+            METRICS["internet_gateways_total"].set(db.query(InternetGatewayModel).count())
 
         # Pre-generate OpenAPI JSON for Vercel static assets
         openapi_path = os.path.join(ASSETS_DIR, "openapi.json")
