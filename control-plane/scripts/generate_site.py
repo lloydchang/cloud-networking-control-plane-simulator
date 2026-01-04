@@ -54,19 +54,37 @@ def extract_coverage_from_testing_md():
         print(f"Error parsing TESTING.md: {e}")
         return None
 
+def extract_scenarios_from_vpc_md():
+    """Extract scenario list from VPC.md"""
+    vpc_md_path = "docs/VPC.md"
+    if not os.path.exists(vpc_md_path):
+        print(f"Warning: {vpc_md_path} not found, using default scenarios")
+        return ["demo", "basic", "advanced"]
+    
+    try:
+        with open(vpc_md_path, 'r') as f:
+            content = f.read()
+        
+        # Extract scenario numbers using regex
+        scenario_pattern = r'### (\d+)\. (.+)'
+        matches = re.findall(scenario_pattern, content)
+        
+        if matches:
+            scenarios = []
+            for num, name in matches:
+                scenarios.append(name.strip())
+            return scenarios
+    except Exception as e:
+        print(f"Error parsing VPC.md: {e}")
+        return ["demo", "basic", "advanced"]
+
 def export_static_fully_offline():
     """Export a single-file static VPC dashboard with all JS/CSS inlined, local and remote."""
 
     # Fetch scenarios (with graceful fallback)
-    scenarios = []
-    try:
-        response = requests.get(f"{API_BASE_URL}/scenarios")
-        response.raise_for_status()
-        scenarios = response.json()
-    except Exception as e:
-        print(f"Warning: Could not fetch scenarios from API ({e}), using default scenarios")
-        scenarios = ["demo", "basic", "advanced"]  # Default scenarios
-
+    scenarios = extract_scenarios_from_vpc_md()
+    print(f"Using scenarios from VPC.md: {scenarios}")
+    
     # Fetch VPC data (with graceful fallback)
     vpc_data = {"nodes": [], "edges": [], "scenarios": scenarios}
     try:
@@ -97,7 +115,7 @@ def export_static_fully_offline():
                     "type": "vpc-hosting"
                 },
                 {
-                    "source": "vpc-demo-1", 
+                    "source": "vpc-demo-1",
                     "target": "leaf-2",
                     "type": "vpc-hosting"
                 }
