@@ -849,6 +849,7 @@
             <button class="btn" onclick="loadData()">Refresh</button>
             <a href="/docs" class="btn btn-secondary">📚 API Docs</a>
             <a href="/redoc" class="btn btn-secondary">📖 ReDoc</a>
+            <button class="btn btn-secondary" onclick="toggleApiGuide()">📋 API Guide</button>
         </div>
     </header>
 
@@ -1496,7 +1497,130 @@
         loadData();
         // Auto-refresh every 15 seconds
         setInterval(loadData, 15000);
+
+        // API Guide functionality
+        function toggleApiGuide() {
+            const modal = document.getElementById('api-guide-modal');
+            if (modal.style.display === 'block') {
+                modal.style.display = 'none';
+            } else {
+                modal.style.display = 'block';
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('api-guide-modal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
     </script>
+
+    <!-- API Guide Modal -->
+    <div id="api-guide-modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div style="background-color: white; margin: 5% auto; padding: 20px; border-radius: 8px; width: 90%; max-width: 1200px; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>📋 API Guide</h2>
+                <button onclick="toggleApiGuide()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- REST API Section -->
+                <div>
+                    <h3>🌐 REST API (v1)</h3>
+                    <p>All endpoints return JSON responses. Use <code>Content-Type: application/json</code> for all POST requests.</p>
+                    
+                    <h4>Interface Overview</h4>
+                    <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+                        <tr style="background: #f5f5f5;">
+                            <th style="border: 1px solid #ddd; padding: 8px;">Interface</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">Port</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">Purpose</th>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">REST</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">8000</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">CRUD Operations</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">gRPC</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">50051</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Performance & Telemetry</td>
+                        </tr>
+                    </table>
+
+                    <h4>Common Operations</h4>
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                        <strong>List VPCs:</strong><br>
+                        <code>curl -X GET /vpcs</code>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                        <strong>Create VPC:</strong><br>
+                        <code>curl -X POST /vpcs -d '{"name": "my-vpc", "cidr": "10.0.0.0/16"}'</code>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                        <strong>Delete VPC:</strong><br>
+                        <code>curl -X DELETE /vpcs/vpc-001</code>
+                    </div>
+                </div>
+
+                <!-- gRPC Section -->
+                <div>
+                    <h3>⚡ gRPC API</h3>
+                    <p>High-performance access to network state with real-time streaming capabilities.</p>
+                    
+                    <h4>Implementation Status</h4>
+                    <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+                        <tr style="background: #f5f5f5;">
+                            <th style="border: 1px solid #ddd; padding: 8px;">Method</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">Type</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">Status</th>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">ListVPCs</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Unary</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">✅ Implemented</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">CreateVPC</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Unary</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">✅ Implemented</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">WatchNetworkEvents</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Stream</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">👁️ Read-Only</td>
+                        </tr>
+                    </table>
+
+                    <h4>Example Usage</h4>
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                        <strong>List VPCs (grpcurl):</strong><br>
+                        <code>grpcurl -plaintext -d '{"limit": 10}' localhost:50051 network.NetworkService/ListVPCs</code>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 4px;">
+                <h4>🔗 Interactive Documentation</h4>
+                <ul style="margin: 0; padding-left: 20px;">
+                    <li><strong>Swagger UI:</strong> <a href="/docs" target="_blank">Interactive API explorer with "Try it out"</a></li>
+                    <li><strong>ReDoc:</strong> <a href="/redoc" target="_blank">Clean, readable API reference</a></li>
+                    <li><strong>Protocol Buffers:</strong> <a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/control-plane/proto/cloud_networking_control_plane_simulator.proto" target="_blank">gRPC service definition</a></li>
+                </ul>
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: #fff3e0; border-radius: 4px;">
+                <h4>⚠️ Important Notes</h4>
+                <ul style="margin: 0; padding-left: 20px;">
+                    <li>Resource IDs are dynamically generated - always GET list before DELETE</li>
+                    <li>Use standard HTTP status codes for error handling</li>
+                    <li>Ports configurable via REST_PORT and GRPC_PORT environment variables</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
