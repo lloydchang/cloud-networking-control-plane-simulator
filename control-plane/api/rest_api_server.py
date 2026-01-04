@@ -56,7 +56,7 @@ if os.path.exists(SCRIPTS_DIR):
     app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
 
 # Serve static assets (images, CSS, JS)
-ASSETS_DIR = os.path.join(os.path.dirname(__file__), "ui", "assets")
+ASSETS_DIR = "/app/assets"
 if os.path.exists(ASSETS_DIR):
     app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
 
