@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "control-plane/api/rest_api_server.py": {
-      "runtime": "@vercel/python@4.3.1",
+      "runtime": "@vercel/python@6.1.5",
       "maxDuration": 60,
       "memory": 1024
     }
