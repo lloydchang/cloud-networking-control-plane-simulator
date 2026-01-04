@@ -34,7 +34,8 @@ For a deep dive into schemas and sequences, see [ARCHITECTURE.md](docs/ARCHITECT
 ## 🌐 Live Demo
 
 **Live Demo:**
-- **[Cloud Networking Control Plane Simulator](https://cloud-networking-control-plane-simulator.vercel.app/)** - Interactive API testing and rich content
+- **[GitHub Pages](https://lloydchang.github.io/cloud-networking-control-plane-simulator/)** - Static demo with rich content and documentation
+- **[Vercel](https://cloud-networking-control-plane-simulator.vercel.app/)** - Live API testing and interactive features
 
 **Source Code:**
 - **[GitHub Repository](https://github.com/lloydchang/cloud-networking-control-plane-simulator)** - Source code and documentation
