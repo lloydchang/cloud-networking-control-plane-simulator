@@ -2,7 +2,7 @@
 """
 Cloud Networking Control Plane - Main Entry Point
 
-This is the central control plane for the cloud networking Simulator.
+This is the central control plane for the Cloud Networking Control Plane Simulator.
 It manages:
 - REST API for network operations
 - gRPC server for high-performance operations  

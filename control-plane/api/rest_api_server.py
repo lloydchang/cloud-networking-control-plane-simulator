@@ -55,8 +55,8 @@ from .models import (
 from . import shared_api_logic as services
 
 app = FastAPI(
-    title="Cloud Networking Simulator - Control Plane API",
-    description="Cloud Networking Simulator - Control Plane API",
+    title="Cloud Networking Control Plane Simulator - Control Plane API",
+    description="Cloud Networking Control Plane Simulator - Control Plane API",
     version="1.0.0",
 )
 

@@ -4,7 +4,7 @@ This document clarifies the implementation status of core networking features wi
 
 ## Overview
 
-The cloud networking simulator focuses on **Control Plane correctness** and **Intent reconciliation**. To maintain a lightweight and educational environment, certain data plane features are logically modeled when native kernel support is absent, while others are fully implemented in the Linux kernel on-the-fly.
+The Cloud Networking Control Plane Simulator focuses on **Control Plane correctness** and **Intent reconciliation**. To maintain a lightweight and educational environment, certain data plane features are logically modeled when native kernel support is absent, while others are fully implemented in the Linux kernel on-the-fly.
 
 ## Implementation Status
 

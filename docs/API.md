@@ -1,6 +1,6 @@
 # API Documentation
 
-The control plane provides a dual-interface architecture for managing the cloud networking simulator. For example, it allows users to use standard REST for intent declaration and high-performance gRPC for state inspection and telemetry.
+The control plane provides a dual-interface architecture for managing the Cloud Networking Control Plane Simulator. For example, it allows users to use standard REST for intent declaration and high-performance gRPC for state inspection and telemetry.
 
 ## Interface Overview
 

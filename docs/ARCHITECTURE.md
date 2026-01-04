@@ -1,6 +1,6 @@
 # Architecture Details: Cloud Networking Control Plane Simulator
 
-This document provides a deep dive into the architectural components, data flows, and infrastructure mapping of the cloud networking simulator.
+This document provides a deep dive into the architectural components, data flows, and infrastructure mapping of the Cloud Networking Control Plane Simulator.
 
 ## Core Concepts & Terminology
 
