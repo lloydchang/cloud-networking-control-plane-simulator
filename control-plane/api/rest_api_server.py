@@ -28,7 +28,11 @@ from pydantic import BaseModel, Field
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
-from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+try:
+    from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+    PROMETHEUS_AVAILABLE = True
+except Exception:
+    PROMETHEUS_AVAILABLE = False
 from metrics import METRICS
 
 from .models import (
@@ -188,6 +192,8 @@ def health():
 
 @app.get("/metrics")
 def metrics():
+    if not PROMETHEUS_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Prometheus client not installed")
     return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 @app.middleware("http")
