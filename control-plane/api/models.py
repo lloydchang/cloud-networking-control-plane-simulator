@@ -45,7 +45,6 @@ class CloudRoutingHub(Base):
     scenario = Column(String, nullable=True)     # For UI grouping
     created_at = Column(DateTime, server_default=func.now())
 
-
 class Scenario(Base):
     __tablename__ = "scenarios"
     id = Column(String, primary_key=True)
@@ -53,7 +52,6 @@ class Scenario(Base):
     description = Column(String, nullable=True)
     resource_order = Column(JSON, nullable=True) # Optional: list of {type, label}
     created_at = Column(DateTime, server_default=func.now())
-
 
 class Subnet(Base):
     __tablename__ = "subnets"
@@ -66,7 +64,6 @@ class Subnet(Base):
     status = Column(String, default="provisioning")
     created_at = Column(DateTime, server_default=func.now())
 
-
 class SecurityGroup(Base):
     __tablename__ = "security_groups"
     id = Column(String, primary_key=True)
@@ -74,7 +71,6 @@ class SecurityGroup(Base):
     description = Column(String)
     rules = Column(JSON)  # Store list of rules as JSON
     created_at = Column(DateTime, server_default=func.now())
-
 
 class NATGateway(Base):
     __tablename__ = "nat_gateways"
@@ -84,13 +80,11 @@ class NATGateway(Base):
     public_ip = Column(String, nullable=False)
     created_at = Column(DateTime, server_default=func.now())
 
-
 class InternetGateway(Base):
     __tablename__ = "internet_gateways"
     id = Column(String, primary_key=True)
     vpc_id = Column(String, ForeignKey("vpcs.id"), nullable=False)
     created_at = Column(DateTime, server_default=func.now())
-
 
 class VPNGateway(Base):
     __tablename__ = "vpn_gateways"
@@ -101,7 +95,6 @@ class VPNGateway(Base):
     allowed_ips = Column(String)
     status = Column(String)
 
-
 class MeshNode(Base):
     __tablename__ = "mesh_nodes"
     id = Column(String, primary_key=True)
@@ -109,7 +102,6 @@ class MeshNode(Base):
     node_key = Column(String)
     tailnet = Column(String)
     status = Column(String)
-
 
 class Route(Base):
     __tablename__ = "routes"
@@ -124,7 +116,6 @@ class Route(Base):
     status = Column(String, default="active")
     created_at = Column(DateTime, server_default=func.now())
 
-
 class StandaloneDataCenter(Base):
     __tablename__ = "standalone_data_centers"
     id = Column(String, primary_key=True)
@@ -133,7 +124,6 @@ class StandaloneDataCenter(Base):
     region = Column(String, default="on-prem")
     scenario = Column(String, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
-
 
 class StandaloneDCSubnet(Base):
     __tablename__ = "standalone_dc_subnets"
@@ -165,12 +155,24 @@ if not os.path.exists(DB_DIR) and not DB_PATH.startswith(":memory:"):
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 # Create the engine pointing to your SQLite database
-engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    echo=True,
+    connect_args={"check_same_thread": False}  # Needed for SQLite in serverless
+)
 
-with engine.connect() as conn:
-    result = conn.execute(text("SELECT name FROM sqlite_master WHERE type='table';"))
+# Ensure /tmp is writable and create tables safely
+try:
+    if not DB_PATH.startswith(":memory:") and os.access(DB_DIR, os.W_OK):
+        os.makedirs(DB_DIR, exist_ok=True)
+        Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print("Warning: could not create tables:", e)
 
-    print([row[0] for row in result])
-
-# Create all tables that do not exist yet
-Base.metadata.create_all(bind=engine)
+# Optional: query existing tables safely for debugging
+try:
+    with engine.connect() as conn:
+        result = conn.execute(text("SELECT name FROM sqlite_master WHERE type='table';"))
+        print("Existing tables:", [row[0] for row in result])
+except Exception as e:
+    print("SQLite query failed:", e)
