@@ -1502,6 +1502,36 @@ window.STATIC_SCENARIOS = [{"id": "scenario-b459b1f3", "title": "1. Single VPC",
             }
         }
 
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all content divs
+            const contents = ['api-guide', 'architecture', 'vpc-details', 'examples', 'testing'];
+            contents.forEach(content => {
+                const contentDiv = document.getElementById(`content-${content}`);
+                if (contentDiv) {
+                    contentDiv.style.display = 'none';
+                }
+            });
+            
+            // Remove active state from all tabs
+            contents.forEach(content => {
+                const tabButton = document.getElementById(`tab-${content}`);
+                if (tabButton) {
+                    tabButton.style.borderBottom = 'none';
+                }
+            });
+            
+            // Show selected content and activate tab
+            const selectedContent = document.getElementById(`content-${tabName}`);
+            const selectedTab = document.getElementById(`tab-${tabName}`);
+            if (selectedContent) {
+                selectedContent.style.display = 'block';
+            }
+            if (selectedTab) {
+                selectedTab.style.borderBottom = '2px solid #00897b';
+            }
+        }
+
         // Close modal when clicking outside
         window.onclick = function(event) {
             const modal = document.getElementById('api-guide-modal');
@@ -1515,103 +1545,340 @@ window.STATIC_SCENARIOS = [{"id": "scenario-b459b1f3", "title": "1. Single VPC",
     <div id="api-guide-modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
         <div style="background-color: white; margin: 5% auto; padding: 20px; border-radius: 8px; width: 90%; max-width: 1200px; max-height: 80vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>📋 API Guide</h2>
+                <h2>📋 Documentation Hub</h2>
                 <button onclick="toggleApiGuide()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <!-- REST API Section -->
-                <div>
-                    <h3>🌐 REST API (v1)</h3>
-                    <p>All endpoints return JSON responses. Use <code>Content-Type: application/json</code> for all POST requests.</p>
-                    
-                    <h4>Interface Overview</h4>
-                    <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
-                        <tr style="background: #f5f5f5;">
-                            <th style="border: 1px solid #ddd; padding: 8px;">Interface</th>
-                            <th style="border: 1px solid #ddd; padding: 8px;">Port</th>
-                            <th style="border: 1px solid #ddd; padding: 8px;">Purpose</th>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 8px;">REST</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">8000</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">CRUD Operations</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 8px;">gRPC</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">50051</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">Performance & Telemetry</td>
-                        </tr>
-                    </table>
+            <!-- Navigation Tabs -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0;">
+                <button onclick="showTab('api-guide')" style="background: none; border: none; padding: 10px; cursor: pointer; border-bottom: 2px solid #00897b;" id="tab-api-guide">📋 API Guide</button>
+                <button onclick="showTab('architecture')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-architecture">🏗️ Architecture</button>
+                <button onclick="showTab('vpc-details')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-vpc-details">🌐 VPC Details</button>
+                <button onclick="showTab('examples')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-examples">💡 Examples</button>
+                <button onclick="showTab('testing')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-testing">🧪 Testing</button>
+            </div>
 
-                    <h4>Common Operations</h4>
-                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
-                        <strong>List VPCs:</strong><br>
-                        <code>curl -X GET /vpcs</code>
+            <!-- API Guide Tab -->
+            <div id="content-api-guide" style="display: block;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- REST API Section -->
+                    <div>
+                        <h3>🌐 REST API (v1)</h3>
+                        <p>All endpoints return JSON responses. Use <code>Content-Type: application/json</code> for all POST requests.</p>
+                        
+                        <h4>Interface Overview</h4>
+                        <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+                            <tr style="background: #f5f5f5;">
+                                <th style="border: 1px solid #ddd; padding: 8px;">Interface</th>
+                                <th style="border: 1px solid #ddd; padding: 8px;">Port</th>
+                                <th style="border: 1px solid #ddd; padding: 8px;">Purpose</th>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">REST</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">8000</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">CRUD Operations</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">gRPC</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">50051</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Performance & Telemetry</td>
+                            </tr>
+                        </table>
+
+                        <h4>Common Operations</h4>
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                            <strong>List VPCs:</strong><br>
+                            <code>curl -X GET /vpcs</code>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                            <strong>Create VPC:</strong><br>
+                            <code>curl -X POST /vpcs -d '{"name": "my-vpc", "cidr": "10.0.0.0/16"}'</code>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                            <strong>Delete VPC:</strong><br>
+                            <code>curl -X DELETE /vpcs/vpc-001</code>
+                        </div>
                     </div>
-                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
-                        <strong>Create VPC:</strong><br>
-                        <code>curl -X POST /vpcs -d '{"name": "my-vpc", "cidr": "10.0.0.0/16"}'</code>
-                    </div>
-                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
-                        <strong>Delete VPC:</strong><br>
-                        <code>curl -X DELETE /vpcs/vpc-001</code>
+
+                    <!-- gRPC Section -->
+                    <div>
+                        <h3>⚡ gRPC API</h3>
+                        <p>High-performance access to network state with real-time streaming capabilities.</p>
+                        
+                        <h4>Implementation Status</h4>
+                        <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+                            <tr style="background: #f5f5f5;">
+                                <th style="border: 1px solid #ddd; padding: 8px;">Method</th>
+                                <th style="border: 1px solid #ddd; padding: 8px;">Type</th>
+                                <th style="border: 1px solid #ddd; padding: 8px;">Status</th>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">ListVPCs</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Unary</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">✅ Implemented</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">CreateVPC</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Unary</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">✅ Implemented</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">WatchNetworkEvents</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Stream</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">👁️ Read-Only</td>
+                            </tr>
+                        </table>
+
+                        <h4>Example Usage</h4>
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                            <strong>List VPCs (grpcurl):</strong><br>
+                            <code>grpcurl -plaintext -d '{"limit": 10}' localhost:50051 network.NetworkService/ListVPCs</code>
+                        </div>
                     </div>
                 </div>
 
-                <!-- gRPC Section -->
-                <div>
-                    <h3>⚡ gRPC API</h3>
-                    <p>High-performance access to network state with real-time streaming capabilities.</p>
-                    
-                    <h4>Implementation Status</h4>
-                    <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
-                        <tr style="background: #f5f5f5;">
-                            <th style="border: 1px solid #ddd; padding: 8px;">Method</th>
-                            <th style="border: 1px solid #ddd; padding: 8px;">Type</th>
-                            <th style="border: 1px solid #ddd; padding: 8px;">Status</th>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 8px;">ListVPCs</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">Unary</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">✅ Implemented</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 8px;">CreateVPC</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">Unary</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">✅ Implemented</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 8px;">WatchNetworkEvents</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">Stream</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">👁️ Read-Only</td>
-                        </tr>
-                    </table>
+                <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 4px;">
+                    <h4>🔗 Interactive Documentation</h4>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li><strong>Swagger UI:</strong> <a href="/docs.html" target="_blank">Interactive API explorer with "Try it out"</a></li>
+                        <li><strong>ReDoc:</strong> <a href="/redoc.html" target="_blank">Clean, readable API reference</a></li>
+                        <li><strong>Protocol Buffers:</strong> <a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/control-plane/proto/cloud_networking_control_plane_simulator.proto" target="_blank">gRPC service definition</a></li>
+                    </ul>
+                </div>
 
-                    <h4>Example Usage</h4>
-                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
-                        <strong>List VPCs (grpcurl):</strong><br>
-                        <code>grpcurl -plaintext -d '{"limit": 10}' localhost:50051 network.NetworkService/ListVPCs</code>
-                    </div>
+                <div style="margin-top: 20px; padding: 15px; background: #fff3e0; border-radius: 4px;">
+                    <h4>⚠️ Important Notes</h4>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li>Resource IDs are dynamically generated - always GET list before DELETE</li>
+                        <li>Use standard HTTP status codes for error handling</li>
+                        <li>Ports configurable via REST_PORT and GRPC_PORT environment variables</li>
+                    </ul>
                 </div>
             </div>
 
-            <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 4px;">
-                <h4>🔗 Interactive Documentation</h4>
-                <ul style="margin: 0; padding-left: 20px;">
-                    <li><strong>Swagger UI:</strong> <a href="/docs.html" target="_blank">Interactive API explorer with "Try it out"</a></li>
-                    <li><strong>ReDoc:</strong> <a href="/redoc.html" target="_blank">Clean, readable API reference</a></li>
-                    <li><strong>Protocol Buffers:</strong> <a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/control-plane/proto/cloud_networking_control_plane_simulator.proto" target="_blank">gRPC service definition</a></li>
-                </ul>
+            <!-- Architecture Tab -->
+            <div id="content-architecture" style="display: none;">
+                <h3>🏗️ System Architecture</h3>
+                <p>The simulator provides a conceptual exploration of cloud networking internals using Linux networking primitives.</p>
+                
+                <h4>Core Concepts</h4>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
+                    <strong>Physical Fabric:</strong> Docker-based network providing basic reachability between Spines, Leafs, and Control Plane.<br><br>
+                    <strong>Logical Overlay:</strong> VXLAN-EVPN overlay built on top using BGP EVPN for VPC isolation and routing.<br><br>
+                    <strong>Cloud Routing Hub:</strong> Centralized routing aggregation point for hub-and-spoke architectures.
+                </div>
+
+                <h4>Implementation Status</h4>
+                <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+                    <tr style="background: #f5f5f5;">
+                        <th style="border: 1px solid #ddd; padding: 8px;">Feature</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">Control Plane</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">Data Plane</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">EVPN-VXLAN</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">✅ FRR</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">✅ Linux Kernel</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">VRFs</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">🔄 Simulated</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">🔄 iptables Fallback</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">VTEPs</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">✅ FRR</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">✅ VXLAN Interfaces</td>
+                    </tr>
+                </table>
+
+                <h4>Intent-Driven Orchestration</h4>
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 10px 0;">
+                    <strong>Reconciliation Loop:</strong><br>
+                    1. <strong>Fetch:</strong> Query SQLite database for desired state<br>
+                    2. <strong>Discover:</strong> Inspect leaf switches using <code>ip link</code><br>
+                    3. <strong>Diff:</strong> Compute differences between intended and actual<br>
+                    4. <strong>Action:</strong> Execute system commands to converge state
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
+                    <h4>📚 Related Documentation</h4>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/ARCHITECTURE.md" target="_blank">📖 Full Architecture Details</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/NETWORKING_IMPLEMENTATION.md" target="_blank">🔧 Networking Implementation</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/IDEAS.md" target="_blank">💡 Design Ideas & Extensions</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/README.md" target="_blank">🏠 Project README</a></li>
+                    </ul>
+                </div>
             </div>
 
-            <div style="margin-top: 20px; padding: 15px; background: #fff3e0; border-radius: 4px;">
-                <h4>⚠️ Important Notes</h4>
-                <ul style="margin: 0; padding-left: 20px;">
-                    <li>Resource IDs are dynamically generated - always GET list before DELETE</li>
-                    <li>Use standard HTTP status codes for error handling</li>
-                    <li>Ports configurable via REST_PORT and GRPC_PORT environment variables</li>
-                </ul>
+            <!-- VPC Details Tab -->
+            <div id="content-vpc-details" style="display: none;">
+                <h3>🌐 VPC Architecture & Visualization</h3>
+                <p>The VPC visualization provides a real-time logical map of your cloud network with 33 demo scenarios.</p>
+                
+                <h4>Connection Types</h4>
+                <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+                    <tr style="background: #f5f5f5;">
+                        <th style="border: 1px solid #ddd; padding: 8px;">Type</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">Visual Style</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">Use Case</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Peering</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Purple Solid</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">VPC-to-VPC connection</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">VPN Gateway</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Orange Dashed</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Encrypted tunnels</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Mesh VPN</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Green Dotted</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Zero-trust mesh</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Routing Hub</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Blue Solid</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Hub-and-spoke routing</td>
+                    </tr>
+                </table>
+
+                <h4>Key Scenarios</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;">
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px;">
+                        <strong>1. Single VPC</strong><br>
+                        Simplest cloud network with public subnet
+                    </div>
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px;">
+                        <strong>2. Multi-tier VPC</strong><br>
+                        Public/private segmentation
+                    </div>
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px;">
+                        <strong>3. Secure Database Tier</strong><br>
+                        Isolated data between web and DB
+                    </div>
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px;">
+                        <strong>12. Kubernetes Hybrid</strong><br>
+                        Cloud routing hubs with NAT flows
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
+                    <h4>📚 Related Documentation</h4>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/VPC.md" target="_blank">📖 Complete VPC Documentation</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/api_examples.md" target="_blank">💡 VPC API Examples</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/ARCHITECTURE.md" target="_blank">🏗️ System Architecture</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Examples Tab -->
+            <div id="content-examples" style="display: none;">
+                <h3>💡 API Examples & Use Cases</h3>
+                <p>Comprehensive examples for managing VPC resources using the REST API.</p>
+                
+                <h4>VPC Management Examples</h4>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
+                    <strong>Create Basic VPC:</strong><br>
+                    <code style="display: block; background: #fff; padding: 10px; border-radius: 4px; margin: 5px 0;">curl -X POST "/vpcs" \<br>
+  -H "Content-Type: application/json" \<br>
+  -d '{"name": "Production VPC", "cidr": "10.0.0.0/16", "region": "us-east-1"}'</code>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
+                    <strong>Create VPC with Secondary CIDRs:</strong><br>
+                    <code style="display: block; background: #fff; padding: 10px; border-radius: 4px; margin: 5px 0;">curl -X POST "/vpcs" \<br>
+  -H "Content-Type: application/json" \<br>
+  -d '{"name": "Kubernetes VPC", "cidr": "10.1.0.0/16", "secondary_cidrs": ["100.64.0.0/16"]}'</code>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
+                    <strong>Create Security Group:</strong><br>
+                    <code style="display: block; background: #fff; padding: 10px; border-radius: 4px; margin: 5px 0;">curl -X POST "/security-groups" \<br>
+  -H "Content-Type: application/json" \<br>
+  -d '{"name": "web-tier", "rules": [{"direction": "ingress", "protocol": "tcp", "port_from": 80, "port_to": 80, "cidr": "0.0.0.0/0"}]}'</code>
+                </div>
+
+                <h4>Future Extension Ideas</h4>
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 10px 0;">
+                    <strong>Potential Enhancements:</strong><br>
+                    • Distributed Link Agent (Go-based host-level agent)<br>
+                    • Unified gRPC Service Interface<br>
+                    • IPv6-Based Fabric Underlay<br>
+                    • Advanced Telemetry & Observability
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
+                    <h4>📚 Related Documentation</h4>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/api_examples.md" target="_blank">💡 Complete API Examples</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/IDEAS.md" target="_blank">🚀 Extension Ideas</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/API.md" target="_blank">📋 API Reference</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Testing Tab -->
+            <div id="content-testing" style="display: none;">
+                <h3>🧪 Testing & Performance</h3>
+                <p>Multi-layered testing approach ensuring control plane correctness and reliability.</p>
+                
+                <h4>Test Suite Overview</h4>
+                <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+                    <tr style="background: #f5f5f5;">
+                        <th style="border: 1px solid #ddd; padding: 8px;">Layer</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">Tool</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">Purpose</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Unit Tests</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">pytest</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Individual functions & API endpoints</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Integration</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">pytest + TestClient</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">REST↔gRPC interoperability</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Static Analysis</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">mypy, flake8</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Type checking & code quality</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Security</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">bandit</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Vulnerability detection</td>
+                    </tr>
+                </table>
+
+                <h4>Running Tests</h4>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
+                    <code style="display: block; background: #fff; padding: 10px; border-radius: 4px; margin: 5px 0;"># Run all tests with coverage<br>make test-cov<br><br># Run specific tests<br>cd control-plane && python -m pytest tests/test_rest_api.py -v<br><br># Run linting<br>make lint-extreme<br><br># Security scan<br>make security-scan</code>
+                </div>
+
+                <h4>Test Coverage</h4>
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 10px 0;">
+                    <strong>Current Coverage:</strong><br>
+                    • models.py: 100%<br>
+                    • shared_api_logic.py: 100%<br>
+                    • rest_api_server.py: 96%<br>
+                    • grpc_api_server.py: 94%<br><br>
+                    <em>Uncovered: Database initialization and entry points</em>
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
+                    <h4>📚 Related Documentation</h4>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/TESTING.md" target="_blank">🧪 Complete Testing Guide</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/README.md" target="_blank">🏠 Quick Start Guide</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/LICENSE" target="_blank">⚖️ License Information</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
