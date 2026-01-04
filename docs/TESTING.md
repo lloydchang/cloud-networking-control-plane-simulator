@@ -32,22 +32,36 @@ make security-scan
 
 ## Test Coverage
 
-Current coverage by component:
+Current coverage by component (as of latest commit 596365e):
 
-| Component | Coverage | Notes |
-|-----------|----------|-------|
-| `models.py` | 100% | All SQLAlchemy models |
-| `shared_api_logic.py` | 100% | Core business logic |
-| `rest_api_server.py` | 96% | REST API endpoints |
-| `grpc_api_server.py` | 94% | gRPC API implementation |
+| Component | Coverage | Status |
+|-----------|----------|--------|
+| `models.py` | 100% | ✅ All SQLAlchemy models |
+| `grpc_api_server.py` | 77% | 📈 gRPC API implementation (improved from 28%) |
+| `rest_api_server.py` | 71% | 📈 REST API endpoints (improved from 57%) |
+| `shared_api_logic.py` | 45% | 📈 Core business logic (improved from 12%) |
+| `diagnostic_logger.py` | 25% | 📈 Diagnostic logging (improved from 6%) |
+| **Overall** | **56%** | 📈 **Improved from 35%** |
 
-**Uncovered lines**: Database directory creation (startup code) and `serve()` entry points - these are initialization paths typically not exercised in unit tests.
+**Recent Improvements** (Commit 596365e):
+- ✅ Fixed test environment issues (filesystem permissions)
+- ✅ Added missing API functions in shared_api_logic.py
+- ✅ Created diagnostic logger tests (25% coverage)
+- ✅ Added startup event handler tests
+- ✅ Fixed import and environment variable handling
 
-## Test Files
+**Uncovered areas**:
+- Database initialization and entry points (startup code)
+- Some gRPC service methods
+- Diagnostic logging methods (partially covered)
+- Main.py entry point functions
 
+**Test Files Added**:
 ```
 control-plane/tests/
-├── conftest.py                    # Shared fixtures and DB setup
+├── conftest.py                    # Updated with proper test isolation
+├── test_diagnostic_logger.py       # NEW: Diagnostic logging tests
+├── test_startup.py                # NEW: Startup event handler tests
 ├── test_shared_api_logic.py       # Core business logic tests
 ├── test_rest_api.py               # REST API endpoint tests
 ├── test_grpc_api.py               # gRPC API tests
