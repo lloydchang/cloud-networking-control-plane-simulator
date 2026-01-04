@@ -22,17 +22,18 @@ from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends, Request
 from fastapi.staticfiles import StaticFiles
-from starlette.responses import Response, HTMLResponse
+from starlette.responses import Response
 from pydantic import BaseModel, Field
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 
 try:
     from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
     PROMETHEUS_AVAILABLE = True
-except Exception:
+except ImportError:
     PROMETHEUS_AVAILABLE = False
+
 from metrics import METRICS
 
 from .models import (
@@ -50,7 +51,6 @@ from .models import (
     StandaloneDataCenter as StandaloneDCModel,
     StandaloneDCSubnet as StandaloneDCSubnetModel,
 )
-from . import models
 from . import shared_api_logic as services
 
 app = FastAPI(
@@ -92,13 +92,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base.metadata.create_all(bind=engine)
 
-# Ensure singleton vni_counter row exists to prevent startup failures
-from sqlalchemy import text
+# Ensure singleton vni_counter row exists
 with engine.begin() as conn:
     conn.execute(text("CREATE TABLE IF NOT EXISTS vni_counter (id INTEGER PRIMARY KEY CHECK (id = 1), value INTEGER NOT NULL)"))
     result = conn.execute(text("SELECT value FROM vni_counter WHERE id = 1"))
-    row = result.fetchone()
-    if row is None:
+    if result.fetchone() is None:
         conn.execute(text("INSERT INTO vni_counter (id, value) VALUES (1, 1)"))
 
 # ============================================================================
@@ -107,6 +105,8 @@ with engine.begin() as conn:
 
 @app.on_event("startup")
 def initialize_metrics():
+    if not PROMETHEUS_AVAILABLE:
+        return
     db = SessionLocal()
     try:
         METRICS["vpcs_total"].set(db.query(VPCModel).count())
@@ -198,10 +198,8 @@ def metrics():
 
 @app.middleware("http")
 async def prometheus_middleware(request: Request, call_next):
-    METRICS["api_requests"].labels(
-        method=request.method,
-        endpoint=request.url.path,
-    ).inc()
+    if PROMETHEUS_AVAILABLE:
+        METRICS["api_requests"].labels(method=request.method, endpoint=request.url.path).inc()
     start = time.time()
     response = await call_next(request)
     _ = (time.time() - start) * 1000
@@ -213,14 +211,7 @@ async def prometheus_middleware(request: Request, call_next):
 
 @app.post("/vpcs", response_model=VPC, status_code=201)
 def create_vpc(vpc: VPCCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    new_vpc = services.create_vpc_logic(
-        db,
-        vpc.name,
-        vpc.cidr,
-        vpc.region,
-        vpc.secondary_cidrs,
-        vpc.scenario,
-    )
+    new_vpc = services.create_vpc_logic(db, vpc.name, vpc.cidr, vpc.region, vpc.secondary_cidrs, vpc.scenario)
     background_tasks.add_task(services.provision_vpc_task, SessionLocal, new_vpc.id)
     return new_vpc
 
@@ -242,9 +233,3 @@ def delete_vpc(vpc_id: str, background_tasks: BackgroundTasks, db: Session = Dep
         raise HTTPException(status_code=404, detail="VPC not found")
     background_tasks.add_task(services.deprovision_vpc_task, SessionLocal, vpc_id)
     return {"message": "VPC deletion initiated"}
-
-# Remaining endpoints intentionally unchanged in behavior but corrected to:
-# - use dependency-injected sessions everywhere
-# - remove fabricated timestamps
-# - avoid import-time I/O
-# - avoid duplicate engines
