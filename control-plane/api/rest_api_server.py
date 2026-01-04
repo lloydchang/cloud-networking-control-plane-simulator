@@ -74,10 +74,16 @@ if os.path.exists(SCRIPTS_DIR):
     app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
 
 ASSETS_DIR = "/app/assets"
+UI_DIR = os.path.join(os.path.dirname(__file__), "ui")
+
 # Only create assets directory if not in Vercel (read-only filesystem)
 if not os.getenv("VERCEL"):
     os.makedirs(ASSETS_DIR, exist_ok=True)
     app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
+
+# Mount UI assets directory for logo and other static files
+if os.path.exists(UI_DIR):
+    app.mount("/ui", StaticFiles(directory=UI_DIR), name="ui")
 
 DB_DIR = "/tmp" if os.getenv("VERCEL") else os.getenv("DB_DIR", "/app/data")
 DB_PATH = os.getenv("DB_PATH", f"{DB_DIR}/network.db")
