@@ -102,29 +102,27 @@ Base.metadata.create_all(bind=engine)
 def initialize_database_and_metrics():
     db = SessionLocal()
     try:
-        # Ensure vni_counter table exists
-        db.execute(text("""
-            CREATE TABLE IF NOT EXISTS vni_counter (
-                id INTEGER PRIMARY KEY,
-                current INTEGER NOT NULL
-            );
-        """))
+        # Ensure vni_counter table exists using SQLAlchemy
+        if not engine.dialect.has_table(engine, "vni_counter"):
+            Base.metadata.tables["vni_counter"].create(bind=engine)
 
-        # Ensure singleton row exists
-        result = db.execute(text("SELECT COUNT(*) FROM vni_counter WHERE id=1")).scalar()
-        if result == 0:
-            db.execute(text("INSERT INTO vni_counter (id, current) VALUES (1, 1);"))
+        # Ensure singleton row exists safely
+        try:
+            if not db.query(VniCounterModel).filter_by(id=1).first():
+                db.add(VniCounterModel(id=1, current=1))
+                db.commit()
+        except Exception as e:
+            db.rollback()
+            print("Failed to initialize vni_counter row:", e)
 
-        db.commit()
-
-        # Initialize Prometheus metrics if available
+        # Initialize Prometheus metrics
         if PROMETHEUS_AVAILABLE:
-            METRICS["vpcs_total"].set(db.execute(text("SELECT COUNT(*) FROM vpcs")).scalar())
-            METRICS["subnets_total"].set(db.execute(text("SELECT COUNT(*) FROM subnets")).scalar())
-            METRICS["routes_total"].set(db.execute(text("SELECT COUNT(*) FROM routes")).scalar())
-            METRICS["security_groups_total"].set(db.execute(text("SELECT COUNT(*) FROM security_groups")).scalar())
-            METRICS["nat_gateways_total"].set(db.execute(text("SELECT COUNT(*) FROM nat_gateways")).scalar())
-            METRICS["internet_gateways_total"].set(db.execute(text("SELECT COUNT(*) FROM internet_gateways")).scalar())
+            METRICS["vpcs_total"].set(db.query(VPCModel).count())
+            METRICS["subnets_total"].set(db.query(SubnetModel).count())
+            METRICS["routes_total"].set(db.query(RouteModel).count())
+            METRICS["security_groups_total"].set(db.query(SGModel).count())
+            METRICS["nat_gateways_total"].set(db.query(NATModel).count())
+            METRICS["internet_gateways_total"].set(db.query(InternetGatewayModel).count())
     finally:
         db.close()
 
@@ -227,21 +225,19 @@ def create_vpc(vpc: VPCCreate, background_tasks: BackgroundTasks, db: Session = 
 
 @app.get("/vpcs", response_model=List[VPC])
 def list_vpcs(db: Session = Depends(get_db)):
-    return db.execute(text("SELECT * FROM vpcs")).fetchall()
+    return db.query(VPCModel).all()
 
 @app.get("/vpcs/{vpc_id}", response_model=VPC)
 def get_vpc(vpc_id: str, db: Session = Depends(get_db)):
-    row = db.execute(text("SELECT * FROM vpcs WHERE id=:id"), {"id": vpc_id}).first()
-    if not row:
+    vpc = db.query(VPCModel).filter(VPCModel.id == vpc_id).first()
+    if not vpc:
         raise HTTPException(status_code=404, detail="VPC not found")
-    return row
+    return vpc
 
 @app.delete("/vpcs/{vpc_id}")
 def delete_vpc(vpc_id: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    vpc_exists = db.execute(text("SELECT COUNT(*) FROM vpcs WHERE id=:id"), {"id": vpc_id}).scalar()
-    if not vpc_exists:
+    vpc = services.delete_vpc_logic(db, vpc_id)
+    if not vpc:
         raise HTTPException(status_code=404, detail="VPC not found")
     background_tasks.add_task(services.deprovision_vpc_task, SessionLocal, vpc_id)
-    db.execute(text("DELETE FROM vpcs WHERE id=:id"), {"id": vpc_id})
-    db.commit()
     return {"message": "VPC deletion initiated"}
