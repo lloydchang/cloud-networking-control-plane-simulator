@@ -87,7 +87,8 @@ print("SQLite tables:", inspector.get_table_names())
 # Optional: test a simple query
 try:
     with engine.connect() as conn:
-        result = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        from sqlalchemy import text
+        result = conn.execute(text("SELECT name FROM sqlite_master WHERE type='table';"))
         print("Tables in DB:", [row[0] for row in result])
 except Exception as e:
     print("DB check error:", e)
