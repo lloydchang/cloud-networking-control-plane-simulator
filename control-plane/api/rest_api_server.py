@@ -88,6 +88,15 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base.metadata.create_all(bind=engine)
 
+# Ensure singleton vni_counter row exists to prevent startup failures
+from sqlalchemy import text
+with engine.begin() as conn:
+    conn.execute(text("CREATE TABLE IF NOT EXISTS vni_counter (id INTEGER PRIMARY KEY CHECK (id = 1), value INTEGER NOT NULL)"))
+    result = conn.execute(text("SELECT value FROM vni_counter WHERE id = 1"))
+    row = result.fetchone()
+    if row is None:
+        conn.execute(text("INSERT INTO vni_counter (id, value) VALUES (1, 1)"))
+
 # ============================================================================
 # Startup Hooks
 # ============================================================================
