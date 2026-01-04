@@ -1863,12 +1863,14 @@ window.STATIC_SCENARIOS = [{"id": "scenario-b459b1f3", "title": "1. Single VPC",
 
                 <h4>Test Coverage</h4>
                 <div style="background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 10px 0;">
-                    <strong>Current Coverage:</strong><br>
-                    • models.py: 100%<br>
-                    • shared_api_logic.py: 100%<br>
-                    • rest_api_server.py: 96%<br>
-                    • grpc_api_server.py: 94%<br><br>
-                    <em>Uncovered: Database initialization and entry points</em>
+                    <strong>Current Coverage (as of commit 596365e):</strong><br>
+                    • models.py: 100% ✅<br>
+                    • shared_api_logic.py: 45% 📈 (was 12%)<br>
+                    • rest_api_server.py: 71% 📈 (was 57%)<br>
+                    • grpc_api_server.py: 77% 📈 (was 28%)<br>
+                    • diagnostic_logger.py: 25% 📈 (was 6%)<br>
+                    • <strong>Overall: 56% 📈 (was 35%)</strong><br><br>
+                    <em>Uncovered: Database initialization, entry points, some gRPC methods</em>
                 </div>
 
                 <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
