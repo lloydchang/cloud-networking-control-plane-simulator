@@ -25,7 +25,7 @@ The visualization provides a comprehensive view of your architecture, including:
 
 ## Demo Scenarios
 
-The simulator includes 33 scenarios, ordered from basic connectivity to complex enterprise architectures. All scenarios use generic, non-proprietary terminology.
+The simulator includes 4 key scenarios, ordered from basic connectivity to complex enterprise architectures. All scenarios use generic, non-proprietary terminology.
 
 ### 1. Single VPC
 
@@ -42,47 +42,7 @@ The simulator includes 33 scenarios, ordered from basic connectivity to complex 
 * **Goal**: Isolation of sensitive data between web DMZ and secure backend.
 * **Architecture**: A Production Environment VPC with a Web DMZ subnet and a separate Secure DB Tier for database isolation.
 
-### 4. Public Load Balancer & Private Backend
-
-* **Goal**: Ingress traffic management with a public listener and private workers.
-* **Architecture**: An Application Service VPC with a Frontend Entry subnet containing a Load Balancer and a Backend Pool with application servers.
-
-### 5. NAT Router for Private Subnets
-
-* **Goal**: Controlled internet access for isolated instances.
-* **Architecture**: Private subnets route outbound traffic through a centralized NAT Router, preventing direct inbound internet exposure.
-
-### 6. Secure Microservices Mesh
-
-* **Goal**: Secure service-to-service communication.
-* **Architecture**: A microservices-oriented network with dedicated subnets for individual services and mesh-based routing.
-
-### 7. Managed VPN
-
-* **Goal**: Secure cloud-to-on-prem or region-to-region connectivity.
-* **Architecture**: Encrypted tunnels between distinct environments using generic VPN gateways.
-
-### 8. Private Mesh Overlay
-
-* **Goal**: Zero-trust mesh overlay networking.
-* **Architecture**: A coordination server facilitates flat, encrypted mesh connectivity between nodes across arbitrary network boundaries.
-
-### 9. VPC Peering
-
-* **Goal**: Simple VPC-to-VPC connectivity within the same region.
-* **Architecture**: Two VPCs (Frontend and Backend) connected via bidirectional peering routes, enabling direct communication between resources in different VPCs.
-
-### 10. Private Service Connectivity
-
-* **Goal**: Private service connectivity without full network peering.
-* **Architecture**: A "Consumer VPC" connects to a specific "Provider VPC" service via a logical private service endpoint link, maintaining isolation for all other traffic.
-
-### 11. Collaborative Shared Network
-
-* **Goal**: Centralized network management with departmental isolation.
-* **Architecture**: A single "Shared Network VPC" divided into isolated subnets for HR, Finance, and IT groups.
-
-### 12. Kubernetes Hybrid Network
+### 12. Kubernetes Hybrid
 
 * **Goal**: Cloud Routing Hub and spoke design.
 * **Architecture**: Complex enterprise connectivity with secondary addressing.
