@@ -1833,14 +1833,7 @@ window.STATIC_SCENARIOS = ["demo", "basic", "advanced"];</script>
 <code style="display: block; background: #fff; padding: 10px; border-radius: 4px; margin: 5px 0;"># Run all tests with coverage<br/>make test-cov<br/><br/># Run specific tests<br/>cd control-plane &amp;&amp; python -m pytest tests/test_rest_api.py -v<br/><br/># Run linting<br/>make lint-extreme<br/><br/># Security scan<br/>make security-scan</code>
 </div>
 <h4>Test Coverage</h4>
-<div style="background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 10px 0;">
-<strong>Current Coverage:</strong><br/>
-                    • models.py: 100%<br/>
-                    • shared_api_logic.py: 100%<br/>
-                    • rest_api_server.py: 96%<br/>
-                    • grpc_api_server.py: 94%<br/><br/>
-<em>Uncovered: Database initialization and entry points</em>
-</div>
+<div style="background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 10px 0;"><strong>Current Coverage (as of commit 3c0c98f):</strong><br/>• models.py: 100% ✅ All SQLAlchemy models<br/>• grpc_api_server.py: 77% 📈 gRPC API implementation (improved from 28%)<br/>• rest_api_server.py: 71% 📈 REST API endpoints (improved from 57%)<br/>• shared_api_logic.py: 45% 📈 Core business logic (improved from 12%)<br/>• diagnostic_logger.py: 25% 📈 Diagnostic logging (improved from 6%)<br/>• <strong>Overall: 56% 📈 (was 35%)</strong><br/><br/><em>Uncovered: Database initialization, entry points, some gRPC methods</em></div>
 <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
 <h4>📚 Related Documentation</h4>
 <ul style="margin: 0; padding-left: 20px;">

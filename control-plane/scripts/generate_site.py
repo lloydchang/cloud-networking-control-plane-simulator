@@ -204,6 +204,27 @@ def export_static_fully_offline():
                 else:
                     print(f"Warning: local CSS file {href} not found, leaving link as-is.")
 
+    # Extract coverage from TESTING.md and inject into HTML
+    coverage_data = extract_coverage_from_testing_md()
+    if coverage_data:
+        # Find the coverage section in the HTML and update it
+        coverage_section = soup.find("strong", string=lambda text: text and "Current Coverage:" in text)
+        if coverage_section and coverage_section.parent:
+            # Build new coverage HTML
+            coverage_html = "<strong>Current Coverage (as of commit 3c0c98f):</strong><br/>"
+            for component, data in coverage_data.items():
+                if component == "overall":
+                    coverage_html += f"• <strong>Overall: {data}% 📈 (was 35%)</strong><br/>"
+                else:
+                    coverage_html += f"• {component}: {data['percentage']}% {data['status']}<br/>"
+            coverage_html += "<br/><em>Uncovered: Database initialization, entry points, some gRPC methods</em>"
+            
+            # Update the div content by replacing the entire div
+            coverage_div = coverage_section.parent
+            new_div = soup.new_tag("div", style=coverage_div.get("style", ""))
+            new_div.append(BeautifulSoup(coverage_html, "html.parser"))
+            coverage_div.replace_with(new_div)
+
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     output_path = os.path.join(OUTPUT_DIR, "index.html")
 
@@ -212,6 +233,8 @@ def export_static_fully_offline():
 
     print(f"Fully offline static dashboard written to {os.path.abspath(output_path)}")
     print(f"Contains {len(scenarios)} scenarios, all JS/CSS inlined (local + remote).")
+    if coverage_data:
+        print(f"Updated coverage from TESTING.md: {coverage_data.get('overall', 'N/A')}% overall")
 
 if __name__ == "__main__":
     export_static_fully_offline()
