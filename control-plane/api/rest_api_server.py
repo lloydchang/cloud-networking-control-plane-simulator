@@ -97,19 +97,16 @@ Base.metadata.create_all(bind=engine)
 def initialize_database_and_metrics():
     db = SessionLocal()
     try:
-        # Ensure vni_counter table exists safely
         try:
             db.execute(text("SELECT 1 FROM vni_counter LIMIT 1;"))
         except Exception:
             db.execute(text("CREATE TABLE IF NOT EXISTS vni_counter (id INTEGER PRIMARY KEY, current INTEGER NOT NULL);"))
             db.commit()
 
-        # Initialize vni_counter row if missing
         if not db.query(VniCounterModel).filter_by(id=1).first():
             db.add(VniCounterModel(id=1, current=1))
             db.commit()
 
-        # Initialize Prometheus metrics if available
         if PROMETHEUS_AVAILABLE:
             METRICS["vpcs_total"].set(db.query(VPCModel).count())
             METRICS["subnets_total"].set(db.query(SubnetModel).count())
@@ -269,4 +266,4 @@ async def redoc(request: Request):
       <redoc spec-url='{openapi_path}'></redoc>
       <script src='https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js'></script>
     </body>
-    </html>
+    </html>""")
