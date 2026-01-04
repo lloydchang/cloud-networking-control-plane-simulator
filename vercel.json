@@ -4,7 +4,8 @@
     "control-plane/api/rest_api_server.py": {
       "runtime": "@vercel/python@6.1.5",
       "maxDuration": 60,
-      "memory": 1024
+      "memory": 1024,
+      "includeFiles": ["control-plane/api/**"]
     }
   },
   "routes": [
