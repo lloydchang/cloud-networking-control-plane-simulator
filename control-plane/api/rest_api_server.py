@@ -242,16 +242,29 @@ async def get_vpc_data():
     db = SessionLocal()
     try:
         vpcs = db.query(VPCModel).all()
-        return [{
-            "id": vpc.id,
-            "name": vpc.name,
-            "cidr": vpc.cidr,
-            "region": vpc.region,
-            "secondary_cidrs": vpc.secondary_cidrs or [],
-            "scenario": vpc.scenario,
-            "status": vpc.status,
-            "created_at": vpc.created_at.isoformat() if vpc.created_at else None
-        } for vpc in vpcs]
+        
+        # Transform VPCs into nodes format
+        nodes = []
+        edges = []
+        
+        for vpc in vpcs:
+            nodes.append({
+                "id": vpc.id,
+                "type": "vpc",
+                "label": vpc.name,
+                "cidr": vpc.cidr,
+                "region": vpc.region,
+                "secondary_cidrs": vpc.secondary_cidrs or [],
+                "scenario": vpc.scenario,
+                "status": vpc.status,
+                "created_at": vpc.created_at.isoformat() if vpc.created_at else None
+            })
+        
+        return {
+            "nodes": nodes,
+            "edges": edges,
+            "scenarios": []
+        }
     finally:
         db.close()
 
