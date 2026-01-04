@@ -54,6 +54,20 @@ def extract_coverage_from_testing_md():
         print(f"Error parsing TESTING.md: {e}")
         return None
 
+def extract_architecture_from_md():
+    """Extract architecture content from ARCHITECTURE.md"""
+    arch_md_path = "docs/ARCHITECTURE.md"
+    if not os.path.exists(arch_md_path):
+        print(f"Warning: {arch_md_path} not found, using default content")
+        return "<p>Architecture documentation not found</p>"
+    
+    try:
+        with open(arch_md_path, 'r') as f:
+            return f.read()
+    except Exception as e:
+        print(f"Error parsing ARCHITECTURE.md: {e}")
+        return "<p>Error loading architecture documentation</p>"
+
 def extract_scenarios_from_vpc_md():
     """Extract scenario list from VPC.md"""
     vpc_md_path = "docs/VPC.md"
@@ -220,6 +234,75 @@ def export_static_fully_offline():
             new_div = soup.new_tag("div", style=coverage_div.get("style", ""))
             new_div.append(BeautifulSoup(coverage_html, "html.parser"))
             coverage_div.replace_with(new_div)
+
+    # Extract architecture content and inject into Documentation Hub
+    arch_data = extract_architecture_from_md()
+    
+    # Find the architecture tab in the HTML and update it
+    arch_tab = soup.find("div", {"id": "content-architecture"})
+    if arch_tab:
+        # Replace the architecture tab content with dynamic content
+        arch_content = f"""
+        <h3>🏗️ System Architecture</h3>
+        <p>The simulator provides a conceptual exploration of cloud networking internals using Linux networking primitives.</p>
+        
+        <h4>Core Concepts</h4>
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
+            <strong>Physical Fabric:</strong> Docker-based network providing basic reachability between Spines, Leafs, and Control Plane.<br><br>
+            <strong>Logical Overlay:</strong> VXLAN-EVPN overlay built on top using BGP EVPN for VPC isolation and routing.<br><br>
+            <strong>Cloud Routing Hub:</strong> Centralized routing aggregation point for hub-and-spoke architectures.
+        </div>
+        
+        <h4>Implementation Status</h4>
+        <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+            <tr style="background: #f5f5f5;">
+                <th style="border: 1px solid #ddd; padding: 8px;">Feature</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">Control Plane</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">Data Plane</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">EVPN-VXLAN</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">✅ FRR</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">✅ Linux Kernel</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">VRFs</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">🔄 Simulated</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">🔄 iptables Fallback</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">VTEPs</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">✅ FRR</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">✅ VXLAN Interfaces</td>
+            </tr>
+        </table>
+        
+        <h4>Intent-Driven Orchestration</h4>
+        <div style="background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 10px 0;">
+            <strong>Reconciliation Loop:</strong><br>
+            1. <strong>Fetch:</strong> Query SQLite database for desired state<br>
+            2. <strong>Discover:</strong> Inspect leaf switches using <code>ip link</code><br>
+            3. <strong>Diff:</strong> Compute differences between intended and actual<br>
+            4. <strong>Action:</strong> Execute system commands to converge state
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
+            <h4>📚 Related Documentation</h4>
+            <ul style="margin: 0; padding-left: 20px;">
+                <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/ARCHITECTURE.md" target="_blank">📖 Full Architecture Details</a></li>
+                <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/NETWORKING_IMPLEMENTATION.md" target="_blank">🔧 Networking Implementation</a></li>
+                <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/IDEAS.md" target="_blank">💡 Design Ideas & Extensions</a></li>
+                <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/README.md" target="_blank">🏠 Project README</a></li>
+            </ul>
+        </div>
+        """
+        
+        # Create new content div
+        new_arch_div = soup.new_tag("div", **{"id": "content-architecture", "style": "display: none;"})
+        new_arch_div.append(BeautifulSoup(arch_content, "html.parser"))
+        
+        # Replace the existing architecture tab
+        arch_tab.replace_with(new_arch_div)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     output_path = os.path.join(OUTPUT_DIR, "index.html")
