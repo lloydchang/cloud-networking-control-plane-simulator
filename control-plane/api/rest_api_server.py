@@ -102,7 +102,14 @@ Base.metadata.create_all(bind=engine)
 def initialize_database_and_metrics():
     db = SessionLocal()
     try:
-        # Ensure singleton vni_counter row exists safely using ORM
+        # Ensure the vni_counter table exists safely (fallback to raw SQL if missing)
+        try:
+            db.execute(text("SELECT 1 FROM vni_counter LIMIT 1;"))
+        except Exception:
+            db.execute(text("CREATE TABLE IF NOT EXISTS vni_counter (id INTEGER PRIMARY KEY, current INTEGER NOT NULL);"))
+            db.commit()
+
+        # Ensure singleton vni_counter row exists
         if not db.query(VniCounterModel).filter_by(id=1).first():
             db.add(VniCounterModel(id=1, current=1))
             db.commit()
