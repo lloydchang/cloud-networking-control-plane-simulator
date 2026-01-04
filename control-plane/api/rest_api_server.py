@@ -23,7 +23,7 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.openapi.docs import get_redoc_html
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, Response, HTMLResponse
 from pydantic import BaseModel, Field
 
 from sqlalchemy import create_engine, text
@@ -74,28 +74,18 @@ if os.path.exists(ASSETS_DIR):
     app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
 
 # ==========================================================================
-# Database Configuration (Dual-mode)
+# Database Configuration
 # ==========================================================================
 
-if os.getenv("VERCEL"):
-    DB_DIR = "/tmp"
-else:
-    DB_DIR = os.getenv("DB_DIR", "/app/data")
-
+DB_DIR = "/tmp" if os.getenv("VERCEL") else os.getenv("DB_DIR", "/app/data")
 DB_PATH = os.getenv("DB_PATH", f"{DB_DIR}/network.db")
 
 if not DB_PATH.startswith(":memory:"):
     os.makedirs(DB_DIR, exist_ok=True)
 
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-)
-
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 Base.metadata.create_all(bind=engine)
 
 # ==========================================================================
@@ -251,14 +241,23 @@ async def openapi_json():
     return JSONResponse(app.openapi())
 
 # ==========================================================================
-# ReDoc Endpoint
+# ReDoc Endpoint (Fixed for Vercel / Proxy)
 # ==========================================================================
 
 @app.get("/redoc", include_in_schema=False)
 async def redoc(request: Request):
-    base_url = str(request.base_url).rstrip("/")
-    return get_redoc_html(
-        openapi_url=f"{base_url}/openapi.json",
-        title="Cloud Networking Control Plane Simulator - ReDoc",
-        redoc_js_url="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"
-    )
+    openapi_path = "/openapi.json"
+    return HTMLResponse(f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Cloud Networking Control Plane Simulator - ReDoc</title>
+      <meta charset='utf-8'/>
+      <meta name='viewport' content='width=device-width, initial-scale=1'>
+      <link href='https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700' rel='stylesheet'>
+    </head>
+    <body>
+      <redoc spec-url='{openapi_path}'></redoc>
+      <script src='https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js'></script>
+    </body>
+    </html>
