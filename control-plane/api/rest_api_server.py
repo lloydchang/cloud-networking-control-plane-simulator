@@ -73,10 +73,16 @@ if os.path.exists(ASSETS_DIR):
     app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
 
 # ==========================================================================
-# Database Configuration (Serverless-safe)
+# Database Configuration (Dual-mode)
 # ==========================================================================
 
-DB_DIR = os.getenv("DB_DIR", "/tmp")
+if os.getenv("VERCEL"):
+    # Serverless environment (ephemeral writable storage)
+    DB_DIR = "/tmp"
+else:
+    # Local development or container (persistent)
+    DB_DIR = os.getenv("DB_DIR", "/app/data")
+
 DB_PATH = os.getenv("DB_PATH", f"{DB_DIR}/network.db")
 
 if not DB_PATH.startswith(":memory:"):
