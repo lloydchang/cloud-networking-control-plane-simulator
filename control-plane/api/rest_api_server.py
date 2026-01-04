@@ -247,9 +247,10 @@ def delete_vpc(vpc_id: str, background_tasks: BackgroundTasks, db: Session = Dep
 # ==========================================================================
 
 @app.get("/redoc", include_in_schema=False)
-async def redoc():
+async def redoc(request: Request):
+    base_url = str(request.base_url).rstrip("/")
     return get_redoc_html(
-        openapi_url="/openapi.json",
+        openapi_url=f"{base_url}/openapi.json",
         title="Cloud Networking Control Plane Simulator - ReDoc",
         redoc_js_url="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"
     )
