@@ -66,6 +66,7 @@ app = FastAPI(
     title="Cloud Networking Control Plane Simulator - Control Plane API",
     description="Cloud Networking Control Plane Simulator - Control Plane API",
     version="1.0.0",
+    redoc_url=None,  # Disable built-in ReDoc
 )
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "scripts")
@@ -294,8 +295,8 @@ async def redoc(request: Request):
       <meta name='viewport' content='width=device-width, initial-scale=1'>
       <link href='https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700' rel='stylesheet'>
       <style>
-        body { margin: 0; padding: 0; }
-        redoc { height: 100vh; }
+        body {{ margin: 0; padding: 0; }}
+        redoc {{ height: 100vh; }}
       </style>
     </head>
     <body>
