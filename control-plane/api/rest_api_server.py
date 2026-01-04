@@ -22,6 +22,7 @@ from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends, Request
 from fastapi.staticfiles import StaticFiles
+from fastapi.openapi.docs import get_redoc_html
 from starlette.responses import Response
 from pydantic import BaseModel, Field
 
@@ -77,10 +78,8 @@ if os.path.exists(ASSETS_DIR):
 # ==========================================================================
 
 if os.getenv("VERCEL"):
-    # Serverless environment (ephemeral writable storage)
     DB_DIR = "/tmp"
 else:
-    # Local development or container (persistent)
     DB_DIR = os.getenv("DB_DIR", "/app/data")
 
 DB_PATH = os.getenv("DB_PATH", f"{DB_DIR}/network.db")
@@ -97,7 +96,6 @@ engine = create_engine(
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Only create schema at import
 Base.metadata.create_all(bind=engine)
 
 # ==========================================================================
@@ -108,19 +106,16 @@ Base.metadata.create_all(bind=engine)
 def initialize_database_and_metrics():
     db = SessionLocal()
     try:
-        # Ensure vni_counter table exists safely
         try:
             db.execute(text("SELECT 1 FROM vni_counter LIMIT 1;"))
         except Exception:
             db.execute(text("CREATE TABLE IF NOT EXISTS vni_counter (id INTEGER PRIMARY KEY, current INTEGER NOT NULL);"))
             db.commit()
 
-        # Ensure singleton vni_counter row exists
         if not db.query(VniCounterModel).filter_by(id=1).first():
             db.add(VniCounterModel(id=1, current=1))
             db.commit()
 
-        # Initialize Prometheus metrics if available
         if PROMETHEUS_AVAILABLE:
             METRICS["vpcs_total"].set(db.query(VPCModel).count())
             METRICS["subnets_total"].set(db.query(SubnetModel).count())
@@ -246,3 +241,15 @@ def delete_vpc(vpc_id: str, background_tasks: BackgroundTasks, db: Session = Dep
         raise HTTPException(status_code=404, detail="VPC not found")
     background_tasks.add_task(services.deprovision_vpc_task, SessionLocal, vpc_id)
     return {"message": "VPC deletion initiated"}
+
+# ==========================================================================
+# ReDoc Endpoint
+# ==========================================================================
+
+@app.get("/redoc", include_in_schema=False)
+async def redoc():
+    return get_redoc_html(
+        openapi_url="/openapi.json",
+        title="Cloud Networking Control Plane Simulator - ReDoc",
+        redoc_js_url="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"
+    )
