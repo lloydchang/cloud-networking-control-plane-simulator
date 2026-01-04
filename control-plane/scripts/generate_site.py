@@ -11,13 +11,6 @@ API_BASE_URL = "http://localhost:8000"
 TEMPLATE_PATH = "control-plane/api/ui/vpc.html"
 OUTPUT_DIR = "docs"
 
-# Scenario-specific scripts relative to TEMPLATE_PATH
-SCENARIO_SCRIPTS = [
-    "scripts/scenario_hybrid.js",
-    "scripts/scenario_vpn.js",
-    "scripts/scenario_mesh.js"
-]
-
 def fetch_remote_resource(url):
     """Fetch remote JS or CSS content from a URL."""
     try:
@@ -27,13 +20,6 @@ def fetch_remote_resource(url):
     except Exception as e:
         print(f"Warning: Could not fetch {url}: {e}")
         return None
-
-def wrap_scenario_script(content, func_name):
-    """
-    Wrap scenario JS code in a window function to expose globally.
-    func_name: renderScenarioHybrid / renderScenarioVPN / renderScenarioMesh
-    """
-    return f"window.{func_name} = function(...args) {{\n{content}\n}};"
 
 def extract_coverage_from_testing_md():
     """Extract coverage information from TESTING.md"""
@@ -138,37 +124,10 @@ def export_static_fully_offline():
     )
     soup.head.insert(0, data_script)
 
-    # Find the main vpc.js script tag to insert scenario functions before it
-    main_script_tag = None
-    for script_tag in soup.find_all("script"):
-        src = script_tag.get("src", "")
-        if "vpc.js" in src:
-            main_script_tag = script_tag
-            break
-
-    # Inline scenario-specific scripts and wrap as window functions
-    for path in SCENARIO_SCRIPTS:
-        full_path = os.path.join(template_dir, path)
-        func_name = os.path.splitext(os.path.basename(path))[0].replace("scenario_", "renderScenario")
-        if os.path.exists(full_path):
-            with open(full_path, 'r') as f:
-                content = f.read()
-            tag = soup.new_tag("script")
-            tag.string = wrap_scenario_script(content, func_name)
-            if main_script_tag:
-                main_script_tag.insert_before(tag)
-            else:
-                soup.head.append(tag)
-        else:
-            print(f"Warning: scenario script {path} not found")
-
-    # Inline all other JS scripts
+    # Inline all JS scripts
     for script_tag in soup.find_all("script"):
         src = script_tag.get("src")
         if src:
-            # Skip scenario scripts since already inlined
-            if any(src.endswith(os.path.basename(s)) for s in SCENARIO_SCRIPTS):
-                continue
             if src.startswith(("http://", "https://", "//")):
                 url = src if src.startswith("http") else "https:" + src
                 content = fetch_remote_resource(url)
