@@ -50,6 +50,7 @@ from .models import (
     CloudRoutingHub as HubModel,
     StandaloneDataCenter as StandaloneDCModel,
     StandaloneDCSubnet as StandaloneDCSubnetModel,
+    VniCounter as VniCounterModel
 )
 from . import shared_api_logic as services
 
@@ -90,31 +91,32 @@ engine = create_engine(
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Only create schema at import
 Base.metadata.create_all(bind=engine)
-
-# Ensure singleton vni_counter row exists
-with engine.begin() as conn:
-    conn.execute(text("CREATE TABLE IF NOT EXISTS vni_counter (id INTEGER PRIMARY KEY CHECK (id = 1), value INTEGER NOT NULL)"))
-    result = conn.execute(text("SELECT value FROM vni_counter WHERE id = 1"))
-    if result.fetchone() is None:
-        conn.execute(text("INSERT INTO vni_counter (id, value) VALUES (1, 1)"))
 
 # ============================================================================
 # Startup Hooks
 # ============================================================================
 
 @app.on_event("startup")
-def initialize_metrics():
-    if not PROMETHEUS_AVAILABLE:
-        return
+def initialize_database_and_metrics():
     db = SessionLocal()
     try:
-        METRICS["vpcs_total"].set(db.query(VPCModel).count())
-        METRICS["subnets_total"].set(db.query(SubnetModel).count())
-        METRICS["routes_total"].set(db.query(RouteModel).count())
-        METRICS["security_groups_total"].set(db.query(SGModel).count())
-        METRICS["nat_gateways_total"].set(db.query(NATModel).count())
-        METRICS["internet_gateways_total"].set(db.query(InternetGatewayModel).count())
+        # Ensure singleton vni_counter row exists safely
+        vni_row = db.query(VniCounterModel).filter(VniCounterModel.id == 1).first()
+        if not vni_row:
+            new_counter = VniCounterModel(id=1, current=1)
+            db.add(new_counter)
+            db.commit()
+
+        # Initialize Prometheus metrics if available
+        if PROMETHEUS_AVAILABLE:
+            METRICS["vpcs_total"].set(db.query(VPCModel).count())
+            METRICS["subnets_total"].set(db.query(SubnetModel).count())
+            METRICS["routes_total"].set(db.query(RouteModel).count())
+            METRICS["security_groups_total"].set(db.query(SGModel).count())
+            METRICS["nat_gateways_total"].set(db.query(NATModel).count())
+            METRICS["internet_gateways_total"].set(db.query(InternetGatewayModel).count())
     finally:
         db.close()
 
