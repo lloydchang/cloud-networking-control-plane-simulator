@@ -17,6 +17,7 @@ import uuid
 import asyncio
 import time
 import os
+import json
 from datetime import datetime
 from typing import List, Optional
 
@@ -70,8 +71,8 @@ if os.path.exists(SCRIPTS_DIR):
     app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
 
 ASSETS_DIR = "/app/assets"
-if os.path.exists(ASSETS_DIR):
-    app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
+os.makedirs(ASSETS_DIR, exist_ok=True)
+app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
 
 # ==========================================================================
 # Database Configuration
@@ -113,6 +114,11 @@ def initialize_database_and_metrics():
             METRICS["security_groups_total"].set(db.query(SGModel).count())
             METRICS["nat_gateways_total"].set(db.query(NATModel).count())
             METRICS["internet_gateways_total"].set(db.query(InternetGatewayModel).count())
+
+        # Pre-generate OpenAPI JSON for Vercel static assets
+        openapi_path = os.path.join(ASSETS_DIR, "openapi.json")
+        with open(openapi_path, "w") as f:
+            json.dump(app.openapi(), f)
     finally:
         db.close()
 
@@ -246,7 +252,7 @@ async def openapi_json():
 
 @app.get("/redoc", include_in_schema=False)
 async def redoc(request: Request):
-    openapi_path = "/openapi.json"
+    openapi_path = "/assets/openapi.json"
     return HTMLResponse(f"""
     <!DOCTYPE html>
     <html>
@@ -260,4 +266,4 @@ async def redoc(request: Request):
       <redoc spec-url='{openapi_path}'></redoc>
       <script src='https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js'></script>
     </body>
-    </html>
+    </html>""")
