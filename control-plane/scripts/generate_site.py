@@ -53,6 +53,38 @@ def export_static_fully_offline():
     except Exception as e:
         print(f"Error fetching VPC data: {e}")
         sys.exit(1)
+    
+    # Smart fallback: If no VPCs exist, use sample data instead of empty
+    if not vpc_data.get("nodes") or not vpc_data.get("nodes", []):
+        print("No VPCs found in database, using sample data for demo")
+        vpc_data = {
+            "nodes": [
+                {
+                    "id": "vpc-demo-1",
+                    "type": "vpc",
+                    "label": "Demo VPC",
+                    "cidr": "10.0.0.0/16",
+                    "region": "us-east-1",
+                    "secondary_cidrs": ["10.1.0.0/16"],
+                    "scenario": "demo",
+                    "status": "active",
+                    "created_at": "2024-01-01T00:00:00Z"
+                }
+            ],
+            "edges": [
+                {
+                    "source": "vpc-demo-1",
+                    "target": "leaf-1",
+                    "type": "vpc-hosting"
+                },
+                {
+                    "source": "vpc-demo-1", 
+                    "target": "leaf-2",
+                    "type": "vpc-hosting"
+                }
+            ],
+            "scenarios": ["demo"]
+        }
 
     # Read template
     if not os.path.exists(TEMPLATE_PATH):
