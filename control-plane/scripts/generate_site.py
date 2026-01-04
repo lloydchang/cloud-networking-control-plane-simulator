@@ -70,27 +70,25 @@ def extract_coverage_from_testing_md():
 def export_static_fully_offline():
     """Export a single-file static VPC dashboard with all JS/CSS inlined, local and remote."""
 
-    # Fetch scenarios
+    # Fetch scenarios (with graceful fallback)
+    scenarios = []
     try:
         response = requests.get(f"{API_BASE_URL}/scenarios")
         response.raise_for_status()
         scenarios = response.json()
     except Exception as e:
-        print(f"Error fetching scenarios: {e}")
-        sys.exit(1)
+        print(f"Warning: Could not fetch scenarios from API ({e}), using default scenarios")
+        scenarios = ["demo", "basic", "advanced"]  # Default scenarios
 
-    # Fetch VPC data
+    # Fetch VPC data (with graceful fallback)
+    vpc_data = {"nodes": [], "edges": [], "scenarios": scenarios}
     try:
         response = requests.get(f"{API_BASE_URL}/vpc", headers={"Accept": "application/json"})
         response.raise_for_status()
         vpc_data = response.json()
     except Exception as e:
-        print(f"Error fetching VPC data: {e}")
-        sys.exit(1)
-    
-    # Smart fallback: If no VPCs exist, use sample data instead of empty
-    if not vpc_data.get("nodes") or not vpc_data.get("nodes", []):
-        print("No VPCs found in database, using sample data for demo")
+        print(f"Warning: Could not fetch VPC data from API ({e}), using sample data")
+        # Use sample data (same as before)
         vpc_data = {
             "nodes": [
                 {
@@ -117,7 +115,7 @@ def export_static_fully_offline():
                     "type": "vpc-hosting"
                 }
             ],
-            "scenarios": ["demo"]
+            "scenarios": scenarios
         }
 
     # Read template

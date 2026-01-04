@@ -32,7 +32,7 @@ make security-scan
 
 ## Test Coverage
 
-Current coverage by component (as of latest commit 596365e):
+Current coverage by component (as of latest commit 3c0c98f):
 
 | Component | Coverage | Status |
 |-----------|----------|--------|
