@@ -150,8 +150,9 @@ class StandaloneDCSubnet(Base):
 # Database Configuration (SQLite for Persistence)
 # ============================================================================
 
-DB_DIR = os.getenv("DB_DIR", "/app/data")
-DB_PATH = os.getenv("DB_PATH", f"{DB_DIR}/network.db")
+# Default to /tmp for serverless environments if DB_DIR is not set
+DB_DIR = os.getenv("DB_DIR", "/tmp")
+DB_PATH = os.path.join(DB_DIR, "network.db")
 
 # Ensure data directory exists if it's not a special sqlite path
 if not os.path.exists(DB_DIR) and not DB_PATH.startswith(":memory:"):

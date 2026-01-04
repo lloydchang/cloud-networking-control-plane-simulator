@@ -304,6 +304,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - PYTHONUNBUFFERED=1
+      - DB_DIR=/app/data
       - DATABASE_URL=sqlite:///app/data/network.db
       - PYTHONPATH=/app:/app/api
       - REST_PORT=8000
