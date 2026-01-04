@@ -901,6 +901,11 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 </div>
 <div class="status" id="status">Initializing...</div>
 <script>
+        // Redirect GitHub Pages to Vercel for better UX
+        if (window.location.hostname === 'lloydchang.github.io') {
+            window.location.replace('https://cloud-networking-control-plane-simulator.vercel.app/');
+        }
+        
         let currentView = 'detailed';
         let cachedData = null;
 
