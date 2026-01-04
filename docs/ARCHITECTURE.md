@@ -67,6 +67,94 @@ The following diagram illustrates the logical overlay and its relationship with 
      └──────────────┘
 ```
 
+This diagram is describing a VXLAN EVPN based data center network and how multiple isolated virtual networks reach each other and the internet.
+
+Here is the meaning, top to bottom, left to right.
+
+At the top, “Logical Overlay” means this is not physical wiring. It is virtual networking built on top of the physical fabric.
+
+vpc-100 and vpc-200 are separate virtual networks. Each one has:
+
+A VNI, VXLAN Network Identifier. This is the VXLAN equivalent of a VLAN, but at much larger scale.
+
+A VRF, Virtual Routing and Forwarding instance. This keeps routing tables isolated so vpc-100 and vpc-200 cannot see each other unless explicitly connected.
+
+A CIDR block. 10.1.0.0/16 for vpc-100 and 10.2.0.0/16 for vpc-200. These are private IP ranges used inside each virtual network.
+
+The “Internet” box with 203.0.113.0/24 represents an external network. 203.0.113.0/24 is a documentation-only prefix reserved for examples, not real internet space. That signals this is a simulated WAN, not production addressing. This prefix is defined in RFC 5737.
+
+The VXLAN EVPN Overlay Plane is the control plane. It distributes reachability information between switches:
+
+EVPN Type 2 routes advertise MAC and IP bindings. This lets hosts move and still be reachable.
+
+EVPN Type 5 routes advertise pure Layer 3 prefixes. This is used for routing between VRFs or toward external networks.
+
+Synchronizing VRFs and VNIs across leafs means every leaf switch learns the same virtual network state.
+
+The Internet-GW and NAT-Gateway represent the exit point from the private overlays to the external network. NAT is doing SNAT and possibly DNAT so private 10.x addresses can communicate with public or simulated public addresses. NAT behavior is defined in RFC 3022.
+
+Spine-1 and Spine-2 are the physical fabric core. They do not host endpoints. They provide high bandwidth IP forwarding between leaf switches. The bidirectional arrows mean ECMP and redundant paths.
+
+Leaf-1 and Leaf-2 are where VXLAN encapsulation and decapsulation happen. Each leaf:
+
+Participates in BGP EVPN.
+
+Hosts VNIs 100 and 200.
+
+Maintains VRFs for the virtual networks.
+
+Has its own ASN, indicating eBGP is used inside the fabric, a common design for fast convergence.
+
+Servers attach to the leaf switches. Server-1 and Server-2 are both in vpc-100 but on different subnets. Because EVPN distributes MAC and IP reachability, they can communicate as if they were on the same logical network even though they are on different physical switches.
+
+The load balancer is also inside vpc-100. The arrow from the NAT-Gateway to the load balancer indicates inbound traffic from the external network can be translated and forwarded to services inside the VPC.
+
+In short, this diagram means:
+
+You have a spine leaf fabric.
+
+VXLAN provides Layer 2 and Layer 3 overlays.
+
+EVPN with BGP is the control plane.
+
+VRFs isolate tenants or VPCs.
+
+NAT provides controlled access to an external network.
+
+All of this runs over a simple IP routed physical network.
+
+Key standards behind this design include RFC 7348 for VXLAN, RFC 7432 and RFC 8365 for EVPN, RFC 4364 for VRFs, and RFC 3022 for NAT.
+
+---
+
+**Q:** Does it make sense?
+
+**A:** Yes, it makes sense, but it is not perfect and a few things are either ambiguous or slightly misleading.
+
+What is correct:
+
+The overall architecture is coherent. A spine leaf fabric with VXLAN EVPN overlays, VRF based tenant isolation, and a centralized or shared NAT gateway for internet access is a standard and valid design. Using EVPN Type 2 for MAC and IP learning and Type 5 for Layer 3 prefixes is correct and aligns with RFC 7432 and RFC 8365. Using separate ASNs on leafs and running eBGP in the fabric is also a common and sound practice.
+
+The use of 203.0.113.0/24 to represent the internet is correct for documentation and explicitly non routable, as defined in RFC 5737.
+
+Where it becomes unclear or weak:
+
+First, the placement of the Internet-GW and NAT-Gateway is ambiguous. In real VXLAN EVPN designs, NAT is usually implemented on a border leaf or service leaf, not as a floating logical box disconnected from the fabric. The diagram suggests the NAT gateway is outside the EVPN domain but still tightly integrated, which is not explained.
+
+Second, the relationship between EVPN Type 5 routes and NAT is not shown clearly. Typically, the default route 0.0.0.0/0 is leaked into tenant VRFs via EVPN Type 5 from the border leaf. That mechanism is not depicted, so the control plane path to the internet is implied rather than shown.
+
+Third, Leaf-1 and Leaf-2 list only VRF vpc-100, yet earlier the diagram claims both VNIs 100 and 200 are present on the leafs. If vpc-200 exists, its VRF should be explicitly shown on the leafs as well, or else it looks like a partial or inconsistent configuration.
+
+Fourth, the load balancer arrow from the NAT-Gateway implies inbound connectivity, but no DNAT, VIP, or route advertisement mechanism is shown. Without EVPN Type 5 prefix injection or service chaining details, this part is conceptually correct but operationally underspecified.
+
+Fifth, spines are shown as participating in bidirectional links with VXLAN semantics. In most designs, spines are pure IP transit and are unaware of VXLAN and EVPN beyond BGP underlay reachability. The diagram does not say this explicitly, which could confuse readers.
+
+Bottom line:
+
+Conceptually, yes, it makes sense and describes a valid VXLAN EVPN architecture. Technically, it is a high level logical diagram, not an implementation diagram. If this were documentation for engineers, it would need clarification around border leaf roles, default route propagation, NAT placement, and consistent VRF representation.
+
+This aligns with standard data center designs described in RFC 8365 and common vendor reference architectures from Cisco, Arista, and Juniper.
+
 ## Data Flows
 
 ### Inbound Traffic Traversal (Internet to VPC)
