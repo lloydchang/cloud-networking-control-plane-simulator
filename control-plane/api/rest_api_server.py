@@ -310,6 +310,14 @@ class MeshNode(BaseModel):
     node_key: str
     tailnet: str
 
+# ============================================================================
+# Favicon handler to prevent 500 errors if favicon is missing
+# ============================================================================
+
+@app.get("/favicon.png")
+@app.get("/favicon.ico")
+async def favicon():
+    return Response(status_code=204)
 
 # ============================================================================
 # Health Check
