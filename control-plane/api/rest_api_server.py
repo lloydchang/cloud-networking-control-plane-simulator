@@ -100,7 +100,7 @@ def initialize_database_and_metrics():
 
         # Initialize vni_counter row if it doesn't exist
         try:
-            metadata = MetaData(bind=engine)
+            metadata = MetaData()
             vni_counter = Table("vni_counter", metadata, autoload_with=engine)
             row = db.execute(select(vni_counter).where(vni_counter.c.id == 1)).fetchone()
             if not row:
@@ -236,6 +236,25 @@ def delete_vpc(vpc_id: str, background_tasks: BackgroundTasks, db: Session = Dep
     background_tasks.add_task(services.deprovision_vpc_task, SessionLocal, vpc_id)
     return {"message": "VPC deletion initiated"}
 
+@app.get("/vpc", include_in_schema=False)
+async def get_vpc_data():
+    """Get all VPC data for the VPC view"""
+    db = SessionLocal()
+    try:
+        vpcs = db.query(VPCModel).all()
+        return [{
+            "id": vpc.id,
+            "name": vpc.name,
+            "cidr": vpc.cidr,
+            "region": vpc.region,
+            "secondary_cidrs": vpc.secondary_cidrs or [],
+            "scenario": vpc.scenario,
+            "status": vpc.status,
+            "created_at": vpc.created_at.isoformat() if vpc.created_at else None
+        } for vpc in vpcs]
+    finally:
+        db.close()
+
 @app.get("/openapi.json", include_in_schema=False)
 async def openapi_json():
     return JSONResponse(app.openapi())
@@ -261,10 +280,14 @@ async def redoc(request: Request):
       <meta charset='utf-8'/>
       <meta name='viewport' content='width=device-width, initial-scale=1'>
       <link href='https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700' rel='stylesheet'>
+      <style>
+        body { margin: 0; padding: 0; }
+        redoc { height: 100vh; }
+      </style>
     </head>
     <body>
       <redoc spec-url='{openapi_path}'></redoc>
-      <script src='https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js'></script>
+      <script src='https://cdn.jsdelivr.net/npm/redoc@2.0.0/bundles/redoc.standalone.js'></script>
     </body>
     </html>
     """)
