@@ -59,7 +59,19 @@ cd cloud-networking-control-plane-simulator
 ### 3. Verify Docker Privileges
 On systems where Docker requires elevated permissions for network manipulation, ensure your user has appropriate rights or that the Docker daemon is configured to allow `CAP_NET_ADMIN` and `CAP_NET_RAW` capabilities.
 
-### 4. Start Simulator
+### 4. Setup Pre-commit Hooks (Recommended)
+```bash
+# Install pre-commit for automatic code quality and site generation
+pip install pre-commit
+pre-commit install
+
+# This ensures:
+# - Automatic site generation when TESTING.md changes
+# - Code linting and security scanning
+# - Single-commit workflow for documentation updates
+```
+
+### 5. Start Simulator
 ```bash
 make up     # Start all components (Spines, Leaves, Control Plane)
 make status # Verify current health of the containerized fabric
@@ -72,7 +84,7 @@ make down   # Stop and cleanup all containers and networks
 > [!NOTE]
 > Terminology: In this documentation and codebase, "leaves" denotes the leaf switches in a leaf-spine network topology.
 
-### 5. Provision Sample Environment
+### 6. Provision Sample Environment
 ```bash
 make create-sample-vpc
 ```

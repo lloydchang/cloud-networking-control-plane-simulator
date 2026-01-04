@@ -1,6 +1,7 @@
 # export_vpc_static_fully_offline.py
 import json
 import os
+import re
 import requests
 import sys
 from bs4 import BeautifulSoup
@@ -32,6 +33,39 @@ def wrap_scenario_script(content, func_name):
     func_name: renderScenarioHybrid / renderScenarioVPN / renderScenarioMesh
     """
     return f"window.{func_name} = function(...args) {{\n{content}\n}};"
+
+def extract_coverage_from_testing_md():
+    """Extract coverage information from TESTING.md"""
+    testing_md_path = "docs/TESTING.md"
+    if not os.path.exists(testing_md_path):
+        print(f"Warning: {testing_md_path} not found, using default coverage")
+        return None
+    
+    try:
+        with open(testing_md_path, 'r') as f:
+            content = f.read()
+        
+        # Extract coverage table using regex
+        coverage_pattern = r'\| `([^`]+)` \| (\d+)% \| ([^|]+) \|'
+        matches = re.findall(coverage_pattern, content)
+        
+        if matches:
+            coverage_data = {}
+            for component, percentage, status in matches:
+                coverage_data[component] = {
+                    "percentage": int(percentage),
+                    "status": status.strip()
+                }
+            
+            # Extract overall coverage
+            overall_match = re.search(r'\*\*Overall\*\* \| \*\*(\d+)%\*\*', content)
+            if overall_match:
+                coverage_data["overall"] = int(overall_match.group(1))
+            
+            return coverage_data
+    except Exception as e:
+        print(f"Error parsing TESTING.md: {e}")
+        return None
 
 def export_static_fully_offline():
     """Export a single-file static VPC dashboard with all JS/CSS inlined, local and remote."""
