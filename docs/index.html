@@ -1502,7 +1502,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
         // Tab switching functionality
         function showTab(tabName) {
             // Hide all content divs
-            const contents = ['api-guide', 'architecture', 'vpc', 'examples', 'testing'];
+            const contents = ['api-guide', 'architecture', 'vpc', 'examples', 'testing', 'readme', 'api-examples', 'ideas', 'networking', 'license'];
             contents.forEach(content => {
                 const contentDiv = document.getElementById(`content-${content}`);
                 if (contentDiv) {
@@ -1511,7 +1511,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
             });
             
             // Remove active state from all tab buttons (except external links)
-            const tabButtons = ['api-guide', 'architecture', 'vpc', 'examples', 'testing'];
+            const tabButtons = ['api-guide', 'architecture', 'vpc', 'examples', 'testing', 'readme', 'api-examples', 'ideas', 'networking', 'license'];
             tabButtons.forEach(content => {
                 const tabButton = document.getElementById(`tab-${content}`);
                 if (tabButton) {
@@ -3344,7 +3344,7 @@ See <a href="docs/VPC.md">docs/VPC.md</a></p>
 </blockquote>
 <h3 id="rest-api">REST API</h3>
 <p>The control plane exposes a REST API (port 8000) for intent declaration. API operations are <strong>idempotent</strong>, allowing for safe retries without unintended side effects.</p>
-<p>Detailed examples for creating <strong>VPCs</strong>, <strong>Subnets</strong>, and <strong>Security Groups</strong> are available in <a href="docs/VPC.md">docs/VPC.md</a> and <a href="docs/API.md">docs/API.md</a>.</p>
+<p>Detailed examples for creating <strong>VPCs</strong>, <strong>Subnets</strong>, and <strong>Security Groups</strong> are available in <a href="docs/VPC.md">docs/VPC.md</a> and <a href="docs/API_GUIDE.md">docs/API_GUIDE.md</a>.</p>
 <p>Interactive API documentation is available at</p>
 <ul>
 <li>http://localhost:8000/redoc (ReDoc)</li>
@@ -3356,7 +3356,7 @@ See <a href="docs/VPC.md">docs/VPC.md</a></p>
 <p><strong>Quick Check (List VPCs):</strong></p>
 <div class="codehilite"><pre><span></span><code>grpcurl<span class="w"> </span>-plaintext<span class="w"> </span>localhost:50051<span class="w"> </span>network.NetworkService/ListVPCs
 </code></pre></div>
-<p>For detailed examples including <strong>Creating Resources via gRPC</strong>, streaming telemetry, and the full service definition, see <a href="docs/API.md#grpc-api">docs/API.md</a>.</p>
+<p>For detailed examples including <strong>Creating Resources via gRPC</strong>, streaming telemetry, and the full service definition, see <a href="docs/API_GUIDE.md#grpc-api">docs/API_GUIDE.md</a>.</p>
 <h2 id="verification-troubleshooting">Verification &amp; Troubleshooting</h2>
 <h3 id="connectivity-testing">Connectivity Testing</h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Run the automated connectivity test suite</span>

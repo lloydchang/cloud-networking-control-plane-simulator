@@ -458,8 +458,8 @@ def create_new_tab_static(soup, tab_id, tab_name, icon, filename, title, descrip
                     # Update the contents array
                     old_contents = script.string
                     new_contents = old_contents.replace(
-                        "const contents = ['api-guide', 'architecture', 'vpc-details', 'examples', 'testing'];",
-                        f"const contents = ['api-guide', 'architecture', 'vpc-details', 'examples', 'testing', '{tab_id}'];"
+                        "const contents = ['api-guide', 'architecture', 'vpc', 'examples', 'testing'];",
+                        f"const contents = ['api-guide', 'architecture', 'vpc', 'examples', 'testing', '{tab_id}'];"
                     )
                     script.string = new_contents
                     break

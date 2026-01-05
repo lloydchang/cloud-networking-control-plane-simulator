@@ -425,8 +425,8 @@ def create_new_tab(soup, tab_id, tab_name, icon, filename, title, description):
                     # Update the contents array
                     old_contents = script.string
                     new_contents = old_contents.replace(
-                        "const contents = ['api-guide', 'architecture', 'vpc-details', 'examples', 'testing'];",
-                        f"const contents = ['api-guide', 'architecture', 'vpc-details', 'examples', 'testing', '{tab_id}'];"
+                        "const contents = ['api-guide', 'architecture', 'vpc', 'examples', 'testing'];",
+                        f"const contents = ['api-guide', 'architecture', 'vpc', 'examples', 'testing', '{tab_id}'];"
                     )
                     script.string = new_contents
                     break
@@ -458,7 +458,7 @@ SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "scripts")
 if os.path.exists(SCRIPTS_DIR):
     app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
 
-ASSETS_DIR = "/app/assets"
+ASSETS_DIR = os.path.join(os.path.dirname(__file__), "ui", "assets")
 UI_DIR = os.path.join(os.path.dirname(__file__), "ui")
 
 # Only create assets directory if not in Vercel (read-only filesystem)
@@ -470,7 +470,7 @@ if not os.getenv("VERCEL"):
 if os.path.exists(UI_DIR):
     app.mount("/ui", StaticFiles(directory=UI_DIR), name="ui")
 
-DB_DIR = "/tmp" if os.getenv("VERCEL") else os.getenv("DB_DIR", "/app/data")
+DB_DIR = "/tmp" if os.getenv("VERCEL") else os.getenv("DB_DIR", os.path.join(os.path.dirname(__file__), "..", "data"))
 DB_PATH = os.getenv("DB_PATH", f"{DB_DIR}/network.db")
 if not DB_PATH.startswith(":memory:"):
     os.makedirs(DB_DIR, exist_ok=True)

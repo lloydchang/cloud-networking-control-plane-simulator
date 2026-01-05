@@ -1508,7 +1508,7 @@
         // Tab switching functionality
         function showTab(tabName) {
             // Hide all content divs
-            const contents = ['api-guide', 'architecture', 'vpc', 'examples', 'testing'];
+            const contents = ['api-guide', 'architecture', 'vpc', 'examples', 'testing', 'readme', 'api-examples', 'ideas', 'networking', 'license'];
             contents.forEach(content => {
                 const contentDiv = document.getElementById(`content-${content}`);
                 if (contentDiv) {
@@ -1517,7 +1517,7 @@
             });
             
             // Remove active state from all tab buttons (except external links)
-            const tabButtons = ['api-guide', 'architecture', 'vpc', 'examples', 'testing'];
+            const tabButtons = ['api-guide', 'architecture', 'vpc', 'examples', 'testing', 'readme', 'api-examples', 'ideas', 'networking', 'license'];
             tabButtons.forEach(content => {
                 const tabButton = document.getElementById(`tab-${content}`);
                 if (tabButton) {
