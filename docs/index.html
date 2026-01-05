@@ -865,7 +865,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 <h1>Cloud Networking Control Plane Simulator</h1>
 </div>
 <div class="controls">
-<button class="btn btn-secondary" onclick="showTab('testing')">🧪 Testing</button>
+<button class="btn btn-secondary" onclick="toggleApiGuide()">📋 Documentation Hub</button>
 </div>
 </header>
 <div class="main-container">
@@ -1592,7 +1592,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
                     Examples</button>
 <button id="tab-testing" onclick="showTab('testing')" style="background: none; border: none; padding: 10px; cursor: pointer;">🧪
                     Testing</button>
-<button id="tab-readme" onclick="showTab('readme')" style="background: none; border: none; padding: 10px; cursor: pointer;">🏠 README</button><button id="tab-ideas" onclick="showTab('ideas')" style="background: none; border: none; padding: 10px; cursor: pointer;">💡 Ideas</button><button id="tab-networking" onclick="showTab('networking')" style="background: none; border: none; padding: 10px; cursor: pointer;">⚙️ Networking</button><button id="tab-license" onclick="showTab('license')" style="background: none; border: none; padding: 10px; cursor: pointer;">📄 License</button><button onclick="window.open('https://cloud-networking-control-plane-simulator.vercel.app/redoc', '_blank')" style="background: none; border: none; padding: 10px; cursor: pointer; text-decoration: none; color: inherit; margin-left: auto;">📖
+<button id="tab-readme" onclick="showTab('readme')" style="background: none; border: none; padding: 10px; cursor: pointer;">🏠 README</button><button id="tab-api-examples" onclick="showTab('api-examples')" style="background: none; border: none; padding: 10px; cursor: pointer;">📚 API Examples</button><button id="tab-ideas" onclick="showTab('ideas')" style="background: none; border: none; padding: 10px; cursor: pointer;">💡 Ideas</button><button id="tab-networking" onclick="showTab('networking')" style="background: none; border: none; padding: 10px; cursor: pointer;">⚙️ Networking</button><button id="tab-license" onclick="showTab('license')" style="background: none; border: none; padding: 10px; cursor: pointer;">📄 License</button><button onclick="window.open('https://cloud-networking-control-plane-simulator.vercel.app/redoc', '_blank')" style="background: none; border: none; padding: 10px; cursor: pointer; text-decoration: none; color: inherit; margin-left: auto;">📖
                     ReDoc</button>
 <button onclick="window.open('https://cloud-networking-control-plane-simulator.vercel.app/docs', '_blank')" style="background: none; border: none; padding: 10px; cursor: pointer; text-decoration: none; color: inherit;">📚
                     Docs</button>
@@ -1770,7 +1770,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
             </style>
 <!-- Divider between original content and API_GUIDE.md -->
 <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
-<h3 style="margin: 0 0 10px 0; color: #1976d2;">📋 API Guide</h3>
+<h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 Complete API Documentation</h3>
 <p style="margin: 0; color: #555;">Full API reference and documentation from docs/API_GUIDE.md</p>
 </div>
 <div class="markdown-content">
@@ -2026,7 +2026,8 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 <!-- Architecture Tab -->
 <div id="content-architecture" style="display: none;">
 <h3>🏗️ System Architecture</h3>
-<p>Conceptual exploration of cloud networking internals from docs/ARCHITECTURE.md</p>
+<p>The simulator provides a conceptual exploration of cloud networking internals using Linux networking
+                    primitives.</p>
 <h4>Core Concepts</h4>
 <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
 <strong>Physical Fabric:</strong> Docker-based network providing basic reachability between Spines,
@@ -2157,8 +2158,8 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
             </style>
 <!-- Divider between original content and ARCHITECTURE.md -->
 <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
-<h3 style="margin: 0 0 10px 0; color: #1976d2;">🏗️ System Architecture</h3>
-<p style="margin: 0; color: #555;">Conceptual exploration of cloud networking internals from docs/ARCHITECTURE.md</p>
+<h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 Detailed Architecture Documentation</h3>
+<p style="margin: 0; color: #555;">Comprehensive architecture documentation from docs/ARCHITECTURE.md</p>
 </div>
 <div class="markdown-content">
 <h1 id="architecture-details-cloud-networking-control-plane-simulator">Architecture Details: Cloud Networking Control Plane Simulator</h1>
@@ -2461,48 +2462,47 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 <li><strong>Rendering</strong>: Renders a map of the intended and actual network state.</li>
 </ol>
 <h2 id="performance-caveats">Performance Caveats</h2>
-<p>This simulator is designed for functional validation and educational purposes, not for stress-testing or production traffic modeling.</p>
-<ul>
-<li><strong>Docker Latency</strong>: Packet traversal through multiple Docker bridges and the userspace-heavy VXLAN implementation will show significantly higher latency than ASIC-based hardware.</li>
-<li><strong>Kernel Limitations</strong>: As noted, the lack of <code>vrf</code> modules in Docker Desktop on MacOS using Apple Silicon hosts requires fallback to <code>iptables</code>, which has different scaling characteristics than native VRFs.</li>
-<li><strong>Resource Contention</strong>: Running multiple FRR instances and a Python-based reconciler on a single host may lead to CPU contention during heavy reconciliation cycles. Memory usage scales linearly with the number of VPCs and virtual switches.</li>
-<li><strong>MTU Mismatches</strong>: Docker network MTU mismatches (standard 1500 vs. VXLAN overhead) may affect packet fragmentation and throughput if not manually tuned.</li>
-<li><strong>Simulated NAT</strong>: NAT/SNAT logic is not hardware-accelerated and runs via Linux kernel <code>netns</code> transitions, further limiting throughput.</li>
-</ul>
-<h2 id="glossary-of-acronyms">Glossary of Acronyms</h2>
-<ul>
-<li><strong>API</strong>: Application Programming Interface</li>
-<li><strong>ASN</strong>: Autonomous System Number (used in BGP)</li>
-<li><strong>BGP</strong>: Border Gateway Protocol</li>
-<li><strong>CDC</strong>: Cloud Data Center (logical availability zone)</li>
-<li><strong>CIDR</strong>: Classless Inter-Domain Routing</li>
-<li><strong>DNAT</strong>: Destination Network Address Translation</li>
-<li><strong>ECMP</strong>: Equal-Cost Multi-Path</li>
-<li><strong>EVPN</strong>: Ethernet Virtual Private Network</li>
-<li><strong>FRR</strong>: FRRouting</li>
-<li><strong>GW</strong>: Gateway</li>
-<li><strong>IGW</strong>: Internet Gateway</li>
-<li><strong>IP</strong>: Internet Protocol</li>
-<li><strong>LB</strong>: Load Balancer</li>
-<li><strong>MAC</strong>: Media Access Control</li>
-<li><strong>MTU</strong>: Maximum Transmission Unit</li>
-<li><strong>NAT</strong>: Network Address Translation</li>
-<li><strong>RFC</strong>: Request for Comments (Internet standards)</li>
-<li><strong>SNAT</strong>: Source Network Address Translation</li>
-<li><strong>VNI</strong>: VXLAN Network Identifier</li>
-<li><strong>VPC</strong>: Virtual Private Cloud</li>
-<li><strong>VRF</strong>: Virtual Routing and Forwarding</li>
-<li><strong>VTEP</strong>: VXLAN Tunnel Endpoint</li>
-<li><strong>VXLAN</strong>: Virtual Extensible LAN</li>
-<li><strong>WAN</strong>: Wide Area Network</li>
-<li><strong>ZTP</strong>: Zero-Touch Provisioning</li>
-</ul>
+<p>This simulator is designed for functional validation and educational purposes, not for stress-testing or production traffic modeling.
+*   <strong>Docker Latency</strong>: Packet traversal through multiple Docker bridges and the userspace-heavy VXLAN implementation will show significantly higher latency than ASIC-based hardware.
+*   <strong>Kernel Limitations</strong>: As noted, the lack of <code>vrf</code> modules in Docker Desktop on MacOS using Apple Silicon hosts requires fallback to <code>iptables</code>, which has different scaling characteristics than native VRFs.
+*   <strong>Resource Contention</strong>: Running multiple FRR instances and a Python-based reconciler on a single host may lead to CPU contention during heavy reconciliation cycles. Memory usage scales linearly with the number of VPCs and virtual switches.
+*   <strong>MTU Mismatches</strong>: Docker network MTU mismatches (standard 1500 vs. VXLAN overhead) may affect packet fragmentation and throughput if not manually tuned.
+*   <strong>Simulated NAT</strong>: NAT/SNAT logic is not hardware-accelerated and runs via Linux kernel <code>netns</code> transitions, further limiting throughput.<br/>
+388: <br/>
+389: ## Glossary of Acronyms<br/>
+390: <br/>
+391: *   <strong>API</strong>: Application Programming Interface<br/>
+392: *   <strong>ASN</strong>: Autonomous System Number (used in BGP)<br/>
+393: *   <strong>BGP</strong>: Border Gateway Protocol<br/>
+394: *   <strong>CDC</strong>: Cloud Data Center (logical availability zone)<br/>
+395: *   <strong>CIDR</strong>: Classless Inter-Domain Routing<br/>
+396: *   <strong>DNAT</strong>: Destination Network Address Translation<br/>
+397: *   <strong>ECMP</strong>: Equal-Cost Multi-Path<br/>
+398: *   <strong>EVPN</strong>: Ethernet Virtual Private Network<br/>
+399: *   <strong>FRR</strong>: FRRouting<br/>
+400: *   <strong>GW</strong>: Gateway<br/>
+401: *   <strong>IGW</strong>: Internet Gateway<br/>
+402: *   <strong>IP</strong>: Internet Protocol<br/>
+403: *   <strong>LB</strong>: Load Balancer<br/>
+404: *   <strong>MAC</strong>: Media Access Control<br/>
+405: *   <strong>MTU</strong>: Maximum Transmission Unit<br/>
+406: *   <strong>NAT</strong>: Network Address Translation<br/>
+407: *   <strong>RFC</strong>: Request for Comments (Internet standards)<br/>
+408: *   <strong>SNAT</strong>: Source Network Address Translation<br/>
+409: *   <strong>VNI</strong>: VXLAN Network Identifier<br/>
+410: *   <strong>VPC</strong>: Virtual Private Cloud<br/>
+411: *   <strong>VRF</strong>: Virtual Routing and Forwarding<br/>
+412: *   <strong>VTEP</strong>: VXLAN Tunnel Endpoint<br/>
+413: *   <strong>VXLAN</strong>: Virtual Extensible LAN<br/>
+414: *   <strong>WAN</strong>: Wide Area Network<br/>
+415: *   <strong>ZTP</strong>: Zero-Touch Provisioning</p>
 </div>
 </div>
 <!-- VPC Tab -->
 <div id="content-vpc" style="display: none;">
 <h3>🌐 VPC Architecture &amp; Visualization</h3>
-<p>Real-time logical map of your cloud network with 36 demo scenarios from docs/VPC.md</p>
+<p>The VPC visualization provides a real-time logical map of your cloud network with 33 demo scenarios.
+                </p>
 <h4>Connection Types</h4>
 <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
 <tr style="background: #f5f5f5;">
@@ -2639,8 +2639,8 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
             </style>
 <!-- Divider between original content and VPC.md -->
 <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
-<h3 style="margin: 0 0 10px 0; color: #1976d2;">🌐 VPC Architecture &amp; Visualization</h3>
-<p style="margin: 0; color: #555;">Real-time logical map of your cloud network with 36 demo scenarios from docs/VPC.md</p>
+<h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 VPC Implementation Details</h3>
+<p style="margin: 0; color: #555;">Detailed VPC implementation and scenarios from docs/VPC.md</p>
 </div>
 <div class="markdown-content">
 <h1 id="vpc-architecture-visualization">VPC Architecture &amp; Visualization</h1>
@@ -2901,8 +2901,8 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 </div>
 <!-- Examples Tab -->
 <div id="content-examples" style="display: none;">
-<h3>📚 API Usage Examples</h3>
-<p>Comprehensive API examples and use cases from docs/API_EXAMPLES.md</p>
+<h3>💡 API Examples &amp; Use Cases</h3>
+<p>Comprehensive examples for managing VPC resources using the REST API.</p>
 <h4>VPC Management Examples</h4>
 <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
 <strong>Create Basic VPC:</strong><br/>
@@ -2938,441 +2938,11 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/API.md" target="_blank">📋 API Reference</a></li>
 </ul>
 </div>
-
-<style>
-            .markdown-content {
-                font-family: 'Segoe UI', Arial, sans-serif;
-                line-height: 1.6;
-            }
-            .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {
-                color: #232f3e;
-                margin: 20px 0 10px 0;
-            }
-            .markdown-content pre {
-                background: #f8f9fa;
-                border: 1px solid #e9ecef;
-                border-radius: 4px;
-                padding: 16px;
-                overflow-x: auto;
-                margin: 15px 0;
-            }
-            .markdown-content code {
-                background: #f8f9fa;
-                padding: 2px 4px;
-                border-radius: 3px;
-                font-size: 0.9em;
-            }
-            .markdown-content pre code {
-                background: transparent;
-                padding: 0;
-                font-family: 'Courier New', Consolas, monospace;
-                font-size: 0.85em;
-                line-height: 1.4;
-            }
-            .markdown-content .codehilite {
-                background: #f8f9fa;
-                border: 1px solid #e9ecef;
-                border-radius: 4px;
-                padding: 16px;
-                overflow-x: auto;
-                margin: 15px 0;
-            }
-            .markdown-content .codehilite pre {
-                background: transparent;
-                border: none;
-                padding: 0;
-                margin: 0;
-            }
-            .markdown-content .codehilite code {
-                background: transparent;
-                padding: 0;
-                font-family: 'Courier New', Consolas, monospace;
-                font-size: 0.85em;
-                line-height: 1.4;
-            }
-            .markdown-content blockquote {
-                border-left: 4px solid #00897b;
-                padding-left: 16px;
-                margin: 15px 0;
-                color: #666;
-            }
-            .markdown-content table {
-                border-collapse: collapse;
-                width: 100%;
-                margin: 15px 0;
-            }
-            .markdown-content th, .markdown-content td {
-                border: 1px solid #ddd;
-                padding: 8px;
-                text-align: left;
-            }
-            .markdown-content th {
-                background: #f5f5f5;
-                font-weight: bold;
-            }
-            .markdown-content p, .markdown-content ul, .markdown-content ol {
-                margin-bottom: 16px;
-            }
-            .markdown-content li {
-                margin-bottom: 8px;
-            }
-            </style>
-<!-- Divider between original content and API_EXAMPLES.md -->
-<div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
-<h3 style="margin: 0 0 10px 0; color: #1976d2;">📚 API Usage Examples</h3>
-<p style="margin: 0; color: #555;">Comprehensive API examples and use cases from docs/API_EXAMPLES.md</p>
-</div>
-<div class="markdown-content">
-<h1 id="vpc-api-examples">VPC API Examples</h1>
-<p>This document provides comprehensive API examples for managing VPC resources using the Cloud Networking Control Plane Simulator REST API. These examples use <code>curl</code> and mirror the scenarios created in the demo script.</p>
-<h2 id="base-url">Base URL</h2>
-<div class="codehilite"><pre><span></span><code><span class="nv">API_URL</span><span class="o">=</span><span class="s2">"http://localhost:8000"</span>
-</code></pre></div>
-<h2 id="vpc-management">VPC Management</h2>
-<h3 id="create-a-vpc">Create a VPC</h3>
-<p>Create a basic VPC with a single CIDR block:</p>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "Production VPC",</span>
-<span class="s1">    "cidr": "10.0.0.0/16",</span>
-<span class="s1">    "region": "us-east-1"</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<p>Create a VPC with secondary CIDR blocks:</p>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "Kubernetes Cluster VPC",</span>
-<span class="s1">    "cidr": "10.1.0.0/16",</span>
-<span class="s1">    "region": "us-east-1",</span>
-<span class="s1">    "secondary_cidrs": ["100.64.0.0/16"]</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<h3 id="list-all-vpcs">List All VPCs</h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs"</span>
-</code></pre></div>
-<h3 id="get-vpc-details">Get VPC Details</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">"</span>
-</code></pre></div>
-<h3 id="delete-a-vpc">Delete a VPC</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">"</span>
-</code></pre></div>
-<h2 id="subnet-management">Subnet Management</h2>
-<h3 id="create-a-subnet">Create a Subnet</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "Public Subnet",</span>
-<span class="s1">    "cidr": "10.0.1.0/24",</span>
-<span class="s1">    "data_center": "CDC-1"</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<h3 id="list-subnets-in-a-vpc">List Subnets in a VPC</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span>
-</code></pre></div>
-<h2 id="route-management">Route Management</h2>
-<h3 id="create-an-internet-gateway-route">Create an Internet Gateway Route</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "destination": "0.0.0.0/0",</span>
-<span class="s1">    "next_hop": "igw-auto",</span>
-<span class="s1">    "next_hop_type": "internet_gateway"</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<h3 id="create-a-vpn-gateway-route">Create a VPN Gateway Route</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "destination": "192.168.0.0/16",</span>
-<span class="s1">    "next_hop": "dc-onprem-001",</span>
-<span class="s1">    "next_hop_type": "vpn_gateway"</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<h3 id="create-a-cloud-routing-hub-route">Create a Cloud Routing Hub Route</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
-<span class="nv">HUB_ID</span><span class="o">=</span><span class="s2">"hub-xyz789"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "destination": "10.0.0.0/8",</span>
-<span class="s1">    "next_hop": "'</span><span class="si">${</span><span class="nv">HUB_ID</span><span class="si">}</span><span class="s1">'",</span>
-<span class="s1">    "next_hop_type": "cloud_routing_hub"</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<h3 id="create-an-instance-route-nat">Create an Instance Route (NAT)</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "destination": "0.0.0.0/0",</span>
-<span class="s1">    "next_hop": "10.49.96.3",</span>
-<span class="s1">    "next_hop_type": "instance"</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<h2 id="internet-gateway">Internet Gateway</h2>
-<h3 id="attach-internet-gateway-to-vpc">Attach Internet Gateway to VPC</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/internet-gateways"</span>
-</code></pre></div>
-<h2 id="cloud-routing-hub-management">Cloud Routing Hub Management</h2>
-<h3 id="create-a-cloud-routing-hub">Create a Cloud Routing Hub</h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/hubs"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "Global Transit Hub",</span>
-<span class="s1">    "region": "global"</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<h3 id="add-routes-to-a-hub">Add Routes to a Hub</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">HUB_ID</span><span class="o">=</span><span class="s2">"hub-xyz789"</span>
-<span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/hubs/</span><span class="si">${</span><span class="nv">HUB_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "destination": "10.1.0.0/16",</span>
-<span class="s1">    "next_hop": "'</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s1">'",</span>
-<span class="s1">    "next_hop_type": "cloud_routing_hub"</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<h3 id="delete-a-hub">Delete a Hub</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">HUB_ID</span><span class="o">=</span><span class="s2">"hub-xyz789"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/hubs/</span><span class="si">${</span><span class="nv">HUB_ID</span><span class="si">}</span><span class="s2">"</span>
-</code></pre></div>
-<h2 id="standalone-data-center-management">Standalone Data Center Management</h2>
-<h3 id="create-a-standalone-data-center">Create a Standalone Data Center</h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/standalone-dcs"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "On-Premise Data Center",</span>
-<span class="s1">    "cidr": "192.168.0.0/16",</span>
-<span class="s1">    "region": "on-prem"</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<h3 id="create-a-subnet-in-a-standalone-dc">Create a Subnet in a Standalone DC</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">DC_ID</span><span class="o">=</span><span class="s2">"dc-onprem-001"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/standalone-dcs/</span><span class="si">${</span><span class="nv">DC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "Corporate Network",</span>
-<span class="s1">    "cidr": "192.168.1.0/24",</span>
-<span class="s1">    "data_center": "ODC-1"</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<h3 id="add-routes-to-a-standalone-dc">Add Routes to a Standalone DC</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">DC_ID</span><span class="o">=</span><span class="s2">"dc-onprem-001"</span>
-<span class="nv">HUB_ID</span><span class="o">=</span><span class="s2">"hub-xyz789"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/standalone-dcs/</span><span class="si">${</span><span class="nv">DC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "destination": "10.0.0.0/8",</span>
-<span class="s1">    "next_hop": "'</span><span class="si">${</span><span class="nv">HUB_ID</span><span class="si">}</span><span class="s1">'",</span>
-<span class="s1">    "next_hop_type": "vpn_gateway"</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<h2 id="wireguard-gateway-management">WireGuard Gateway Management</h2>
-<h3 id="create-a-wireguard-gateway">Create a WireGuard Gateway</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/wireguard-gateways"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "vpc_id": "'</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s1">'",</span>
-<span class="s1">    "endpoint": "192.0.2.1:51820",</span>
-<span class="s1">    "public_key": "US_WEST_PUB_KEY",</span>
-<span class="s1">    "allowed_ips": "10.10.0.1/32"</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<h2 id="headscale-node-management">Headscale Node Management</h2>
-<h3 id="create-a-headscale-node">Create a Headscale Node</h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/headscale-nodes"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "vpc_id": "'</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s1">'",</span>
-<span class="s1">    "node_key": "mkey:west-node-01",</span>
-<span class="s1">    "tailnet": "demo-mesh"</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<h2 id="scenario-management">Scenario Management</h2>
-<h3 id="create-a-scenario">Create a Scenario</h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/scenarios"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "title": "Multi-tier Web Application",</span>
-<span class="s1">    "description": "A three-tier architecture with web, app, and database layers",</span>
-<span class="s1">    "resource_order": [</span>
-<span class="s1">      {"type": "vpc", "label": "Production VPC"}</span>
-<span class="s1">    ]</span>
-<span class="s1">  }'</span>
-</code></pre></div>
-<h3 id="list-all-scenarios">List All Scenarios</h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/scenarios"</span>
-</code></pre></div>
-<h2 id="complete-example-nat-router-setup">Complete Example: NAT Router Setup</h2>
-<p>This example creates a complete NAT router scenario similar to Scenario 28:</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Create the VPC</span>
-<span class="nv">VPC_RESPONSE</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "NAT Router VPC",</span>
-<span class="s1">    "cidr": "10.49.96.0/20",</span>
-<span class="s1">    "region": "us-east-1",</span>
-<span class="s1">    "scenario": "NAT Router Demo"</span>
-<span class="s1">  }'</span><span class="k">)</span>
-
-<span class="nv">VPC_ID</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span><span class="nv">$VPC_RESPONSE</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.id'</span><span class="k">)</span>
-
-<span class="c1"># 2. Create subnets for each host</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "Host 1 (NAT Router/DNS)",</span>
-<span class="s1">    "cidr": "10.49.96.3/32",</span>
-<span class="s1">    "data_center": "CDC-1"</span>
-<span class="s1">  }'</span>
-
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "Host 2 (FTP Server)",</span>
-<span class="s1">    "cidr": "10.49.96.4/32",</span>
-<span class="s1">    "data_center": "CDC-1"</span>
-<span class="s1">  }'</span>
-
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "Host 3 (Web Server)",</span>
-<span class="s1">    "cidr": "10.49.96.5/32",</span>
-<span class="s1">    "data_center": "CDC-1"</span>
-<span class="s1">  }'</span>
-
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "Host 4 (Windows Server)",</span>
-<span class="s1">    "cidr": "10.49.96.6/32",</span>
-<span class="s1">    "data_center": "CDC-1"</span>
-<span class="s1">  }'</span>
-
-<span class="c1"># 3. Configure NAT routing</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "destination": "0.0.0.0/0",</span>
-<span class="s1">    "next_hop": "10.49.96.3",</span>
-<span class="s1">    "next_hop_type": "instance"</span>
-<span class="s1">  }'</span>
-
-<span class="nb">echo</span><span class="w"> </span><span class="s2">"NAT Router VPC created with ID: </span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">"</span>
-</code></pre></div>
-<h2 id="complete-example-managed-ipsec-vpn">Complete Example: Managed IPsec VPN</h2>
-<p>This example creates a managed IPsec VPN scenario similar to Scenario 30:</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Create the Cloud VPC</span>
-<span class="nv">CLOUD_VPC</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "Cloud VPC",</span>
-<span class="s1">    "cidr": "203.0.113.0/24",</span>
-<span class="s1">    "region": "us-east-1",</span>
-<span class="s1">    "scenario": "Managed IPsec"</span>
-<span class="s1">  }'</span><span class="k">)</span>
-
-<span class="nv">CLOUD_VPC_ID</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span><span class="nv">$CLOUD_VPC</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.id'</span><span class="k">)</span>
-
-<span class="c1"># 2. Create the On-Premises DC</span>
-<span class="nv">ONPREM_DC</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/standalone-dcs"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "On-Premises Network",</span>
-<span class="s1">    "cidr": "192.168.1.0/24",</span>
-<span class="s1">    "region": "on-prem",</span>
-<span class="s1">    "scenario": "Managed IPsec"</span>
-<span class="s1">  }'</span><span class="k">)</span>
-
-<span class="nv">ONPREM_DC_ID</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span><span class="nv">$ONPREM_DC</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.id'</span><span class="k">)</span>
-
-<span class="c1"># 3. Create Cloud VPC subnets</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">CLOUD_VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "VPC VPN Gateway",</span>
-<span class="s1">    "cidr": "203.0.113.2/32",</span>
-<span class="s1">    "data_center": "CDC-1"</span>
-<span class="s1">  }'</span>
-
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">CLOUD_VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "App Server (Debian)",</span>
-<span class="s1">    "cidr": "203.0.113.3/32",</span>
-<span class="s1">    "data_center": "CDC-1"</span>
-<span class="s1">  }'</span>
-
-<span class="c1"># 4. Create On-Prem DC subnets</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/standalone-dcs/</span><span class="si">${</span><span class="nv">ONPREM_DC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "On-Prem VPN Gateway",</span>
-<span class="s1">    "cidr": "192.168.1.1/32",</span>
-<span class="s1">    "data_center": "ODC-1"</span>
-<span class="s1">  }'</span>
-
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/standalone-dcs/</span><span class="si">${</span><span class="nv">ONPREM_DC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "name": "Windows Client",</span>
-<span class="s1">    "cidr": "192.168.1.2/32",</span>
-<span class="s1">    "data_center": "ODC-1"</span>
-<span class="s1">  }'</span>
-
-<span class="c1"># 5. Configure IPsec tunnel routes</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">CLOUD_VPC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "destination": "192.168.1.0/24",</span>
-<span class="s1">    "next_hop": "'</span><span class="si">${</span><span class="nv">ONPREM_DC_ID</span><span class="si">}</span><span class="s1">'",</span>
-<span class="s1">    "next_hop_type": "vpn_gateway"</span>
-<span class="s1">  }'</span>
-
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/standalone-dcs/</span><span class="si">${</span><span class="nv">ONPREM_DC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<span class="s1">    "destination": "203.0.113.0/24",</span>
-<span class="s1">    "next_hop": "'</span><span class="si">${</span><span class="nv">CLOUD_VPC_ID</span><span class="si">}</span><span class="s1">'",</span>
-<span class="s1">    "next_hop_type": "vpn_gateway"</span>
-<span class="s1">  }'</span>
-
-<span class="nb">echo</span><span class="w"> </span><span class="s2">"Managed IPsec VPN created"</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">"Cloud VPC ID: </span><span class="si">${</span><span class="nv">CLOUD_VPC_ID</span><span class="si">}</span><span class="s2">"</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">"On-Prem DC ID: </span><span class="si">${</span><span class="nv">ONPREM_DC_ID</span><span class="si">}</span><span class="s2">"</span>
-</code></pre></div>
-<h2 id="viewing-the-network-topology">Viewing the Network Topology</h2>
-<h3 id="get-complete-network-view">Get Complete Network View</h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpc"</span>
-</code></pre></div>
-<p>This returns a comprehensive view including all nodes (VPCs, hubs, standalone DCs) and edges (routes, peerings, VPN connections).</p>
-<h2 id="notes">Notes</h2>
-<ul>
-<li>All IDs returned by the API should be used in subsequent requests</li>
-<li>The API supports idempotent operations where applicable</li>
-<li>Use <code>jq</code> for JSON parsing in shell scripts (as shown in examples)</li>
-<li>Replace placeholder values like <code>vpc-abc123</code> with actual IDs from your API responses</li>
-</ul>
-</div>
 </div>
 <!-- Testing Tab -->
 <div id="content-testing" style="display: none;">
 <h3>🧪 Testing &amp; Performance</h3>
-<p>Multi-layered testing approach ensuring control plane correctness and reliability from
-                    docs/TESTING.md</p>
+<p>Multi-layered testing approach ensuring control plane correctness and reliability.</p>
 <h4>Test Suite Overview</h4>
 <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
 <tr style="background: #f5f5f5;">
@@ -3406,7 +2976,7 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 <code style="display: block; background: #fff; padding: 10px; border-radius: 4px; margin: 5px 0;"># Run all tests with coverage<br/>make test-cov<br/><br/># Run specific tests<br/>cd control-plane &amp;&amp; python -m pytest tests/test_rest_api.py -v<br/><br/># Run linting<br/>make lint-extreme<br/><br/># Security scan<br/>make security-scan</code>
 </div>
 <h4>Test Coverage</h4>
-<div style="font-size: 11px; line-height: 1.4; color: #444; border: 1px solid #eee; padding: 10px; border-radius: 4px; background: #fafafa; margin: 10px 0;"><strong>Current Coverage (Baseline):</strong><br/>• models.py: 100% ✅ All SQLAlchemy models<br/>• rest_api_server.py: 76% 📈 REST API endpoints<br/>• grpc_api_server.py: 77% 📈 gRPC API implementation<br/>• shared_api_logic.py: 34% ⚠️ Shared logic needs more coverage<br/>• diagnostic_logger.py: 27% ⚠️ Partial coverage<br/>• <strong>Overall: 52% 📈</strong><br/><em>Uncovered: Database initialization and entry points</em></div>
+<div style="font-size: 11px; line-height: 1.4; color: #444; border: 1px solid #eee; padding: 10px; border-radius: 4px; background: #fafafa; margin: 10px 0;"><strong>Current Coverage (Baseline):</strong><br/>• models.py: 100% ✅ All SQLAlchemy models<br/>• grpc_api_server.py: 77% 📈 gRPC API implementation (improved from 28%)<br/>• rest_api_server.py: 71% 📈 REST API endpoints (improved from 57%)<br/>• shared_api_logic.py: 45% 📈 Core business logic (improved from 12%)<br/>• diagnostic_logger.py: 25% 📈 Diagnostic logging (improved from 6%)<br/>• <strong>Overall: 56% 📈</strong><br/><em>Uncovered: Database initialization and entry points</em></div>
 <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
 <h4>📚 Related Documentation</h4>
 <ul style="margin: 0; padding-left: 20px;">
@@ -3496,8 +3066,8 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
             </style>
 <!-- Divider between original content and TESTING.md -->
 <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
-<h3 style="margin: 0 0 10px 0; color: #1976d2;">🧪 Testing &amp; Performance</h3>
-<p style="margin: 0; color: #555;">Multi-layered testing approach ensuring control plane correctness and reliability from docs/TESTING.md</p>
+<h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 Comprehensive Testing Guide</h3>
+<p style="margin: 0; color: #555;">Complete testing documentation and coverage from docs/TESTING.md</p>
 </div>
 <div class="markdown-content">
 <h1 id="testing-performance-guide">Testing &amp; Performance Guide</h1>
@@ -3559,7 +3129,7 @@ make<span class="w"> </span>lint-extreme
 make<span class="w"> </span>security-scan
 </code></pre></div>
 <h2 id="test-coverage">Test Coverage</h2>
-<p>Current coverage by component (as of latest commit 5cadd9d):</p>
+<p>Current coverage by component (as of latest commit 3c0c98f):</p>
 <table>
 <thead>
 <tr>
@@ -3575,29 +3145,29 @@ make<span class="w"> </span>security-scan
 <td>✅ All SQLAlchemy models</td>
 </tr>
 <tr>
-<td><code>rest_api_server.py</code></td>
-<td>76%</td>
-<td>📈 REST API endpoints</td>
-</tr>
-<tr>
 <td><code>grpc_api_server.py</code></td>
 <td>77%</td>
-<td>📈 gRPC API implementation</td>
+<td>📈 gRPC API implementation (improved from 28%)</td>
+</tr>
+<tr>
+<td><code>rest_api_server.py</code></td>
+<td>71%</td>
+<td>📈 REST API endpoints (improved from 57%)</td>
 </tr>
 <tr>
 <td><code>shared_api_logic.py</code></td>
-<td>34%</td>
-<td>⚠️ Shared logic needs more coverage</td>
+<td>45%</td>
+<td>📈 Core business logic (improved from 12%)</td>
 </tr>
 <tr>
 <td><code>diagnostic_logger.py</code></td>
-<td>27%</td>
-<td>⚠️ Partial coverage</td>
+<td>25%</td>
+<td>📈 Diagnostic logging (improved from 6%)</td>
 </tr>
 <tr>
 <td><strong>Overall</strong></td>
-<td><strong>52%</strong></td>
-<td>📈 <strong>Improved from previous baseline</strong></td>
+<td><strong>56%</strong></td>
+<td>📈 <strong>Improved from 35%</strong></td>
 </tr>
 </tbody>
 </table>
@@ -4088,6 +3658,432 @@ Total number of neighbors 3
 <p>GNU Affero General Public License v3.0 (AGPL-3.0)</p>
 <h1 id="trigger-vercel-redeployment">Trigger Vercel redeployment</h1>
 </div>
+</div><div id="content-api-examples" style="display: none;">
+<h3>📚 API Usage Examples</h3>
+<p>Comprehensive API examples and use cases from docs/API_EXAMPLES.md</p>
+<style>
+            .markdown-content {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                line-height: 1.6;
+            }
+            .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {
+                color: #232f3e;
+                margin: 20px 0 10px 0;
+            }
+            .markdown-content pre {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content code {
+                background: #f8f9fa;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }
+            .markdown-content pre code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content .codehilite {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content .codehilite pre {
+                background: transparent;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+            .markdown-content .codehilite code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content blockquote {
+                border-left: 4px solid #00897b;
+                padding-left: 16px;
+                margin: 15px 0;
+                color: #666;
+            }
+            .markdown-content table {
+                border-collapse: collapse;
+                width: 100%;
+                margin: 15px 0;
+            }
+            .markdown-content th, .markdown-content td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            .markdown-content th {
+                background: #f5f5f5;
+                font-weight: bold;
+            }
+            .markdown-content p, .markdown-content ul, .markdown-content ol {
+                margin-bottom: 16px;
+            }
+            .markdown-content li {
+                margin-bottom: 8px;
+            }
+            </style>
+<div class="markdown-content">
+<h1 id="vpc-api-examples">VPC API Examples</h1>
+<p>This document provides comprehensive API examples for managing VPC resources using the Cloud Networking Control Plane Simulator REST API. These examples use <code>curl</code> and mirror the scenarios created in the demo script.</p>
+<h2 id="base-url">Base URL</h2>
+<div class="codehilite"><pre><span></span><code><span class="nv">API_URL</span><span class="o">=</span><span class="s2">"http://localhost:8000"</span>
+</code></pre></div>
+<h2 id="vpc-management">VPC Management</h2>
+<h3 id="create-a-vpc">Create a VPC</h3>
+<p>Create a basic VPC with a single CIDR block:</p>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "Production VPC",</span>
+<span class="s1">    "cidr": "10.0.0.0/16",</span>
+<span class="s1">    "region": "us-east-1"</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<p>Create a VPC with secondary CIDR blocks:</p>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "Kubernetes Cluster VPC",</span>
+<span class="s1">    "cidr": "10.1.0.0/16",</span>
+<span class="s1">    "region": "us-east-1",</span>
+<span class="s1">    "secondary_cidrs": ["100.64.0.0/16"]</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<h3 id="list-all-vpcs">List All VPCs</h3>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs"</span>
+</code></pre></div>
+<h3 id="get-vpc-details">Get VPC Details</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">"</span>
+</code></pre></div>
+<h3 id="delete-a-vpc">Delete a VPC</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">"</span>
+</code></pre></div>
+<h2 id="subnet-management">Subnet Management</h2>
+<h3 id="create-a-subnet">Create a Subnet</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "Public Subnet",</span>
+<span class="s1">    "cidr": "10.0.1.0/24",</span>
+<span class="s1">    "data_center": "CDC-1"</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<h3 id="list-subnets-in-a-vpc">List Subnets in a VPC</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span>
+</code></pre></div>
+<h2 id="route-management">Route Management</h2>
+<h3 id="create-an-internet-gateway-route">Create an Internet Gateway Route</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "destination": "0.0.0.0/0",</span>
+<span class="s1">    "next_hop": "igw-auto",</span>
+<span class="s1">    "next_hop_type": "internet_gateway"</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<h3 id="create-a-vpn-gateway-route">Create a VPN Gateway Route</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "destination": "192.168.0.0/16",</span>
+<span class="s1">    "next_hop": "dc-onprem-001",</span>
+<span class="s1">    "next_hop_type": "vpn_gateway"</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<h3 id="create-a-cloud-routing-hub-route">Create a Cloud Routing Hub Route</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
+<span class="nv">HUB_ID</span><span class="o">=</span><span class="s2">"hub-xyz789"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "destination": "10.0.0.0/8",</span>
+<span class="s1">    "next_hop": "'</span><span class="si">${</span><span class="nv">HUB_ID</span><span class="si">}</span><span class="s1">'",</span>
+<span class="s1">    "next_hop_type": "cloud_routing_hub"</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<h3 id="create-an-instance-route-nat">Create an Instance Route (NAT)</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "destination": "0.0.0.0/0",</span>
+<span class="s1">    "next_hop": "10.49.96.3",</span>
+<span class="s1">    "next_hop_type": "instance"</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<h2 id="internet-gateway">Internet Gateway</h2>
+<h3 id="attach-internet-gateway-to-vpc">Attach Internet Gateway to VPC</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/internet-gateways"</span>
+</code></pre></div>
+<h2 id="cloud-routing-hub-management">Cloud Routing Hub Management</h2>
+<h3 id="create-a-cloud-routing-hub">Create a Cloud Routing Hub</h3>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/hubs"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "Global Transit Hub",</span>
+<span class="s1">    "region": "global"</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<h3 id="add-routes-to-a-hub">Add Routes to a Hub</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">HUB_ID</span><span class="o">=</span><span class="s2">"hub-xyz789"</span>
+<span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/hubs/</span><span class="si">${</span><span class="nv">HUB_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "destination": "10.1.0.0/16",</span>
+<span class="s1">    "next_hop": "'</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s1">'",</span>
+<span class="s1">    "next_hop_type": "cloud_routing_hub"</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<h3 id="delete-a-hub">Delete a Hub</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">HUB_ID</span><span class="o">=</span><span class="s2">"hub-xyz789"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/hubs/</span><span class="si">${</span><span class="nv">HUB_ID</span><span class="si">}</span><span class="s2">"</span>
+</code></pre></div>
+<h2 id="standalone-data-center-management">Standalone Data Center Management</h2>
+<h3 id="create-a-standalone-data-center">Create a Standalone Data Center</h3>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/standalone-dcs"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "On-Premise Data Center",</span>
+<span class="s1">    "cidr": "192.168.0.0/16",</span>
+<span class="s1">    "region": "on-prem"</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<h3 id="create-a-subnet-in-a-standalone-dc">Create a Subnet in a Standalone DC</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">DC_ID</span><span class="o">=</span><span class="s2">"dc-onprem-001"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/standalone-dcs/</span><span class="si">${</span><span class="nv">DC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "Corporate Network",</span>
+<span class="s1">    "cidr": "192.168.1.0/24",</span>
+<span class="s1">    "data_center": "ODC-1"</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<h3 id="add-routes-to-a-standalone-dc">Add Routes to a Standalone DC</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">DC_ID</span><span class="o">=</span><span class="s2">"dc-onprem-001"</span>
+<span class="nv">HUB_ID</span><span class="o">=</span><span class="s2">"hub-xyz789"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/standalone-dcs/</span><span class="si">${</span><span class="nv">DC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "destination": "10.0.0.0/8",</span>
+<span class="s1">    "next_hop": "'</span><span class="si">${</span><span class="nv">HUB_ID</span><span class="si">}</span><span class="s1">'",</span>
+<span class="s1">    "next_hop_type": "vpn_gateway"</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<h2 id="wireguard-gateway-management">WireGuard Gateway Management</h2>
+<h3 id="create-a-wireguard-gateway">Create a WireGuard Gateway</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/wireguard-gateways"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "vpc_id": "'</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s1">'",</span>
+<span class="s1">    "endpoint": "192.0.2.1:51820",</span>
+<span class="s1">    "public_key": "US_WEST_PUB_KEY",</span>
+<span class="s1">    "allowed_ips": "10.10.0.1/32"</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<h2 id="headscale-node-management">Headscale Node Management</h2>
+<h3 id="create-a-headscale-node">Create a Headscale Node</h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">VPC_ID</span><span class="o">=</span><span class="s2">"vpc-abc123"</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/headscale-nodes"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "vpc_id": "'</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s1">'",</span>
+<span class="s1">    "node_key": "mkey:west-node-01",</span>
+<span class="s1">    "tailnet": "demo-mesh"</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<h2 id="scenario-management">Scenario Management</h2>
+<h3 id="create-a-scenario">Create a Scenario</h3>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/scenarios"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "title": "Multi-tier Web Application",</span>
+<span class="s1">    "description": "A three-tier architecture with web, app, and database layers",</span>
+<span class="s1">    "resource_order": [</span>
+<span class="s1">      {"type": "vpc", "label": "Production VPC"}</span>
+<span class="s1">    ]</span>
+<span class="s1">  }'</span>
+</code></pre></div>
+<h3 id="list-all-scenarios">List All Scenarios</h3>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/scenarios"</span>
+</code></pre></div>
+<h2 id="complete-example-nat-router-setup">Complete Example: NAT Router Setup</h2>
+<p>This example creates a complete NAT router scenario similar to Scenario 28:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Create the VPC</span>
+<span class="nv">VPC_RESPONSE</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "NAT Router VPC",</span>
+<span class="s1">    "cidr": "10.49.96.0/20",</span>
+<span class="s1">    "region": "us-east-1",</span>
+<span class="s1">    "scenario": "NAT Router Demo"</span>
+<span class="s1">  }'</span><span class="k">)</span>
+
+<span class="nv">VPC_ID</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span><span class="nv">$VPC_RESPONSE</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.id'</span><span class="k">)</span>
+
+<span class="c1"># 2. Create subnets for each host</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "Host 1 (NAT Router/DNS)",</span>
+<span class="s1">    "cidr": "10.49.96.3/32",</span>
+<span class="s1">    "data_center": "CDC-1"</span>
+<span class="s1">  }'</span>
+
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "Host 2 (FTP Server)",</span>
+<span class="s1">    "cidr": "10.49.96.4/32",</span>
+<span class="s1">    "data_center": "CDC-1"</span>
+<span class="s1">  }'</span>
+
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "Host 3 (Web Server)",</span>
+<span class="s1">    "cidr": "10.49.96.5/32",</span>
+<span class="s1">    "data_center": "CDC-1"</span>
+<span class="s1">  }'</span>
+
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "Host 4 (Windows Server)",</span>
+<span class="s1">    "cidr": "10.49.96.6/32",</span>
+<span class="s1">    "data_center": "CDC-1"</span>
+<span class="s1">  }'</span>
+
+<span class="c1"># 3. Configure NAT routing</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "destination": "0.0.0.0/0",</span>
+<span class="s1">    "next_hop": "10.49.96.3",</span>
+<span class="s1">    "next_hop_type": "instance"</span>
+<span class="s1">  }'</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"NAT Router VPC created with ID: </span><span class="si">${</span><span class="nv">VPC_ID</span><span class="si">}</span><span class="s2">"</span>
+</code></pre></div>
+<h2 id="complete-example-managed-ipsec-vpn">Complete Example: Managed IPsec VPN</h2>
+<p>This example creates a managed IPsec VPN scenario similar to Scenario 30:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Create the Cloud VPC</span>
+<span class="nv">CLOUD_VPC</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "Cloud VPC",</span>
+<span class="s1">    "cidr": "203.0.113.0/24",</span>
+<span class="s1">    "region": "us-east-1",</span>
+<span class="s1">    "scenario": "Managed IPsec"</span>
+<span class="s1">  }'</span><span class="k">)</span>
+
+<span class="nv">CLOUD_VPC_ID</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span><span class="nv">$CLOUD_VPC</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.id'</span><span class="k">)</span>
+
+<span class="c1"># 2. Create the On-Premises DC</span>
+<span class="nv">ONPREM_DC</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/standalone-dcs"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "On-Premises Network",</span>
+<span class="s1">    "cidr": "192.168.1.0/24",</span>
+<span class="s1">    "region": "on-prem",</span>
+<span class="s1">    "scenario": "Managed IPsec"</span>
+<span class="s1">  }'</span><span class="k">)</span>
+
+<span class="nv">ONPREM_DC_ID</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span><span class="nv">$ONPREM_DC</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.id'</span><span class="k">)</span>
+
+<span class="c1"># 3. Create Cloud VPC subnets</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">CLOUD_VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "VPC VPN Gateway",</span>
+<span class="s1">    "cidr": "203.0.113.2/32",</span>
+<span class="s1">    "data_center": "CDC-1"</span>
+<span class="s1">  }'</span>
+
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">CLOUD_VPC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "App Server (Debian)",</span>
+<span class="s1">    "cidr": "203.0.113.3/32",</span>
+<span class="s1">    "data_center": "CDC-1"</span>
+<span class="s1">  }'</span>
+
+<span class="c1"># 4. Create On-Prem DC subnets</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/standalone-dcs/</span><span class="si">${</span><span class="nv">ONPREM_DC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "On-Prem VPN Gateway",</span>
+<span class="s1">    "cidr": "192.168.1.1/32",</span>
+<span class="s1">    "data_center": "ODC-1"</span>
+<span class="s1">  }'</span>
+
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/standalone-dcs/</span><span class="si">${</span><span class="nv">ONPREM_DC_ID</span><span class="si">}</span><span class="s2">/subnets"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "Windows Client",</span>
+<span class="s1">    "cidr": "192.168.1.2/32",</span>
+<span class="s1">    "data_center": "ODC-1"</span>
+<span class="s1">  }'</span>
+
+<span class="c1"># 5. Configure IPsec tunnel routes</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpcs/</span><span class="si">${</span><span class="nv">CLOUD_VPC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "destination": "192.168.1.0/24",</span>
+<span class="s1">    "next_hop": "'</span><span class="si">${</span><span class="nv">ONPREM_DC_ID</span><span class="si">}</span><span class="s1">'",</span>
+<span class="s1">    "next_hop_type": "vpn_gateway"</span>
+<span class="s1">  }'</span>
+
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/standalone-dcs/</span><span class="si">${</span><span class="nv">ONPREM_DC_ID</span><span class="si">}</span><span class="s2">/routes"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "destination": "203.0.113.0/24",</span>
+<span class="s1">    "next_hop": "'</span><span class="si">${</span><span class="nv">CLOUD_VPC_ID</span><span class="si">}</span><span class="s1">'",</span>
+<span class="s1">    "next_hop_type": "vpn_gateway"</span>
+<span class="s1">  }'</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Managed IPsec VPN created"</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Cloud VPC ID: </span><span class="si">${</span><span class="nv">CLOUD_VPC_ID</span><span class="si">}</span><span class="s2">"</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"On-Prem DC ID: </span><span class="si">${</span><span class="nv">ONPREM_DC_ID</span><span class="si">}</span><span class="s2">"</span>
+</code></pre></div>
+<h2 id="viewing-the-network-topology">Viewing the Network Topology</h2>
+<h3 id="get-complete-network-view">Get Complete Network View</h3>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">API_URL</span><span class="si">}</span><span class="s2">/vpc"</span>
+</code></pre></div>
+<p>This returns a comprehensive view including all nodes (VPCs, hubs, standalone DCs) and edges (routes, peerings, VPN connections).</p>
+<h2 id="notes">Notes</h2>
+<ul>
+<li>All IDs returned by the API should be used in subsequent requests</li>
+<li>The API supports idempotent operations where applicable</li>
+<li>Use <code>jq</code> for JSON parsing in shell scripts (as shown in examples)</li>
+<li>Replace placeholder values like <code>vpc-abc123</code> with actual IDs from your API responses</li>
+</ul>
+</div>
 </div><div id="content-ideas" style="display: none;">
 <h3>💡 Project Ideas and Future Development</h3>
 <p>Ideas for future features and improvements from docs/IDEAS.md</p>
@@ -4398,14 +4394,13 @@ Total number of neighbors 3
 <ul>
 <li><a href="ARCHITECTURE.md">Architecture Overview</a></li>
 <li><a href="IDEAS.md">Control Plane Design</a></li>
-<li><a href="https://docs.frrouting.org/">FRRouting Documentation</a></li>
+<li><a href="https://docs.frrouting.org/">FRRouting Documentation</a><br/>
+\n## Glossary\n\nFor a comprehensive list of acronyms and terms used in this documentation (such as EVPN, VTEP, VRF, VNI), please refer to the <strong><a href="ARCHITECTURE.md#glossary-of-acronyms">Glossary of Acronyms</a></strong> in the Architecture Overview.</li>
 </ul>
-<h2 id="glossary">Glossary</h2>
-<p>For a comprehensive list of acronyms and terms used in this documentation (such as EVPN, VTEP, VRF, VNI), please refer to the <strong><a href="ARCHITECTURE.md#glossary-of-acronyms">Glossary of Acronyms</a></strong> in the Architecture Overview.</p>
 </div>
 </div><div id="content-license" style="display: none;">
 <h3>📄 Project License</h3>
-<p>AGPL-3.0 license from LICENSE</p>
+<p>GNU Affero General Public License terms and conditions</p>
 <style>
             .markdown-content {
                 font-family: 'Segoe UI', Arial, sans-serif;
