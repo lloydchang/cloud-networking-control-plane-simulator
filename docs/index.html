@@ -1758,6 +1758,12 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
                 background: #f5f5f5;
                 font-weight: bold;
             }
+            .markdown-content p, .markdown-content ul, .markdown-content ol {
+                margin-bottom: 16px;
+            }
+            .markdown-content li {
+                margin-bottom: 8px;
+            }
             </style>
 <!-- Divider between original content and API_GUIDE.md -->
 <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
@@ -1798,9 +1804,13 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 </tr>
 </tbody>
 </table>
-<div class="markdown-alert markdown-alert-note">
-<p class="markdown-alert-title">ℹ️ Note</p>
-**Configurability**: Default ports are defined in `control-plane/main.py`. These can be overridden via environment variables `REST_PORT` and `GRPC_PORT` when starting the service.
+<div class="markdown-alert markdown-alert-note" style="border-left: .25em solid #0969da; padding: .5rem 1rem; margin-bottom: 24px; background-color: #0969da10; border-radius: 0 6px 6px 0;">
+<p class="markdown-alert-title" style="color: #0969da; font-weight: 600; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+<span>ⓘ</span> Note
+    </p>
+<div class="markdown-alert-content" style="margin: 0;">
+<p><strong>Configurability</strong>: Default ports are defined in <code>control-plane/main.py</code>. These can be overridden via environment variables <code>REST_PORT</code> and <code>GRPC_PORT</code> when starting the service.</p>
+</div>
 </div>
 <h2 id="resource-hierarchy">Resource Hierarchy</h2>
 <p>The simulator follows a standard cloud resource hierarchy:</p>
@@ -1815,9 +1825,13 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 <h2 id="rest-api-v1">REST API (v1)</h2>
 <p>All endpoints return JSON responses. Use <code>Content-Type: application/json</code> for all <code>POST</code> requests.</p>
 <h3 id="identification-deletion">Identification &amp; Deletion</h3>
-<div class="markdown-alert markdown-alert-important">
-<p class="markdown-alert-title">📢 Important</p>
-Resource IDs (e.g., `vpc-001`, `subnet-001`) are dynamically generated. Always perform a `GET` list operation to retrieve the correct ID before attempting a `DELETE` or specific `GET` request.
+<div class="markdown-alert markdown-alert-important" style="border-left: .25em solid #8250df; padding: .5rem 1rem; margin-bottom: 24px; background-color: #8250df10; border-radius: 0 6px 6px 0;">
+<p class="markdown-alert-title" style="color: #8250df; font-weight: 600; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+<span>💬</span> Important
+    </p>
+<div class="markdown-alert-content" style="margin: 0;">
+<p>Resource IDs (e.g., <code>vpc-001</code>, <code>subnet-001</code>) are dynamically generated. Always perform a <code>GET</code> list operation to retrieve the correct ID before attempting a <code>DELETE</code> or specific <code>GET</code> request.</p>
+</div>
 </div>
 <h3 id="1-vpcs-virtual-private-clouds">1. VPCs (Virtual Private Clouds)</h3>
 <p><strong>List VPCs</strong></p>
@@ -1959,9 +1973,13 @@ Resource IDs (e.g., `vpc-001`, `subnet-001`) are dynamically generated. Always p
 <p><strong>Sample Usage (grpcurl):</strong></p>
 <div class="codehilite"><pre><span></span><code>grpcurl<span class="w"> </span>-plaintext<span class="w"> </span>-d<span class="w"> </span><span class="s1">'{"limit": 10}'</span><span class="w"> </span>localhost:50051<span class="w"> </span>network.NetworkService/ListVPCs
 </code></pre></div>
-<div class="markdown-alert markdown-alert-tip">
-<p class="markdown-alert-title">💡 Tip</p>
-Refer to the [cloud_networking_control_plane_simulator.proto](../control-plane/proto/cloud_networking_control_plane_simulator.proto) file for the full list of request/response messages and error codes.
+<div class="markdown-alert markdown-alert-tip" style="border-left: .25em solid #1a7f37; padding: .5rem 1rem; margin-bottom: 24px; background-color: #1a7f3710; border-radius: 0 6px 6px 0;">
+<p class="markdown-alert-title" style="color: #1a7f37; font-weight: 600; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+<span>💡</span> Tip
+    </p>
+<div class="markdown-alert-content" style="margin: 0;">
+<p>Refer to the <a href="../control-plane/proto/cloud_networking_control_plane_simulator.proto">cloud_networking_control_plane_simulator.proto</a> file for the full list of request/response messages and error codes.</p>
+</div>
 </div>
 <hr/>
 <h2 id="error-handling">Error Handling</h2>
@@ -2128,6 +2146,12 @@ Refer to the [cloud_networking_control_plane_simulator.proto](../control-plane/p
                 background: #f5f5f5;
                 font-weight: bold;
             }
+            .markdown-content p, .markdown-content ul, .markdown-content ol {
+                margin-bottom: 16px;
+            }
+            .markdown-content li {
+                margin-bottom: 8px;
+            }
             </style>
 <!-- Divider between original content and ARCHITECTURE.md -->
 <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
@@ -2146,11 +2170,14 @@ Refer to the [cloud_networking_control_plane_simulator.proto](../control-plane/p
 </ul>
 <h2 id="system-architecture">System Architecture</h2>
 <p>The following diagram illustrates the logical overlay and its relationship with the Physical Fabric and control plane.</p>
-<div class="markdown-alert markdown-alert-note">
-<p class="markdown-alert-title">ℹ️ Note</p>
-Diagrams are simplified for clarity. This simulator focuses on **Control Plane correctness** and **Intent reconciliation**. High-throughput data plane behavior is secondary to functional correctness and protocol stability.
-
-**Platform Compatibility**: Native Linux VRFs are used where supported. On platforms without native VRF kernel modules—such as **Apple Silicon (M1-M4) via Docker Desktop**—the simulator automatically falls back to **`iptables`** for logical isolation.
+<div class="markdown-alert markdown-alert-note" style="border-left: .25em solid #0969da; padding: .5rem 1rem; margin-bottom: 24px; background-color: #0969da10; border-radius: 0 6px 6px 0;">
+<p class="markdown-alert-title" style="color: #0969da; font-weight: 600; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+<span>ⓘ</span> Note
+    </p>
+<div class="markdown-alert-content" style="margin: 0;">
+<p>Diagrams are simplified for clarity. This simulator focuses on <strong>Control Plane correctness</strong> and <strong>Intent reconciliation</strong>. High-throughput data plane behavior is secondary to functional correctness and protocol stability.</p>
+<p><strong>Platform Compatibility</strong>: Native Linux VRFs are used where supported. On platforms without native VRF kernel modules—such as <strong>Apple Silicon (M1-M4) via Docker Desktop</strong>—the simulator automatically falls back to <strong><code>iptables</code></strong> for logical isolation.</p>
+</div>
 </div>
 <div class="codehilite"><pre><span></span><code>        ┌───────────────────────────────────────────────────────────────┐
         │                       LOGICAL OVERLAY                         │
@@ -2568,6 +2595,12 @@ Diagrams are simplified for clarity. This simulator focuses on **Control Plane c
             .markdown-content th {
                 background: #f5f5f5;
                 font-weight: bold;
+            }
+            .markdown-content p, .markdown-content ul, .markdown-content ol {
+                margin-bottom: 16px;
+            }
+            .markdown-content li {
+                margin-bottom: 8px;
             }
             </style>
 <!-- Divider between original content and VPC.md -->
@@ -2990,6 +3023,12 @@ Diagrams are simplified for clarity. This simulator focuses on **Control Plane c
                 background: #f5f5f5;
                 font-weight: bold;
             }
+            .markdown-content p, .markdown-content ul, .markdown-content ol {
+                margin-bottom: 16px;
+            }
+            .markdown-content li {
+                margin-bottom: 8px;
+            }
             </style>
 <!-- Divider between original content and TESTING.md -->
 <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
@@ -3117,9 +3156,13 @@ make<span class="w"> </span>security-scan
 </code></pre></div>
 <h2 id="performance-findings">Performance Findings</h2>
 <h3 id="asyncsync-sqlalchemy-issue">Async/Sync SQLAlchemy Issue</h3>
-<div class="markdown-alert markdown-alert-important">
-<p class="markdown-alert-title">📢 Important</p>
-When using FastAPI with synchronous SQLAlchemy, endpoint functions should use `def`, not `async def`.
+<div class="markdown-alert markdown-alert-important" style="border-left: .25em solid #8250df; padding: .5rem 1rem; margin-bottom: 24px; background-color: #8250df10; border-radius: 0 6px 6px 0;">
+<p class="markdown-alert-title" style="color: #8250df; font-weight: 600; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+<span>💬</span> Important
+    </p>
+<div class="markdown-alert-content" style="margin: 0;">
+<p>When using FastAPI with synchronous SQLAlchemy, endpoint functions should use <code>def</code>, not <code>async def</code>.</p>
+</div>
 </div>
 <p><strong>Problem Identified</strong>: During load testing (500 concurrent VPC creations), event loop starvation occurred.</p>
 <p><strong>Root Cause</strong>: <br/>
@@ -3290,23 +3333,36 @@ python<span class="w"> </span>control-plane/scripts/load_simulation.py
                 background: #f5f5f5;
                 font-weight: bold;
             }
+            .markdown-content p, .markdown-content ul, .markdown-content ol {
+                margin-bottom: 16px;
+            }
+            .markdown-content li {
+                margin-bottom: 8px;
+            }
             </style>
 <div class="markdown-content">
 <h1 id="cloud-networking-control-plane-simulator">Cloud Networking Control Plane Simulator</h1>
-<div class="markdown-alert markdown-alert-caution">
-<p class="markdown-alert-title">🚫 Caution</p>
-**Production Disclaimer**
-
-This project is a **conceptual simulator**. It is **not** intended for production environments and provides no production-grade guarantees regarding security, performance, or availability.
+<div class="markdown-alert markdown-alert-caution" style="border-left: .25em solid #d1242f; padding: .5rem 1rem; margin-bottom: 24px; background-color: #d1242f10; border-radius: 0 6px 6px 0;">
+<p class="markdown-alert-title" style="color: #d1242f; font-weight: 600; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+<span>🚨</span> Caution
+    </p>
+<div class="markdown-alert-content" style="margin: 0;">
+<p><strong>Production Disclaimer</strong></p>
+<p>This project is a <strong>conceptual simulator</strong>. It is <strong>not</strong> intended for production environments and provides no production-grade guarantees regarding security, performance, or availability.</p>
+</div>
 </div>
 <p>This project is intended for students, educators, researchers, software engineers, and network engineers. It provides a conceptual exploration of cloud networking internals—demonstrating how VPCs, isolation, and connectivity services are implemented using Linux networking primitives.</p>
 <h2 id="safety-security">Safety &amp; Security</h2>
-<div class="markdown-alert markdown-alert-warning">
-<p class="markdown-alert-title">⚠️ Warning</p>
-**Operational Scope &amp; Security**
-*   **Environment**: Assumes Linux or WSL2. Requires `iproute2`, `nftables`, and `iptables`. `nftables` is the primary mechanism for Security Groups; `iptables` is required for legacy container networking and specific NAT defaults.
-*   **Isolation**: This is a **conceptual simulator**, not a security-hardened environment. Services bound to `127.0.0.1` are accessible locally on the host. Do **not** deploy in a public network or expose ports without explicit host-level firewalling.
-*   **Performance**: Focused on **Control Plane correctness** and **Intent reconciliation**. It does **not** emulate hardware throughput or production-scale traffic. Logical isolation is prioritized over data plane performance.
+<div class="markdown-alert markdown-alert-warning" style="border-left: .25em solid #9a6700; padding: .5rem 1rem; margin-bottom: 24px; background-color: #9a670010; border-radius: 0 6px 6px 0;">
+<p class="markdown-alert-title" style="color: #9a6700; font-weight: 600; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+<span>⚠️</span> Warning
+    </p>
+<div class="markdown-alert-content" style="margin: 0;">
+<p><strong>Operational Scope &amp; Security</strong>
+*   <strong>Environment</strong>: Assumes Linux or WSL2. Requires <code>iproute2</code>, <code>nftables</code>, and <code>iptables</code>. <code>nftables</code> is the primary mechanism for Security Groups; <code>iptables</code> is required for legacy container networking and specific NAT defaults.
+*   <strong>Isolation</strong>: This is a <strong>conceptual simulator</strong>, not a security-hardened environment. Services bound to <code>127.0.0.1</code> are accessible locally on the host. Do <strong>not</strong> deploy in a public network or expose ports without explicit host-level firewalling.
+*   <strong>Performance</strong>: Focused on <strong>Control Plane correctness</strong> and <strong>Intent reconciliation</strong>. It does <strong>not</strong> emulate hardware throughput or production-scale traffic. Logical isolation is prioritized over data plane performance.</p>
+</div>
 </div>
 <h2 id="core-concepts">Core Concepts</h2>
 <p>High-level cloud abstractions map to standard Linux networking constructs:</p>
@@ -3358,31 +3414,47 @@ pre-commit<span class="w"> </span>install
 make<span class="w"> </span>status<span class="w"> </span><span class="c1"># Verify current health of the containerized fabric</span>
 make<span class="w"> </span>down<span class="w">   </span><span class="c1"># Stop and cleanup all containers and networks</span>
 </code></pre></div>
-<div class="markdown-alert markdown-alert-note">
-<p class="markdown-alert-title">ℹ️ Note</p>
-Depending on your Docker configuration, some `make` commands may require `sudo` for proper execution.
+<div class="markdown-alert markdown-alert-note" style="border-left: .25em solid #0969da; padding: .5rem 1rem; margin-bottom: 24px; background-color: #0969da10; border-radius: 0 6px 6px 0;">
+<p class="markdown-alert-title" style="color: #0969da; font-weight: 600; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+<span>ⓘ</span> Note
+    </p>
+<div class="markdown-alert-content" style="margin: 0;">
+<p>Depending on your Docker configuration, some <code>make</code> commands may require <code>sudo</code> for proper execution.</p>
 </div>
-<div class="markdown-alert markdown-alert-note">
-<p class="markdown-alert-title">ℹ️ Note</p>
-Terminology: In this documentation and codebase, "leaves" denotes the leaf switches in a leaf-spine network topology.
+</div>
+<div class="markdown-alert markdown-alert-note" style="border-left: .25em solid #0969da; padding: .5rem 1rem; margin-bottom: 24px; background-color: #0969da10; border-radius: 0 6px 6px 0;">
+<p class="markdown-alert-title" style="color: #0969da; font-weight: 600; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+<span>ⓘ</span> Note
+    </p>
+<div class="markdown-alert-content" style="margin: 0;">
+<p>Terminology: In this documentation and codebase, "leaves" denotes the leaf switches in a leaf-spine network topology.</p>
+</div>
 </div>
 <h3 id="6-provision-sample-environment">6. Provision Sample Environment</h3>
 <div class="codehilite"><pre><span></span><code>make<span class="w"> </span>create-sample-vpc
 </code></pre></div>
-<div class="markdown-alert markdown-alert-important">
-<p class="markdown-alert-title">📢 Important</p>
-**Requirements**:
-*   **Docker Compose**: Requires Docker Compose v2+.
-*   **Permissions**: This command requires Docker networking and namespace privileges. On some systems, this may require `sudo` or specific container capabilities (e.g., `CAP_NET_ADMIN`).
+<div class="markdown-alert markdown-alert-important" style="border-left: .25em solid #8250df; padding: .5rem 1rem; margin-bottom: 24px; background-color: #8250df10; border-radius: 0 6px 6px 0;">
+<p class="markdown-alert-title" style="color: #8250df; font-weight: 600; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+<span>💬</span> Important
+    </p>
+<div class="markdown-alert-content" style="margin: 0;">
+<p><strong>Requirements</strong>:
+*   <strong>Docker Compose</strong>: Requires Docker Compose v2+.
+*   <strong>Permissions</strong>: This command requires Docker networking and namespace privileges. On some systems, this may require <code>sudo</code> or specific container capabilities (e.g., <code>CAP_NET_ADMIN</code>).</p>
+</div>
 </div>
 <p>This command generates cloud networking control plane demo scenarios:<br/>
 See <a href="docs/VPC.md">docs/VPC.md</a></p>
 <h2 id="api-usage">API Usage</h2>
-<div class="markdown-alert markdown-alert-important">
-<p class="markdown-alert-title">📢 Important</p>
-**API Access &amp; Security**
-*   **No Authentication**: This simulator implements no authentication. It should **only** be run on `localhost` or within a protected firewall; it should **never** be exposed externally.
-*   **WSL2/Remote**: If using WSL2 or remote hosts, ensure ports 8000 (REST) and 50051 (gRPC) are properly mapped.
+<div class="markdown-alert markdown-alert-important" style="border-left: .25em solid #8250df; padding: .5rem 1rem; margin-bottom: 24px; background-color: #8250df10; border-radius: 0 6px 6px 0;">
+<p class="markdown-alert-title" style="color: #8250df; font-weight: 600; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+<span>💬</span> Important
+    </p>
+<div class="markdown-alert-content" style="margin: 0;">
+<p><strong>API Access &amp; Security</strong>
+*   <strong>No Authentication</strong>: This simulator implements no authentication. It should <strong>only</strong> be run on <code>localhost</code> or within a protected firewall; it should <strong>never</strong> be exposed externally.
+*   <strong>WSL2/Remote</strong>: If using WSL2 or remote hosts, ensure ports 8000 (REST) and 50051 (gRPC) are properly mapped.</p>
+</div>
 </div>
 <h3 id="rest-api">REST API</h3>
 <p>The control plane exposes a REST API (port 8000) for intent declaration. API operations are <strong>idempotent</strong>, allowing for safe retries without unintended side effects.</p>
@@ -3422,13 +3494,17 @@ make<span class="w"> </span>test-connectivity
 *   <strong>VPC View</strong> (http://localhost:8000/vpc): A real-time view of your simulator. See <a href="docs/VPC.md">docs/VPC.md</a> for details.</p>
 <p><strong>Key Metric</strong>: <code>reconciliation_duration_ms</code><br/>
 This measures the time taken for a single <strong>reconciliation loop</strong> to sync the <strong>Intent Store</strong> (Desired State) with the actual fabric (Observed State).</p>
-<div class="markdown-alert markdown-alert-note">
-<p class="markdown-alert-title">ℹ️ Note</p>
-**Scope &amp; Limitations**:
-*   **Aggregation**: Resource metrics (CPU/RAM) and traffic are aggregated per container; VPC counts and reconciliation metrics are scoped to the control plane.
-*   **Simulated Timing**: This metric is simulated and host-dependent. It does **not** reflect actual network latency, packet loss, jitter, or throughput.
-*   **Simulator Range**: Typically 50ms–500ms.
-*   **Production Context**: Real-world systems target sub-second local reconciliation but may have longer global consistency latencies.
+<div class="markdown-alert markdown-alert-note" style="border-left: .25em solid #0969da; padding: .5rem 1rem; margin-bottom: 24px; background-color: #0969da10; border-radius: 0 6px 6px 0;">
+<p class="markdown-alert-title" style="color: #0969da; font-weight: 600; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+<span>ⓘ</span> Note
+    </p>
+<div class="markdown-alert-content" style="margin: 0;">
+<p><strong>Scope &amp; Limitations</strong>:
+*   <strong>Aggregation</strong>: Resource metrics (CPU/RAM) and traffic are aggregated per container; VPC counts and reconciliation metrics are scoped to the control plane.
+*   <strong>Simulated Timing</strong>: This metric is simulated and host-dependent. It does <strong>not</strong> reflect actual network latency, packet loss, jitter, or throughput.
+*   <strong>Simulator Range</strong>: Typically 50ms–500ms.
+*   <strong>Production Context</strong>: Real-world systems target sub-second local reconciliation but may have longer global consistency latencies.</p>
+</div>
 </div>
 <h3 id="debugging-logs">Debugging &amp; Logs</h3>
 <p>To inspect internal service behavior:</p>
@@ -3571,6 +3647,12 @@ Total number of neighbors 3
             .markdown-content th {
                 background: #f5f5f5;
                 font-weight: bold;
+            }
+            .markdown-content p, .markdown-content ul, .markdown-content ol {
+                margin-bottom: 16px;
+            }
+            .markdown-content li {
+                margin-bottom: 8px;
             }
             </style>
 <div class="markdown-content">
@@ -3992,6 +4074,12 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
                 background: #f5f5f5;
                 font-weight: bold;
             }
+            .markdown-content p, .markdown-content ul, .markdown-content ol {
+                margin-bottom: 16px;
+            }
+            .markdown-content li {
+                margin-bottom: 8px;
+            }
             </style>
 <div class="markdown-content">
 <h1 id="cloud-networking-control-plane-simulator-ideas">Cloud Networking Control Plane Simulator Ideas</h1>
@@ -4153,6 +4241,12 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
                 background: #f5f5f5;
                 font-weight: bold;
             }
+            .markdown-content p, .markdown-content ul, .markdown-content ol {
+                margin-bottom: 16px;
+            }
+            .markdown-content li {
+                margin-bottom: 8px;
+            }
             </style>
 <div class="markdown-content">
 <h1 id="networking-implementation-details">Networking Implementation Details</h1>
@@ -4292,6 +4386,12 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
             .markdown-content th {
                 background: #f5f5f5;
                 font-weight: bold;
+            }
+            .markdown-content p, .markdown-content ul, .markdown-content ol {
+                margin-bottom: 16px;
+            }
+            .markdown-content li {
+                margin-bottom: 8px;
             }
             </style>
 <div class="markdown-content">

@@ -89,116 +89,72 @@ def extract_coverage_from_testing_md_html():
     
     return coverage_html
 
-def preprocess_markdown(content):
-    """Support GitHub-style alerts and other custom formatting before markdown conversion"""
-    if not content:
-        return content
-        
-    # Pattern for GitHub alerts: > [!TYPE]\n> Content
-    # Types: NOTE, TIP, IMPORTANT, WARNING, CAUTION
-    alert_types = {
-        "NOTE": {"icon": "ℹ️", "title": "Note", "color": "#0969da"},
-        "TIP": {"icon": "💡", "title": "Tip", "color": "#1a7f37"},
-        "IMPORTANT": {"icon": "📢", "title": "Important", "color": "#8250df"},
-        "WARNING": {"icon": "⚠️", "title": "Warning", "color": "#9a6700"},
-        "CAUTION": {"icon": "🚫", "title": "Caution", "color": "#d1242f"}
-    }
-    
-    # Also support [!TYPE] on a line by itself if it's within a quote
-    lines = content.split('\n')
-    processed_lines = []
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        alert_match = re.match(r'^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]', line.strip())
-        
-        if alert_match:
-            alert_type = alert_match.group(1).upper()
-            config = alert_types[alert_type]
-            
-            # Start of alert block
-            processed_lines.append(f'<div class="markdown-alert markdown-alert-{alert_type.lower()}">')
-            processed_lines.append(f'<p class="markdown-alert-title">{config["icon"]} {config["title"]}</p>')
-            
-            # Continue reading quoted lines for this alert
-            i += 1
-            while i < len(lines):
-                if lines[i].strip().startswith('>'):
-                    # Remove the '>' and optional trailing space
-                    content_line = re.sub(r'^>\s?', '', lines[i])
-                    if content_line.strip():
-                        processed_lines.append(content_line)
-                    else:
-                        processed_lines.append('')
-                    i += 1
-                else:
-                    break
-            
-            processed_lines.append('</div>')
-        else:
-            processed_lines.append(line)
-            i += 1
-            
-    return '\n'.join(processed_lines)
+# Helper function to render nested markdown in alerts
+def render_inline_markdown(text):
+    """Render basic markdown like bold, code, links for alert content"""
+    import markdown
+    # Use minimal extensions for sub-rendering to avoid recursion or excessive blocks
+    return markdown.markdown(text, extensions=['fenced_code', 'codehilite', 'tables', 'nl2br'])
 
-def extract_architecture_from_md():
-    """Extract architecture content from ARCHITECTURE.md and format diagrams as code blocks"""
-    arch_md_path = "docs/ARCHITECTURE.md"
-    if not os.path.exists(arch_md_path):
-        print(f"Warning: {arch_md_path} not found, using default content")
-        return "<p>Architecture documentation not found</p>"
+def preprocess_markdown(content):
+    """Pre-process markdown for GitHub-style alerts and other extras"""
+    if not content:
+        return ""
+        
+    # Pattern for GitHub-style alerts: > [!TYPE]
+    # We use a more robust regex that handles multi-line content
+    alert_pattern = re.compile(r'^> \[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\n((?:>.*\n?)*)', re.MULTILINE | re.IGNORECASE)
     
-    try:
-        with open(arch_md_path, 'r') as f:
-            content = f.read()
-        
-        # Convert text diagrams to properly formatted code blocks
-        lines = content.split('\n')
-        formatted_lines = []
-        in_code_block = False
-        in_diagram = False
-        
+    def replace_alert(match):
+        alert_type = match.group(1).upper()
+        # Clean up the lines by removing the leading '> '
+        lines = match.group(2).split('\n')
+        cleaned_lines = []
         for line in lines:
-            # Detect diagram blocks (start with ```text or contain diagram patterns)
-            if line.strip().startswith('```text'):
-                formatted_lines.append(line)
-                in_code_block = True
-                in_diagram = True
-            elif line.strip() == '```' and in_diagram:
-                formatted_lines.append(line)
-                in_code_block = False
-                in_diagram = False
-            # Detect ASCII diagram patterns (box drawing characters, arrows, etc.)
-            elif any(char in line for char in ['┌', '┐', '└', '┘', '─', '│', '├', '┤', '┬', '┴', '┼', '▶', '───']):
-                if not in_code_block:
-                    formatted_lines.append('```text')
-                    in_code_block = True
-                    in_diagram = True
-                formatted_lines.append(line)
-            elif in_diagram and (line.strip() == '' or line.strip().startswith('```')):
-                if line.strip() == '```':
-                    formatted_lines.append(line)
-                    in_code_block = False
-                    in_diagram = False
-                else:
-                    formatted_lines.append(line)
+            if line.startswith('> '):
+                cleaned_lines.append(line[2:])
+            elif line.startswith('>'):
+                cleaned_lines.append(line[1:])
             else:
-                formatted_lines.append(line)
+                cleaned_lines.append(line)
         
-        # Close any open code block
-        if in_code_block:
-            formatted_lines.append('```')
+        inner_content = '\n'.join(cleaned_lines).strip()
         
-        formatted_content = '\n'.join(formatted_lines)
+        # Render the internal content BEFORE wrapping in a div
+        # This ensures that bold, links, etc. are processed even though we're in an HTML block
+        rendered_inner = render_inline_markdown(inner_content)
         
-        # Convert markdown to HTML
-        import markdown
-        html_content = markdown.markdown(formatted_content, extensions=['fenced_code', 'codehilite', 'tables', 'toc'])
+        colors = {
+            'NOTE': '#0969da',
+            'TIP': '#1a7f37',
+            'IMPORTANT': '#8250df',
+            'WARNING': '#9a6700',
+            'CAUTION': '#d1242f'
+        }
         
-        return html_content
-    except Exception as e:
-        print(f"Error parsing ARCHITECTURE.md: {e}")
-        return "<p>Error loading architecture documentation</p>"
+        icons = {
+            'NOTE': 'ⓘ',
+            'TIP': '💡',
+            'IMPORTANT': '💬',
+            'WARNING': '⚠️',
+            'CAUTION': '🚨'
+        }
+        
+        color = colors.get(alert_type, '#0969da')
+        icon = icons.get(alert_type, 'ⓘ')
+        
+        return f"""
+<div class="markdown-alert markdown-alert-{alert_type.lower()}" style="border-left: .25em solid {color}; padding: .5rem 1rem; margin-bottom: 24px; background-color: {color}10; border-radius: 0 6px 6px 0;">
+    <p class="markdown-alert-title" style="color: {color}; font-weight: 600; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+        <span>{icon}</span> {alert_type.capitalize()}
+    </p>
+    <div class="markdown-alert-content" style="margin: 0;">
+        {rendered_inner}
+    </div>
+</div>
+"""
+
+    return alert_pattern.sub(replace_alert, content)
 
 def extract_scenarios_from_vpc_md(vpc_md_path="docs/VPC.md"):
     """Extract scenario list from VPC.md"""
@@ -453,6 +409,12 @@ def append_markdown_to_tab(soup, tab_id, filename, title, description):
                 background: #f5f5f5;
                 font-weight: bold;
             }}
+            .markdown-content p, .markdown-content ul, .markdown-content ol {{
+                margin-bottom: 16px;
+            }}
+            .markdown-content li {{
+                margin-bottom: 8px;
+            }}
             </style>
             
             <!-- Divider between original content and {filename} -->
@@ -582,6 +544,12 @@ def create_new_tab_static(soup, tab_id, tab_name, icon, filename, title, descrip
             .markdown-content th {{
                 background: #f5f5f5;
                 font-weight: bold;
+            }}
+            .markdown-content p, .markdown-content ul, .markdown-content ol {{
+                margin-bottom: 16px;
+            }}
+            .markdown-content li {{
+                margin-bottom: 8px;
             }}
             </style>
             
