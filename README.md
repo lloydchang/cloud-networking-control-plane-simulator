@@ -51,7 +51,10 @@ cd cloud-networking-control-plane-simulator
 ```
 
 ### 2. Prerequisites
-*   Docker Desktop (1 CPU and 1GB RAM would be sufficient to start the containers)
+* Hardware:
+  * 2 CPUs: 1 CPU for Docker Desktop, 1 CPU for containers
+  * 8GB RAM: 4GB for Docker Desktop, 4GB for containers
+*   Docker Desktop
 *   Python 3.11+, Make, curl, jq
 
 
