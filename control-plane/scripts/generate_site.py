@@ -137,6 +137,261 @@ def extract_scenarios_from_vpc_md():
         print(f"Error parsing VPC.md: {e}")
         return ["demo", "basic", "advanced"]
 
+def get_markdown_content(filename):
+    """Get markdown content from docs directory"""
+    md_path = os.path.join("docs", filename)
+    if not os.path.exists(md_path):
+        print(f"Warning: {md_path} not found")
+        return None
+    
+    try:
+        with open(md_path, 'r') as f:
+            return f.read()
+    except Exception as e:
+        print(f"Error reading {filename}: {e}")
+        return None
+
+def append_markdown_to_tab(soup, tab_id, filename, title, description):
+    """Append markdown content to existing tab for GitHub Pages"""
+    content = get_markdown_content(filename)
+    
+    if content:
+        tab = soup.find("div", {"id": tab_id})
+        if tab:
+            # Add CSS and content
+            new_content = f"""
+            <style>
+            .markdown-content {{
+                font-family: 'Segoe UI', Arial, sans-serif;
+                line-height: 1.6;
+            }}
+            .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {{
+                color: #232f3e;
+                margin: 20px 0 10px 0;
+            }}
+            .markdown-content pre {{
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }}
+            .markdown-content code {{
+                background: #f8f9fa;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }}
+            .markdown-content pre code {{
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }}
+            .markdown-content .codehilite {{
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }}
+            .markdown-content .codehilite pre {{
+                background: transparent;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }}
+            .markdown-content .codehilite code {{
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }}
+            .markdown-content blockquote {{
+                border-left: 4px solid #00897b;
+                padding-left: 16px;
+                margin: 15px 0;
+                color: #666;
+            }}
+            .markdown-content table {{
+                border-collapse: collapse;
+                width: 100%;
+                margin: 15px 0;
+            }}
+            .markdown-content th, .markdown-content td {{
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }}
+            .markdown-content th {{
+                background: #f5f5f5;
+                font-weight: bold;
+            }}
+            </style>
+            
+            <!-- Divider between original content and {filename} -->
+            <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
+                <h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 {title}</h3>
+                <p style="margin: 0; color: #555;">{description}</p>
+            </div>
+            
+            <div class="markdown-content">
+                <div id="markdown-content-{filename.replace('.', '-')}" style="display: none;">{content}</div>
+                <div id="rendered-content-{filename.replace('.', '-')}"></div>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+            <script>
+                // Client-side markdown rendering for {filename}
+                const markdownContent{filename.replace('.', '-')} = document.getElementById('markdown-content-{filename.replace('.', '-')}').textContent;
+                const renderedContent{filename.replace('.', '-')} = marked.parse(markdownContent{filename.replace('.', '-')});
+                document.getElementById('rendered-content-{filename.replace('.', '-')}').innerHTML = renderedContent{filename.replace('.', '-')};
+            </script>
+            """
+            
+            tab.append(BeautifulSoup(new_content, "html.parser"))
+            return True
+    return False
+
+def create_new_tab_static(soup, tab_id, tab_name, icon, filename, title, description):
+    """Create a new tab with markdown content for GitHub Pages"""
+    content = get_markdown_content(filename)
+    
+    if content:
+        # Find the navigation tabs container
+        nav_tabs = soup.find("div", style=lambda x: x and "display: flex" in x and "gap: 10px" in x and "border-bottom" in x)
+        if nav_tabs:
+            # Add new tab button
+            new_tab_button = soup.new_tag("button", 
+                onclick=f"showTab('{tab_id}')",
+                style="background: none; border: none; padding: 10px; cursor: pointer;",
+                id=f"tab-{tab_id}"
+            )
+            new_tab_button.string = f"{icon} {tab_name}"
+            nav_tabs.append(new_tab_button)
+        
+        # Find the content container (after the last content div)
+        last_content = soup.find_all("div", id=lambda x: x and x.startswith("content-"))[-1]
+        if last_content:
+            # Create new content div
+            new_content_div = soup.new_tag("div", 
+                id=f"content-{tab_id}",
+                style="display: none;"
+            )
+            
+            # Add markdown content to the new tab
+            markdown_html = f"""
+            <h3>{icon} {title}</h3>
+            <p>{description}</p>
+            
+            <style>
+            .markdown-content {{
+                font-family: 'Segoe UI', Arial, sans-serif;
+                line-height: 1.6;
+            }}
+            .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {{
+                color: #232f3e;
+                margin: 20px 0 10px 0;
+            }}
+            .markdown-content pre {{
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }}
+            .markdown-content code {{
+                background: #f8f9fa;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }}
+            .markdown-content pre code {{
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }}
+            .markdown-content .codehilite {{
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }}
+            .markdown-content .codehilite pre {{
+                background: transparent;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }}
+            .markdown-content .codehilite code {{
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }}
+            .markdown-content blockquote {{
+                border-left: 4px solid #00897b;
+                padding-left: 16px;
+                margin: 15px 0;
+                color: #666;
+            }}
+            .markdown-content table {{
+                border-collapse: collapse;
+                width: 100%;
+                margin: 15px 0;
+            }}
+            .markdown-content th, .markdown-content td {{
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }}
+            .markdown-content th {{
+                background: #f5f5f5;
+                font-weight: bold;
+            }}
+            </style>
+            
+            <div class="markdown-content">
+                <div id="markdown-content-{filename.replace('.', '-')}" style="display: none;">{content}</div>
+                <div id="rendered-content-{filename.replace('.', '-')}"></div>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+            <script>
+                // Client-side markdown rendering for {filename}
+                const markdownContent{filename.replace('.', '-')} = document.getElementById('markdown-content-{filename.replace('.', '-')}').textContent;
+                const renderedContent{filename.replace('.', '-')} = marked.parse(markdownContent{filename.replace('.', '-')});
+                document.getElementById('rendered-content-{filename.replace('.', '-')}').innerHTML = renderedContent{filename.replace('.', '-')};
+            </script>
+            """
+            
+            new_content_div.append(BeautifulSoup(markdown_html, "html.parser"))
+            last_content.insert_after(new_content_div)
+            
+            # Update the tab switching JavaScript to include the new tab
+            scripts = soup.find_all("script")
+            for script in scripts:
+                if "showTab" in script.string and "contents =" in script.string:
+                    # Update the contents array
+                    old_contents = script.string
+                    new_contents = old_contents.replace(
+                        "const contents = ['api-guide', 'architecture', 'vpc-details', 'examples', 'testing'];",
+                        f"const contents = ['api-guide', 'architecture', 'vpc-details', 'examples', 'testing', '{tab_id}'];"
+                    )
+                    script.string = new_contents
+                    break
+            
+            return True
+    return False
+
 def export_static_fully_offline():
     """Export a single-file static VPC dashboard with all JS/CSS inlined, local and remote."""
 
@@ -273,116 +528,84 @@ def export_static_fully_offline():
                 else:
                     coverage_html += f"• {component}: {data['percentage']}% {data['status']}<br/>"
             coverage_html += "<br/><em>Uncovered: Database initialization, entry points, some gRPC methods</em>"
-            
-            # Update the div content by replacing the entire div
-            coverage_div = coverage_section.parent
-            new_div = soup.new_tag("div", style=coverage_div.get("style", ""))
-            new_div.append(BeautifulSoup(coverage_html, "html.parser"))
-            coverage_div.replace_with(new_div)
-
-    # Extract architecture content and inject into Documentation Hub
-    arch_data = extract_architecture_from_md()
     
-    # Find the architecture tab in the HTML and update it
-    arch_tab = soup.find("div", {"id": "content-architecture"})
-    if arch_tab:
-        # Use client-side markdown rendering for better performance (same as Vercel)
-        new_arch_content = f"""
-        <style>
-        .architecture-content {{
-            font-family: 'Segoe UI', Arial, sans-serif;
-            line-height: 1.6;
-        }}
-        .architecture-content h1, .architecture-content h2, .architecture-content h3, .architecture-content h4 {{
-            color: #232f3e;
-            margin: 20px 0 10px 0;
-        }}
-        .architecture-content pre {{
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 4px;
-            padding: 16px;
-            overflow-x: auto;
-            margin: 15px 0;
-        }}
-        .architecture-content code {{
-            background: #f8f9fa;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-size: 0.9em;
-        }}
-        .architecture-content pre code {{
-            background: transparent;
-            padding: 0;
-            font-family: 'Courier New', Consolas, monospace;
-            font-size: 0.85em;
-            line-height: 1.4;
-        }}
-        /* Fix for codehilite blocks generated by markdown */
-        .architecture-content .codehilite {{
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 4px;
-            padding: 16px;
-            overflow-x: auto;
-            margin: 15px 0;
-        }}
-        .architecture-content .codehilite pre {{
-            background: transparent;
-            border: none;
-            padding: 0;
-            margin: 0;
-        }}
-        .architecture-content .codehilite code {{
-            background: transparent;
-            padding: 0;
-            font-family: 'Courier New', Consolas, monospace;
-            font-size: 0.85em;
-            line-height: 1.4;
-        }}
-        .architecture-content blockquote {{
-            border-left: 4px solid #00897b;
-            padding-left: 16px;
-            margin: 15px 0;
-            color: #666;
-        }}
-        .architecture-content table {{
-            border-collapse: collapse;
-            width: 100%;
-            margin: 15px 0;
-        }}
-        .architecture-content th, .architecture-content td {{
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }}
-        .architecture-content th {{
-            background: #f5f5f5;
-            font-weight: bold;
-        }}
-        </style>
+    # Define markdown files and their mapping to tabs (same as Vercel)
+    markdown_files = {
+        # Existing tabs - append content
+        "ARCHITECTURE.md": {
+            "tab_id": "content-architecture",
+            "action": "append",
+            "title": "Detailed Architecture Documentation",
+            "description": "Comprehensive architecture documentation from docs/ARCHITECTURE.md"
+        },
+        "API.md": {
+            "tab_id": "content-api-guide", 
+            "action": "append",
+            "title": "Complete API Documentation",
+            "description": "Full API reference and documentation from docs/API.md"
+        },
+        "TESTING.md": {
+            "tab_id": "content-testing",
+            "action": "append", 
+            "title": "Comprehensive Testing Guide",
+            "description": "Complete testing documentation and coverage from docs/TESTING.md"
+        },
+        "VPC.md": {
+            "tab_id": "content-vpc-details",
+            "action": "append",
+            "title": "VPC Implementation Details", 
+            "description": "Detailed VPC implementation and scenarios from docs/VPC.md"
+        },
         
-        <!-- Divider between original content and ARCHITECTURE.md -->
-        <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
-            <h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 Detailed Architecture Documentation</h3>
-            <p style="margin: 0; color: #555;">Below is the comprehensive architecture documentation from <code>docs/ARCHITECTURE.md</code></p>
-        </div>
-        
-        <div class="architecture-content">
-            <div id="markdown-content" style="display: none;">{arch_data}</div>
-            <div id="rendered-content"></div>
-        </div>
-        <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
-        <script>
-            // Client-side markdown rendering for better performance
-            const markdownContent = document.getElementById('markdown-content').textContent;
-            const renderedContent = marked.parse(markdownContent);
-            document.getElementById('rendered-content').innerHTML = renderedContent;
-        </script>
-        """
-        
-        # Append the new content to the existing tab (hybrid approach)
-        arch_tab.append(BeautifulSoup(new_arch_content, "html.parser"))
+        # New tabs - create dedicated tabs
+        "API_EXAMPLES.md": {
+            "tab_id": "api-examples",
+            "action": "new_tab",
+            "tab_name": "API Examples",
+            "icon": "📚",
+            "title": "API Usage Examples",
+            "description": "Comprehensive API examples and use cases from docs/API_EXAMPLES.md"
+        },
+        "IDEAS.md": {
+            "tab_id": "ideas",
+            "action": "new_tab", 
+            "tab_name": "Ideas",
+            "icon": "💡",
+            "title": "Project Ideas and Future Development",
+            "description": "Ideas for future features and improvements from docs/IDEAS.md"
+        },
+        "NETWORKING_IMPLEMENTATION.md": {
+            "tab_id": "implementation",
+            "action": "new_tab",
+            "tab_name": "Implementation",
+            "icon": "⚙️", 
+            "title": "Networking Implementation Details",
+            "description": "Deep dive into networking implementation from docs/NETWORKING_IMPLEMENTATION.md"
+        }
+    }
+    
+    # Process each markdown file
+    for filename, config in markdown_files.items():
+        if config["action"] == "append":
+            # Append to existing tab
+            append_markdown_to_tab(
+                soup, 
+                config["tab_id"], 
+                filename, 
+                config["title"], 
+                config["description"]
+            )
+        elif config["action"] == "new_tab":
+            # Create new tab
+            create_new_tab_static(
+                soup,
+                config["tab_id"],
+                config["tab_name"], 
+                config["icon"],
+                filename,
+                config["title"],
+                config["description"]
+            )
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     output_path = os.path.join(OUTPUT_DIR, "index.html")

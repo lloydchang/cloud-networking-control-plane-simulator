@@ -63,14 +63,14 @@ from .models import (
 )
 from . import shared_api_logic as services
 
-def get_processed_architecture_content():
-    """Extract and process architecture content with diagram formatting"""
-    # In Vercel, fetch ARCHITECTURE.md from GitHub since it's not deployed
+def get_processed_markdown_content(filename):
+    """Generic function to fetch and process any markdown content from docs"""
+    # In Vercel, fetch from GitHub since docs are not deployed
     if os.getenv("VERCEL"):
         try:
             import httpx
-            github_url = "https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/docs/ARCHITECTURE.md"
-            print(f"DEBUG: Fetching ARCHITECTURE.md from GitHub: {github_url}")
+            github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/docs/{filename}"
+            print(f"DEBUG: Fetching {filename} from GitHub: {github_url}")
             
             with httpx.Client() as client:
                 response = client.get(github_url)
@@ -83,39 +83,287 @@ def get_processed_architecture_content():
                     return None
                 
         except Exception as e:
-            print(f"DEBUG: Error fetching from GitHub: {e}")
+            print(f"DEBUG: Error fetching {filename} from GitHub: {e}")
             return None
     else:
         # Local development - try multiple possible paths
         possible_paths = [
-            os.path.join(os.path.dirname(__file__), "..", "..", "docs", "ARCHITECTURE.md"),
-            os.path.join(os.path.dirname(__file__), "..", "docs", "ARCHITECTURE.md"),
-            os.path.join(os.getcwd(), "docs", "ARCHITECTURE.md"),
-            "/tmp/docs/ARCHITECTURE.md",  # Vercel might copy files here
-            "docs/ARCHITECTURE.md",  # Relative path
-            "../docs/ARCHITECTURE.md",  # Another relative path
+            os.path.join(os.path.dirname(__file__), "..", "..", "docs", filename),
+            os.path.join(os.path.dirname(__file__), "..", "docs", filename),
+            os.path.join(os.getcwd(), "docs", filename),
+            f"/tmp/docs/{filename}",  # Vercel might copy files here
+            f"docs/{filename}",  # Relative path
+            f"../docs/{filename}",  # Another relative path
         ]
         
-        arch_md_path = None
+        file_path = None
         for path in possible_paths:
             if os.path.exists(path):
-                arch_md_path = path
-                print(f"DEBUG: Found ARCHITECTURE.md at: {path}")
+                file_path = path
+                print(f"DEBUG: Found {filename} at: {path}")
                 break
         
-        if not arch_md_path:
-            print(f"DEBUG: ARCHITECTURE.md not found in any of these paths:")
+        if not file_path:
+            print(f"DEBUG: {filename} not found in any of these paths:")
             for path in possible_paths:
                 print(f"  - {path}")
             return None
         
         try:
-            with open(arch_md_path, 'r') as f:
+            with open(file_path, 'r') as f:
                 content = f.read()
             return content  # Return raw markdown for client-side rendering
         except Exception as e:
-            print(f"DEBUG: Error reading ARCHITECTURE.md: {e}")
+            print(f"DEBUG: Error reading {filename}: {e}")
             return None
+
+def get_processed_architecture_content():
+    """Extract and process architecture content with diagram formatting"""
+    return get_processed_markdown_content("ARCHITECTURE.md")
+
+def append_markdown_content(soup, tab_id, filename, title, description):
+    """Generic function to append markdown content to a specific tab"""
+    content = get_processed_markdown_content(filename)
+    
+    if content:
+        tab = soup.find("div", {"id": tab_id})
+        if tab:
+            # Add CSS for the appended content
+            new_content = f"""
+            <style>
+            .markdown-content {{
+                font-family: 'Segoe UI', Arial, sans-serif;
+                line-height: 1.6;
+            }}
+            .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {{
+                color: #232f3e;
+                margin: 20px 0 10px 0;
+            }}
+            .markdown-content pre {{
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }}
+            .markdown-content code {{
+                background: #f8f9fa;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }}
+            .markdown-content pre code {{
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }}
+            /* Fix for codehilite blocks generated by markdown */
+            .markdown-content .codehilite {{
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }}
+            .markdown-content .codehilite pre {{
+                background: transparent;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }}
+            .markdown-content .codehilite code {{
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }}
+            .markdown-content blockquote {{
+                border-left: 4px solid #00897b;
+                padding-left: 16px;
+                margin: 15px 0;
+                color: #666;
+            }}
+            .markdown-content table {{
+                border-collapse: collapse;
+                width: 100%;
+                margin: 15px 0;
+            }}
+            .markdown-content th, .markdown-content td {{
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }}
+            .markdown-content th {{
+                background: #f5f5f5;
+                font-weight: bold;
+            }}
+            </style>
+            
+            <!-- Divider between original content and {filename} -->
+            <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
+                <h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 {title}</h3>
+                <p style="margin: 0; color: #555;">{description}</p>
+            </div>
+            
+            <div class="markdown-content">
+                <div id="markdown-content-{filename.replace('.', '-')}" style="display: none;">{content}</div>
+                <div id="rendered-content-{filename.replace('.', '-')}"></div>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+            <script>
+                // Client-side markdown rendering for {filename}
+                const markdownContent{filename.replace('.', '-')} = document.getElementById('markdown-content-{filename.replace('.', '-')}').textContent;
+                const renderedContent{filename.replace('.', '-')} = marked.parse(markdownContent{filename.replace('.', '-')});
+                document.getElementById('rendered-content-{filename.replace('.', '-')}').innerHTML = renderedContent{filename.replace('.', '-')};
+            </script>
+            """
+            
+            # Append the new content to the existing tab
+            tab.append(BeautifulSoup(new_content, "html.parser"))
+            return True
+    return False
+
+def create_new_tab(soup, tab_id, tab_name, icon, filename, title, description):
+    """Create a new tab with markdown content"""
+    content = get_processed_markdown_content(filename)
+    
+    if content:
+        # Find the navigation tabs container
+        nav_tabs = soup.find("div", style=lambda x: x and "display: flex" in x and "gap: 10px" in x and "border-bottom" in x)
+        if nav_tabs:
+            # Add new tab button
+            new_tab_button = soup.new_tag("button", 
+                onclick=f"showTab('{tab_id}')",
+                style="background: none; border: none; padding: 10px; cursor: pointer;",
+                id=f"tab-{tab_id}"
+            )
+            new_tab_button.string = f"{icon} {tab_name}"
+            nav_tabs.append(new_tab_button)
+        
+        # Find the content container (after the last content div)
+        last_content = soup.find_all("div", id=lambda x: x and x.startswith("content-"))[-1]
+        if last_content:
+            # Create new content div
+            new_content_div = soup.new_tag("div", 
+                id=f"content-{tab_id}",
+                style="display: none;"
+            )
+            
+            # Add markdown content to the new tab
+            markdown_html = f"""
+            <h3>{icon} {title}</h3>
+            <p>{description}</p>
+            
+            <style>
+            .markdown-content {{
+                font-family: 'Segoe UI', Arial, sans-serif;
+                line-height: 1.6;
+            }}
+            .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {{
+                color: #232f3e;
+                margin: 20px 0 10px 0;
+            }}
+            .markdown-content pre {{
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }}
+            .markdown-content code {{
+                background: #f8f9fa;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }}
+            .markdown-content pre code {{
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }}
+            /* Fix for codehilite blocks generated by markdown */
+            .markdown-content .codehilite {{
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }}
+            .markdown-content .codehilite pre {{
+                background: transparent;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }}
+            .markdown-content .codehilite code {{
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }}
+            .markdown-content blockquote {{
+                border-left: 4px solid #00897b;
+                padding-left: 16px;
+                margin: 15px 0;
+                color: #666;
+            }}
+            .markdown-content table {{
+                border-collapse: collapse;
+                width: 100%;
+                margin: 15px 0;
+            }}
+            .markdown-content th, .markdown-content td {{
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }}
+            .markdown-content th {{
+                background: #f5f5f5;
+                font-weight: bold;
+            }}
+            </style>
+            
+            <div class="markdown-content">
+                <div id="markdown-content-{filename.replace('.', '-')}" style="display: none;">{content}</div>
+                <div id="rendered-content-{filename.replace('.', '-')}"></div>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+            <script>
+                // Client-side markdown rendering for {filename}
+                const markdownContent{filename.replace('.', '-')} = document.getElementById('markdown-content-{filename.replace('.', '-')}').textContent;
+                const renderedContent{filename.replace('.', '-')} = marked.parse(markdownContent{filename.replace('.', '-')});
+                document.getElementById('rendered-content-{filename.replace('.', '-')}').innerHTML = renderedContent{filename.replace('.', '-')};
+            </script>
+            """
+            
+            new_content_div.append(BeautifulSoup(markdown_html, "html.parser"))
+            last_content.insert_after(new_content_div)
+            
+            # Update the tab switching JavaScript to include the new tab
+            scripts = soup.find_all("script")
+            for script in scripts:
+                if "showTab" in script.string and "contents =" in script.string:
+                    # Update the contents array
+                    old_contents = script.string
+                    new_contents = old_contents.replace(
+                        "const contents = ['api-guide', 'architecture', 'vpc-details', 'examples', 'testing'];",
+                        f"const contents = ['api-guide', 'architecture', 'vpc-details', 'examples', 'testing', '{tab_id}'];"
+                    )
+                    script.string = new_contents
+                    break
+            
+            return True
+    return False
 
 app = FastAPI(
     title="Cloud Networking Control Plane Simulator - Control Plane API",
@@ -413,129 +661,94 @@ async def openapi_json():
 
 @app.get("/", include_in_schema=False)
 async def vpc_view():
-    """Serve the VPC view HTML page"""
+    """Serve the VPC view HTML page with all markdown content"""
     vpc_html_path = os.path.join(os.path.dirname(__file__), "ui", "vpc.html")
     try:
         with open(vpc_html_path, "r") as f:
             html_content = f.read()
         
-        # Serve raw markdown content for client-side rendering
-        arch_content = get_processed_architecture_content()
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(html_content, "html.parser")
         
-        # Debug logging
-        print(f"DEBUG: arch_content type: {type(arch_content)}")
-        print(f"DEBUG: arch_content length: {len(arch_content) if arch_content else 'None'}")
-        if arch_content:
-            print(f"DEBUG: Contains LOGICAL OVERLAY: {'LOGICAL OVERLAY' in arch_content}")
+        # Define markdown files and their mapping to tabs
+        markdown_files = {
+            # Existing tabs - append content
+            "ARCHITECTURE.md": {
+                "tab_id": "content-architecture",
+                "action": "append",
+                "title": "Detailed Architecture Documentation",
+                "description": "Comprehensive architecture documentation from docs/ARCHITECTURE.md"
+            },
+            "API.md": {
+                "tab_id": "content-api-guide", 
+                "action": "append",
+                "title": "Complete API Documentation",
+                "description": "Full API reference and documentation from docs/API.md"
+            },
+            "TESTING.md": {
+                "tab_id": "content-testing",
+                "action": "append", 
+                "title": "Comprehensive Testing Guide",
+                "description": "Complete testing documentation and coverage from docs/TESTING.md"
+            },
+            "VPC.md": {
+                "tab_id": "content-vpc-details",
+                "action": "append",
+                "title": "VPC Implementation Details", 
+                "description": "Detailed VPC implementation and scenarios from docs/VPC.md"
+            },
+            
+            # New tabs - create dedicated tabs
+            "API_EXAMPLES.md": {
+                "tab_id": "api-examples",
+                "action": "new_tab",
+                "tab_name": "API Examples",
+                "icon": "📚",
+                "title": "API Usage Examples",
+                "description": "Comprehensive API examples and use cases from docs/API_EXAMPLES.md"
+            },
+            "IDEAS.md": {
+                "tab_id": "ideas",
+                "action": "new_tab", 
+                "tab_name": "Ideas",
+                "icon": "💡",
+                "title": "Project Ideas and Future Development",
+                "description": "Ideas for future features and improvements from docs/IDEAS.md"
+            },
+            "NETWORKING_IMPLEMENTATION.md": {
+                "tab_id": "implementation",
+                "action": "new_tab",
+                "tab_name": "Implementation",
+                "icon": "⚙️", 
+                "title": "Networking Implementation Details",
+                "description": "Deep dive into networking implementation from docs/NETWORKING_IMPLEMENTATION.md"
+            }
+        }
         
-        if arch_content:
-            from bs4 import BeautifulSoup
-            soup = BeautifulSoup(html_content, "html.parser")
-            arch_tab = soup.find("div", {"id": "content-architecture"})
-            if arch_tab:
-                # Keep the existing static content and append the ARCHITECTURE.md content
-                # This creates a hybrid view with both original content and detailed architecture
-                
-                # Add CSS for the appended content
-                new_arch_content = f"""
-                <style>
-                .architecture-content {{
-                    font-family: 'Segoe UI', Arial, sans-serif;
-                    line-height: 1.6;
-                }}
-                .architecture-content h1, .architecture-content h2, .architecture-content h3, .architecture-content h4 {{
-                    color: #232f3e;
-                    margin: 20px 0 10px 0;
-                }}
-                .architecture-content pre {{
-                    background: #f8f9fa;
-                    border: 1px solid #e9ecef;
-                    border-radius: 4px;
-                    padding: 16px;
-                    overflow-x: auto;
-                    margin: 15px 0;
-                }}
-                .architecture-content code {{
-                    background: #f8f9fa;
-                    padding: 2px 4px;
-                    border-radius: 3px;
-                    font-size: 0.9em;
-                }}
-                .architecture-content pre code {{
-                    background: transparent;
-                    padding: 0;
-                    font-family: 'Courier New', Consolas, monospace;
-                    font-size: 0.85em;
-                    line-height: 1.4;
-                }}
-                /* Fix for codehilite blocks generated by markdown */
-                .architecture-content .codehilite {{
-                    background: #f8f9fa;
-                    border: 1px solid #e9ecef;
-                    border-radius: 4px;
-                    padding: 16px;
-                    overflow-x: auto;
-                    margin: 15px 0;
-                }}
-                .architecture-content .codehilite pre {{
-                    background: transparent;
-                    border: none;
-                    padding: 0;
-                    margin: 0;
-                }}
-                .architecture-content .codehilite code {{
-                    background: transparent;
-                    padding: 0;
-                    font-family: 'Courier New', Consolas, monospace;
-                    font-size: 0.85em;
-                    line-height: 1.4;
-                }}
-                .architecture-content blockquote {{
-                    border-left: 4px solid #00897b;
-                    padding-left: 16px;
-                    margin: 15px 0;
-                    color: #666;
-                }}
-                .architecture-content table {{
-                    border-collapse: collapse;
-                    width: 100%;
-                    margin: 15px 0;
-                }}
-                .architecture-content th, .architecture-content td {{
-                    border: 1px solid #ddd;
-                    padding: 8px;
-                    text-align: left;
-                }}
-                .architecture-content th {{
-                    background: #f5f5f5;
-                    font-weight: bold;
-                }}
-                </style>
-                
-                <!-- Divider between original content and ARCHITECTURE.md -->
-                <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
-                    <h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 Detailed Architecture Documentation</h3>
-                    <p style="margin: 0; color: #555;">Below is the comprehensive architecture documentation from <code>docs/ARCHITECTURE.md</code></p>
-                </div>
-                
-                <div class="architecture-content">
-                    <div id="markdown-content" style="display: none;">{arch_content}</div>
-                    <div id="rendered-content"></div>
-                </div>
-                <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
-                <script>
-                    // Client-side markdown rendering for better performance
-                    const markdownContent = document.getElementById('markdown-content').textContent;
-                    const renderedContent = marked.parse(markdownContent);
-                    document.getElementById('rendered-content').innerHTML = renderedContent;
-                </script>
-                """
-                
-                # Append the new content to the existing tab
-                arch_tab.append(BeautifulSoup(new_arch_content, "html.parser"))
-                html_content = str(soup)
+        # Process each markdown file
+        for filename, config in markdown_files.items():
+            if config["action"] == "append":
+                # Append to existing tab
+                append_markdown_content(
+                    soup, 
+                    config["tab_id"], 
+                    filename, 
+                    config["title"], 
+                    config["description"]
+                )
+            elif config["action"] == "new_tab":
+                # Create new tab
+                create_new_tab(
+                    soup,
+                    config["tab_id"],
+                    config["tab_name"], 
+                    config["icon"],
+                    filename,
+                    config["title"],
+                    config["description"]
+                )
         
-        return HTMLResponse(html_content)
+        return HTMLResponse(str(soup))
     except FileNotFoundError:
         return HTMLResponse("<h1>VPC View Not Found</h1><p>The VPC view HTML file could not be found.</p>", status_code=404)
 

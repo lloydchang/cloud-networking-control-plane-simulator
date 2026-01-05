@@ -1502,7 +1502,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
         // Tab switching functionality
         function showTab(tabName) {
             // Hide all content divs
-            const contents = ['api-guide', 'architecture', 'vpc-details', 'examples', 'testing'];
+            const contents = ['api-guide', 'architecture', 'vpc-details', 'examples', 'testing', 'api-examples'];
             contents.forEach(content => {
                 const contentDiv = document.getElementById(`content-${content}`);
                 if (contentDiv) {
@@ -1553,7 +1553,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 <button id="tab-testing" onclick="showTab('testing')" style="background: none; border: none; padding: 10px; cursor: pointer;">🧪 Testing</button>
 <button onclick="window.open('https://cloud-networking-control-plane-simulator.vercel.app/redoc', '_blank')" style="background: none; border: none; padding: 10px; cursor: pointer; text-decoration: none; color: inherit;">📖 ReDoc</button>
 <button onclick="window.open('https://cloud-networking-control-plane-simulator.vercel.app/docs', '_blank')" style="background: none; border: none; padding: 10px; cursor: pointer; text-decoration: none; color: inherit;">📚 Docs</button>
-</div>
+<button id="tab-api-examples" onclick="showTab('api-examples')" style="background: none; border: none; padding: 10px; cursor: pointer;">📚 API Examples</button><button id="tab-ideas" onclick="showTab('ideas')" style="background: none; border: none; padding: 10px; cursor: pointer;">💡 Ideas</button><button id="tab-implementation" onclick="showTab('implementation')" style="background: none; border: none; padding: 10px; cursor: pointer;">⚙️ Implementation</button></div>
 <!-- API Guide Tab -->
 <div id="content-api-guide" style="display: block;">
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -1643,6 +1643,317 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 <li>Ports configurable via REST_PORT and GRPC_PORT environment variables</li>
 </ul>
 </div>
+
+<style>
+            .markdown-content {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                line-height: 1.6;
+            }
+            .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {
+                color: #232f3e;
+                margin: 20px 0 10px 0;
+            }
+            .markdown-content pre {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content code {
+                background: #f8f9fa;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }
+            .markdown-content pre code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content .codehilite {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content .codehilite pre {
+                background: transparent;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+            .markdown-content .codehilite code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content blockquote {
+                border-left: 4px solid #00897b;
+                padding-left: 16px;
+                margin: 15px 0;
+                color: #666;
+            }
+            .markdown-content table {
+                border-collapse: collapse;
+                width: 100%;
+                margin: 15px 0;
+            }
+            .markdown-content th, .markdown-content td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            .markdown-content th {
+                background: #f5f5f5;
+                font-weight: bold;
+            }
+            </style>
+<!-- Divider between original content and API.md -->
+<div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
+<h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 Complete API Documentation</h3>
+<p style="margin: 0; color: #555;">Full API reference and documentation from docs/API.md</p>
+</div>
+<div class="markdown-content">
+<div id="markdown-content-API-md" style="display: none;"># API Documentation
+
+The control plane provides a dual-interface architecture for managing the Cloud Networking Control Plane Simulator. For example, it allows users to use standard REST for intent declaration and high-performance gRPC for state inspection and telemetry.
+
+## Interface Overview
+
+| Interface | Default Port | Primary Purpose | Interactive Docs |
+|-----------|--------------|-----------------|------------------|
+| **REST**  | `8000`       | Intent Declaration (CRUD) | http://localhost:8000/redoc (ReDoc) |
+|||| http://localhost:8000/docs (OpenAPI / Swagger)
+| **gRPC**  | `50051`      | Performance &amp; Telemetry | [cloud_networking_control_plane_simulator.proto](../control-plane/proto/cloud_networking_control_plane_simulator.proto) |
+
+&gt; [!NOTE]
+&gt; **Configurability**: Default ports are defined in `control-plane/main.py`. These can be overridden via environment variables `REST_PORT` and `GRPC_PORT` when starting the service.
+
+## Resource Hierarchy
+
+The simulator follows a standard cloud resource hierarchy:
+
+```mermaid
+graph TD
+    VPC["VPC (Network Isolation)"] --&gt; Subnet["Subnet (L3 Segment)"]
+    VPC --&gt; Route["Route (Traffic Flow)"]
+    VPC --&gt; IGW["Internet Gateway (Public Access)"]
+    VPC --&gt; NAT["NAT Gateway (Outbound Only)"]
+    Subnet --&gt; SG["Security Group (Stateful Firewall)"]
+```
+
+---
+
+## REST API (v1)
+
+All endpoints return JSON responses. Use `Content-Type: application/json` for all `POST` requests.
+
+### Identification &amp; Deletion
+&gt; [!IMPORTANT]
+&gt; Resource IDs (e.g., `vpc-001`, `subnet-001`) are dynamically generated. Always perform a `GET` list operation to retrieve the correct ID before attempting a `DELETE` or specific `GET` request.
+
+### 1. VPCs (Virtual Private Clouds)
+
+**List VPCs**
+```bash
+curl -s -X GET http://localhost:8000/vpcs | jq
+```
+
+**Create VPC**
+```bash
+curl -s -X POST http://localhost:8000/vpcs \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "production-vpc",
+    "cidr": "10.100.0.0/16",
+    "region": "us-east-1"
+  }'
+```
+
+**Get VPC**
+```bash
+curl -s -X GET http://localhost:8000/vpcs/vpc-001
+```
+
+**Delete VPC**
+```bash
+curl -s -X DELETE http://localhost:8000/vpcs/vpc-001
+```
+
+### 2. Subnets
+
+**List Subnets in VPC**
+```bash
+curl -s -X GET http://localhost:8000/vpcs/vpc-001/subnets
+```
+
+**Create Subnet**
+```bash
+curl -s -X POST http://localhost:8000/vpcs/vpc-001/subnets \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "public-subnet-1a",
+    "cidr": "10.100.1.0/24",
+    "availability_zone": "us-east-1a"
+  }'
+```
+
+**Delete Subnet**
+```bash
+curl -s -X DELETE http://localhost:8000/subnets/subnet-001
+```
+
+### 3. Routes
+
+**List Routes in VPC**
+```bash
+curl -s -X GET http://localhost:8000/vpcs/vpc-001/routes
+```
+
+**Create Route**
+```bash
+curl -s -X POST http://localhost:8000/vpcs/vpc-001/routes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "destination": "0.0.0.0/0",
+    "next_hop": "igw-001",
+    "next_hop_type": "gateway"
+  }'
+```
+
+**Delete Route**
+```bash
+curl -s -X DELETE http://localhost:8000/routes/rtb-001
+```
+
+### 4. Gateways
+
+**Create Internet Gateway**
+```bash
+curl -s -X POST http://localhost:8000/vpcs/vpc-001/internet-gateways
+```
+
+**Create NAT Gateway**
+```bash
+curl -s -X POST http://localhost:8000/vpcs/vpc-001/nat-gateways \
+  -H "Content-Type: application/json" \
+  -d '{
+    "subnet_id": "subnet-001"
+  }'
+```
+
+### 5. Security Groups
+
+**Create Security Group**
+```bash
+curl -s -X POST http://localhost:8000/security-groups \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "web-tier",
+    "description": "Allow HTTP/HTTPS inbound",
+    "rules": [
+      {
+        "direction": "ingress", 
+        "protocol": "tcp", 
+        "port_from": 80, 
+        "port_to": 80, 
+        "cidr": "0.0.0.0/0"
+      },
+      {
+        "direction": "ingress", 
+        "protocol": "tcp", 
+        "port_from": 443, 
+        "port_to": 443, 
+        "cidr": "0.0.0.0/0"
+      }
+    ]
+  }'
+```
+
+**Attach Security Group to Instance**
+```bash
+curl -s -X POST "http://localhost:8000/security-groups/sg-001/attach?instance_id=10.1.1.10"
+```
+
+---
+
+## gRPC API
+
+The gRPC interface provides high-performance access to the network state. The service definition is located at `control-plane/proto/cloud_networking_control_plane_simulator.proto`.
+
+### Implementation Status
+
+| Service Method | Type | Status | Note |
+|----------------|------|--------|------|
+| `ListVPCs` | Unary | **Implemented** | Optimized for bulk reads |
+| `CreateVPC` | Unary | **Implemented** | Seamless background provisioning |
+| `WatchNetworkEvents` | Stream | **Read-Only** | Real-time event subscription |
+| `Full CRUD` | Unary | **Implemented** | Parity for Subnets, Routes, SGs, etc. |
+
+### Example: List VPCs
+
+**Request:** `ListVPCsRequest`
+```json
+{
+  "limit": 100,
+  "offset": 0
+}
+```
+
+**Sample Usage (grpcurl):**
+```bash
+grpcurl -plaintext -d '{"limit": 10}' localhost:50051 network.NetworkService/ListVPCs
+```
+
+&gt; [!TIP]
+&gt; Refer to the [cloud_networking_control_plane_simulator.proto](../control-plane/proto/cloud_networking_control_plane_simulator.proto) file for the full list of request/response messages and error codes.
+
+---
+
+## Error Handling
+
+The API uses standard HTTP status codes for errors.
+
+**Sample 404 Error (Resource Not Found):**
+```json
+{
+  "detail": "VPC not found"
+}
+```
+
+**Common Codes:**
+- `200 OK`: Success (GET/LIST)
+- `201 Created`: Success (POST)
+- `400 Bad Request`: Validation failure
+- `404 Not Found`: Resource ID does not exist
+- `500 Internal Server Error`: Unexpected simulator failure
+
+## Interactive Documentation
+
+FastAPI automatically generates comprehensive interactive documentation. For a full list of schemas and to test endpoints within the browser, visit:
+
+| UI | URL | Description |
+|----|-----|-------------|
+| **Swagger UI** | [http://localhost:8000/docs](http://localhost:8000/docs) | Interactive API explorer with "Try it out" functionality |
+| **ReDoc** | [http://localhost:8000/redoc](http://localhost:8000/redoc) | Clean, readable API reference documentation |
+</div>
+<div id="rendered-content-API-md"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+<script>
+                // Client-side markdown rendering for API.md
+                const markdownContentAPI-md = document.getElementById('markdown-content-API-md').textContent;
+                const renderedContentAPI-md = marked.parse(markdownContentAPI-md);
+                document.getElementById('rendered-content-API-md').innerHTML = renderedContentAPI-md;
+            </script>
 </div>
 <!-- Architecture Tab -->
 <div id="content-architecture" style="display: none;">
@@ -1696,101 +2007,106 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 </div>
 
 <style>
-        .architecture-content {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            line-height: 1.6;
-        }
-        .architecture-content h1, .architecture-content h2, .architecture-content h3, .architecture-content h4 {
-            color: #232f3e;
-            margin: 20px 0 10px 0;
-        }
-        .architecture-content pre {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 4px;
-            padding: 16px;
-            overflow-x: auto;
-            margin: 15px 0;
-        }
-        .architecture-content code {
-            background: #f8f9fa;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-size: 0.9em;
-        }
-        .architecture-content pre code {
-            background: transparent;
-            padding: 0;
-            font-family: 'Courier New', Consolas, monospace;
-            font-size: 0.85em;
-            line-height: 1.4;
-        }
-        /* Fix for codehilite blocks generated by markdown */
-        .architecture-content .codehilite {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 4px;
-            padding: 16px;
-            overflow-x: auto;
-            margin: 15px 0;
-        }
-        .architecture-content .codehilite pre {
-            background: transparent;
-            border: none;
-            padding: 0;
-            margin: 0;
-        }
-        .architecture-content .codehilite code {
-            background: transparent;
-            padding: 0;
-            font-family: 'Courier New', Consolas, monospace;
-            font-size: 0.85em;
-            line-height: 1.4;
-        }
-        .architecture-content blockquote {
-            border-left: 4px solid #00897b;
-            padding-left: 16px;
-            margin: 15px 0;
-            color: #666;
-        }
-        .architecture-content table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 15px 0;
-        }
-        .architecture-content th, .architecture-content td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        .architecture-content th {
-            background: #f5f5f5;
-            font-weight: bold;
-        }
-        </style>
+            .markdown-content {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                line-height: 1.6;
+            }
+            .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {
+                color: #232f3e;
+                margin: 20px 0 10px 0;
+            }
+            .markdown-content pre {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content code {
+                background: #f8f9fa;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }
+            .markdown-content pre code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content .codehilite {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content .codehilite pre {
+                background: transparent;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+            .markdown-content .codehilite code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content blockquote {
+                border-left: 4px solid #00897b;
+                padding-left: 16px;
+                margin: 15px 0;
+                color: #666;
+            }
+            .markdown-content table {
+                border-collapse: collapse;
+                width: 100%;
+                margin: 15px 0;
+            }
+            .markdown-content th, .markdown-content td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            .markdown-content th {
+                background: #f5f5f5;
+                font-weight: bold;
+            }
+            </style>
 <!-- Divider between original content and ARCHITECTURE.md -->
 <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
 <h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 Detailed Architecture Documentation</h3>
-<p style="margin: 0; color: #555;">Below is the comprehensive architecture documentation from <code>docs/ARCHITECTURE.md</code></p>
+<p style="margin: 0; color: #555;">Comprehensive architecture documentation from docs/ARCHITECTURE.md</p>
 </div>
-<div class="architecture-content">
-<div id="markdown-content" style="display: none;"><h1 id="architecture-details-cloud-networking-control-plane-simulator">Architecture Details: Cloud Networking Control Plane Simulator</h1>
-<p>This document provides a deep dive into the architectural components, data flows, and infrastructure mapping of the Cloud Networking Control Plane Simulator.</p>
-<h2 id="core-concepts-terminology">Core Concepts &amp; Terminology</h2>
-<p>Before diving into the technical details, it is important to distinguish between the two primary networking layers. This simulator relies on <strong>FRRouting (FRR) containers</strong> for BGP EVPN functionality to achieve full overlay behavior.</p>
-<ul>
-<li><strong>Physical Fabric (Fabric)</strong>: The underlying Docker-based network that provides basic reachability between nodes (Spines, Leafs, and Control Plane). This mirrors a physical data center leaf-spine topology.</li>
-<li><strong>Logical Overlay (VXLAN-EVPN Overlay Plane)</strong>: The virtualized network built on top of the Fabric using <strong>VXLAN</strong> and <strong>BGP EVPN</strong>. These terms are synonymous in this documentation. This layer provides VPC isolation, Layer-2 extension across leafs, and Layer-3 routing between subnets.</li>
-<li><strong>Cloud Routing Hub</strong>: A centralized routing aggregation point that enables transitive routing between multiple VPCs (Hub-and-Spoke). It acts as the "glue" for complex enterprise topologies, facilitating secure east-west traffic inspection and global reachability.</li>
-</ul>
-<h2 id="system-architecture">System Architecture</h2>
-<p>The following diagram illustrates the logical overlay and its relationship with the Physical Fabric and control plane.</p>
-<blockquote>
-<p>[!NOTE]
-Diagrams are simplified for clarity. This simulator focuses on <strong>Control Plane correctness</strong> and <strong>Intent reconciliation</strong>. High-throughput data plane behavior is secondary to functional correctness and protocol stability.</p>
-<p><strong>Platform Compatibility</strong>: Native Linux VRFs are used where supported. On platforms without native VRF kernel modules—such as <strong>Apple Silicon (M1-M4) via Docker Desktop</strong>—the simulator automatically falls back to <strong><code>iptables</code></strong> for logical isolation.</p>
-</blockquote>
-<div class="codehilite"><pre><span></span><code>        ┌───────────────────────────────────────────────────────────────┐
+<div class="markdown-content">
+<div id="markdown-content-ARCHITECTURE-md" style="display: none;"># Architecture Details: Cloud Networking Control Plane Simulator
+
+This document provides a deep dive into the architectural components, data flows, and infrastructure mapping of the Cloud Networking Control Plane Simulator.
+
+## Core Concepts &amp; Terminology
+
+Before diving into the technical details, it is important to distinguish between the two primary networking layers. This simulator relies on **FRRouting (FRR) containers** for BGP EVPN functionality to achieve full overlay behavior.
+
+*   **Physical Fabric (Fabric)**: The underlying Docker-based network that provides basic reachability between nodes (Spines, Leafs, and Control Plane). This mirrors a physical data center leaf-spine topology.
+*   **Logical Overlay (VXLAN-EVPN Overlay Plane)**: The virtualized network built on top of the Fabric using **VXLAN** and **BGP EVPN**. These terms are synonymous in this documentation. This layer provides VPC isolation, Layer-2 extension across leafs, and Layer-3 routing between subnets.
+*   **Cloud Routing Hub**: A centralized routing aggregation point that enables transitive routing between multiple VPCs (Hub-and-Spoke). It acts as the "glue" for complex enterprise topologies, facilitating secure east-west traffic inspection and global reachability.
+
+## System Architecture
+
+The following diagram illustrates the logical overlay and its relationship with the Physical Fabric and control plane.
+
+&gt; [!NOTE]
+&gt; Diagrams are simplified for clarity. This simulator focuses on **Control Plane correctness** and **Intent reconciliation**. High-throughput data plane behavior is secondary to functional correctness and protocol stability.
+&gt;
+&gt; **Platform Compatibility**: Native Linux VRFs are used where supported. On platforms without native VRF kernel modules—such as **Apple Silicon (M1-M4) via Docker Desktop**—the simulator automatically falls back to **`iptables`** for logical isolation.
+
+```text
+        ┌───────────────────────────────────────────────────────────────┐
         │                       LOGICAL OVERLAY                         │
         │ ┌────────────────┐ ┌────────────────┐ ┌─────────────────────┐ │
         │ │     vpc-100    │ │     vpc-200    │ │      Internet       │ │
@@ -1835,74 +2151,133 @@ Diagrams are simplified for clarity. This simulator focuses on <strong>Control P
      │ Load-Balancer│ &lt;────────────────────────────────────┘
      │ (VPC-100)    │
      └──────────────┘
-</code></pre></div>
-<p>This diagram is describing a VXLAN EVPN based data center network and how multiple isolated virtual networks reach each other and the internet.</p>
-<p>Here is the meaning, top to bottom, left to right.</p>
-<p>At the top, “Logical Overlay” means this is not physical wiring. It is virtual networking built on top of the physical fabric.</p>
-<p>vpc-100 and vpc-200 are separate virtual networks. Each one has:</p>
-<p>A VNI, VXLAN Network Identifier. This is the VXLAN equivalent of a VLAN, but at much larger scale.</p>
-<p>A VRF, Virtual Routing and Forwarding instance. This keeps routing tables isolated so vpc-100 and vpc-200 cannot see each other unless explicitly connected.</p>
-<p>A CIDR block. 10.1.0.0/16 for vpc-100 and 10.2.0.0/16 for vpc-200. These are private IP ranges used inside each virtual network.</p>
-<p>The “Internet” box with 203.0.113.0/24 represents an external network. 203.0.113.0/24 is a documentation-only prefix reserved for examples, not real internet space. That signals this is a simulated WAN, not production addressing. This prefix is defined in RFC 5737.</p>
-<p>The VXLAN EVPN Overlay Plane is the control plane. It distributes reachability information between switches:</p>
-<p>EVPN Type 2 routes advertise MAC and IP bindings. This lets hosts move and still be reachable.</p>
-<p>EVPN Type 5 routes advertise pure Layer 3 prefixes. This is used for routing between VRFs or toward external networks.</p>
-<p>Synchronizing VRFs and VNIs across leafs means every leaf switch learns the same virtual network state.</p>
-<p>The Internet-GW and NAT-Gateway represent the exit point from the private overlays to the external network. NAT is doing SNAT and possibly DNAT so private 10.x addresses can communicate with public or simulated public addresses. NAT behavior is defined in RFC 3022.</p>
-<p>Spine-1 and Spine-2 are the physical fabric core. They do not host endpoints. They provide high bandwidth IP forwarding between leaf switches. The bidirectional arrows mean ECMP and redundant paths.</p>
-<p>Leaf-1 and Leaf-2 are where VXLAN encapsulation and decapsulation happen. Each leaf:</p>
-<p>Participates in BGP EVPN.</p>
-<p>Hosts VNIs 100 and 200.</p>
-<p>Maintains VRFs for the virtual networks.</p>
-<p>Has its own ASN, indicating eBGP is used inside the fabric, a common design for fast convergence.</p>
-<p>Servers attach to the leaf switches. Server-1 and Server-2 are both in vpc-100 but on different subnets. Because EVPN distributes MAC and IP reachability, they can communicate as if they were on the same logical network even though they are on different physical switches.</p>
-<p>The load balancer is also inside vpc-100. The arrow from the NAT-Gateway to the load balancer indicates inbound traffic from the external network can be translated and forwarded to services inside the VPC.</p>
-<p>In short, this diagram means:</p>
-<p>You have a spine leaf fabric.</p>
-<p>VXLAN provides Layer 2 and Layer 3 overlays.</p>
-<p>EVPN with BGP is the control plane.</p>
-<p>VRFs isolate tenants or VPCs.</p>
-<p>NAT provides controlled access to an external network.</p>
-<p>All of this runs over a simple IP routed physical network.</p>
-<p>Key standards behind this design include RFC 7348 for VXLAN, RFC 7432 and RFC 8365 for EVPN, RFC 4364 for VRFs, and RFC 3022 for NAT.</p>
-<hr/>
-<p><strong>Q:</strong> Does it make sense?</p>
-<p><strong>A:</strong> Yes, it makes sense, but it is not perfect and a few things are either ambiguous or slightly misleading.</p>
-<p>What is correct:</p>
-<p>The overall architecture is coherent. A spine leaf fabric with VXLAN EVPN overlays, VRF based tenant isolation, and a centralized or shared NAT gateway for internet access is a standard and valid design. Using EVPN Type 2 for MAC and IP learning and Type 5 for Layer 3 prefixes is correct and aligns with RFC 7432 and RFC 8365. Using separate ASNs on leafs and running eBGP in the fabric is also a common and sound practice.</p>
-<p>The use of 203.0.113.0/24 to represent the internet is correct for documentation and explicitly non routable, as defined in RFC 5737.</p>
-<p>Where it becomes unclear or weak:</p>
-<p>First, the placement of the Internet-GW and NAT-Gateway is ambiguous. In real VXLAN EVPN designs, NAT is usually implemented on a border leaf or service leaf, not as a floating logical box disconnected from the fabric. The diagram suggests the NAT gateway is outside the EVPN domain but still tightly integrated, which is not explained.</p>
-<p>Second, the relationship between EVPN Type 5 routes and NAT is not shown clearly. Typically, the default route 0.0.0.0/0 is leaked into tenant VRFs via EVPN Type 5 from the border leaf. That mechanism is not depicted, so the control plane path to the internet is implied rather than shown.</p>
-<p>Third, Leaf-1 and Leaf-2 list only VRF vpc-100, yet earlier the diagram claims both VNIs 100 and 200 are present on the leafs. If vpc-200 exists, its VRF should be explicitly shown on the leafs as well, or else it looks like a partial or inconsistent configuration.</p>
-<p>Fourth, the load balancer arrow from the NAT-Gateway implies inbound connectivity, but no DNAT, VIP, or route advertisement mechanism is shown. Without EVPN Type 5 prefix injection or service chaining details, this part is conceptually correct but operationally underspecified.</p>
-<p>Fifth, spines are shown as participating in bidirectional links with VXLAN semantics. In most designs, spines are pure IP transit and are unaware of VXLAN and EVPN beyond BGP underlay reachability. The diagram does not say this explicitly, which could confuse readers.</p>
-<p>Bottom line:</p>
-<p>Conceptually, yes, it makes sense and describes a valid VXLAN EVPN architecture. Technically, it is a high level logical diagram, not an implementation diagram. If this were documentation for engineers, it would need clarification around border leaf roles, default route propagation, NAT placement, and consistent VRF representation.</p>
-<p>This aligns with standard data center designs described in RFC 8365 and common vendor reference architectures from Cisco, Arista, and Juniper.</p>
-<h2 id="data-flows">Data Flows</h2>
-<h3 id="inbound-traffic-traversal-internet-to-vpc">Inbound Traffic Traversal (Internet to VPC)</h3>
-<p>This diagram shows how a request at <code>localhost:8080</code> traverses the simulated layers to reach a VPC server.</p>
-<div class="codehilite"><pre><span></span><code>[ User ] ──▶ [ Port 8080 ] ──▶ [ Load-Balancer ] ──▶ [ Fabric (VXLAN) ] ──▶ [ Server-1 ]
+```
+
+This diagram is describing a VXLAN EVPN based data center network and how multiple isolated virtual networks reach each other and the internet.
+
+Here is the meaning, top to bottom, left to right.
+
+At the top, “Logical Overlay” means this is not physical wiring. It is virtual networking built on top of the physical fabric.
+
+vpc-100 and vpc-200 are separate virtual networks. Each one has:
+
+A VNI, VXLAN Network Identifier. This is the VXLAN equivalent of a VLAN, but at much larger scale.
+
+A VRF, Virtual Routing and Forwarding instance. This keeps routing tables isolated so vpc-100 and vpc-200 cannot see each other unless explicitly connected.
+
+A CIDR block. 10.1.0.0/16 for vpc-100 and 10.2.0.0/16 for vpc-200. These are private IP ranges used inside each virtual network.
+
+The “Internet” box with 203.0.113.0/24 represents an external network. 203.0.113.0/24 is a documentation-only prefix reserved for examples, not real internet space. That signals this is a simulated WAN, not production addressing. This prefix is defined in RFC 5737.
+
+The VXLAN EVPN Overlay Plane is the control plane. It distributes reachability information between switches:
+
+EVPN Type 2 routes advertise MAC and IP bindings. This lets hosts move and still be reachable.
+
+EVPN Type 5 routes advertise pure Layer 3 prefixes. This is used for routing between VRFs or toward external networks.
+
+Synchronizing VRFs and VNIs across leafs means every leaf switch learns the same virtual network state.
+
+The Internet-GW and NAT-Gateway represent the exit point from the private overlays to the external network. NAT is doing SNAT and possibly DNAT so private 10.x addresses can communicate with public or simulated public addresses. NAT behavior is defined in RFC 3022.
+
+Spine-1 and Spine-2 are the physical fabric core. They do not host endpoints. They provide high bandwidth IP forwarding between leaf switches. The bidirectional arrows mean ECMP and redundant paths.
+
+Leaf-1 and Leaf-2 are where VXLAN encapsulation and decapsulation happen. Each leaf:
+
+Participates in BGP EVPN.
+
+Hosts VNIs 100 and 200.
+
+Maintains VRFs for the virtual networks.
+
+Has its own ASN, indicating eBGP is used inside the fabric, a common design for fast convergence.
+
+Servers attach to the leaf switches. Server-1 and Server-2 are both in vpc-100 but on different subnets. Because EVPN distributes MAC and IP reachability, they can communicate as if they were on the same logical network even though they are on different physical switches.
+
+The load balancer is also inside vpc-100. The arrow from the NAT-Gateway to the load balancer indicates inbound traffic from the external network can be translated and forwarded to services inside the VPC.
+
+In short, this diagram means:
+
+You have a spine leaf fabric.
+
+VXLAN provides Layer 2 and Layer 3 overlays.
+
+EVPN with BGP is the control plane.
+
+VRFs isolate tenants or VPCs.
+
+NAT provides controlled access to an external network.
+
+All of this runs over a simple IP routed physical network.
+
+Key standards behind this design include RFC 7348 for VXLAN, RFC 7432 and RFC 8365 for EVPN, RFC 4364 for VRFs, and RFC 3022 for NAT.
+
+---
+
+**Q:** Does it make sense?
+
+**A:** Yes, it makes sense, but it is not perfect and a few things are either ambiguous or slightly misleading.
+
+What is correct:
+
+The overall architecture is coherent. A spine leaf fabric with VXLAN EVPN overlays, VRF based tenant isolation, and a centralized or shared NAT gateway for internet access is a standard and valid design. Using EVPN Type 2 for MAC and IP learning and Type 5 for Layer 3 prefixes is correct and aligns with RFC 7432 and RFC 8365. Using separate ASNs on leafs and running eBGP in the fabric is also a common and sound practice.
+
+The use of 203.0.113.0/24 to represent the internet is correct for documentation and explicitly non routable, as defined in RFC 5737.
+
+Where it becomes unclear or weak:
+
+First, the placement of the Internet-GW and NAT-Gateway is ambiguous. In real VXLAN EVPN designs, NAT is usually implemented on a border leaf or service leaf, not as a floating logical box disconnected from the fabric. The diagram suggests the NAT gateway is outside the EVPN domain but still tightly integrated, which is not explained.
+
+Second, the relationship between EVPN Type 5 routes and NAT is not shown clearly. Typically, the default route 0.0.0.0/0 is leaked into tenant VRFs via EVPN Type 5 from the border leaf. That mechanism is not depicted, so the control plane path to the internet is implied rather than shown.
+
+Third, Leaf-1 and Leaf-2 list only VRF vpc-100, yet earlier the diagram claims both VNIs 100 and 200 are present on the leafs. If vpc-200 exists, its VRF should be explicitly shown on the leafs as well, or else it looks like a partial or inconsistent configuration.
+
+Fourth, the load balancer arrow from the NAT-Gateway implies inbound connectivity, but no DNAT, VIP, or route advertisement mechanism is shown. Without EVPN Type 5 prefix injection or service chaining details, this part is conceptually correct but operationally underspecified.
+
+Fifth, spines are shown as participating in bidirectional links with VXLAN semantics. In most designs, spines are pure IP transit and are unaware of VXLAN and EVPN beyond BGP underlay reachability. The diagram does not say this explicitly, which could confuse readers.
+
+Bottom line:
+
+Conceptually, yes, it makes sense and describes a valid VXLAN EVPN architecture. Technically, it is a high level logical diagram, not an implementation diagram. If this were documentation for engineers, it would need clarification around border leaf roles, default route propagation, NAT placement, and consistent VRF representation.
+
+This aligns with standard data center designs described in RFC 8365 and common vendor reference architectures from Cisco, Arista, and Juniper.
+
+## Data Flows
+
+### Inbound Traffic Traversal (Internet to VPC)
+
+This diagram shows how a request at `localhost:8080` traverses the simulated layers to reach a VPC server.
+
+```text
+[ User ] ──▶ [ Port 8080 ] ──▶ [ Load-Balancer ] ──▶ [ Fabric (VXLAN) ] ──▶ [ Server-1 ]
                 │                   │                     │                    │
              Host IP            LB Container        (Decapsulation)         VPC Subnet
           (203.0.113.1)         (10.0.0.100)           (at Leaf)           (10.1.1.10)
-</code></pre></div>
-<h3 id="outbound-traffic-traversal-vpc-to-internet">Outbound Traffic Traversal (VPC to Internet)</h3>
-<p>For outbound traffic, the server routes through the Leaf, which performs VTEP encapsulation or local routing, eventually passing through the NAT Gateway.</p>
-<div class="codehilite"><pre><span></span><code>[ Server-1 ] ──▶ [ Leaf-1 ] ──▶ [ NAT-Gateway ] ──▶ [ Internet-GW ] ──▶ [ Internet ]
+```
+
+### Outbound Traffic Traversal (VPC to Internet)
+
+For outbound traffic, the server routes through the Leaf, which performs VTEP encapsulation or local routing, eventually passing through the NAT Gateway.
+
+```text
+[ Server-1 ] ──▶ [ Leaf-1 ] ──▶ [ NAT-Gateway ] ──▶ [ Internet-GW ] ──▶ [ Internet ]
       │             │               │                   │                  │
   VPC Subnet     (Encap)        (SNAT Logic)          Public IP          External
  (10.1.1.10)   (VNI 100)      (NAT Container)      (203.0.113.50)        (WAN)
-</code></pre></div>
-<h2 id="docker-infrastructure-map">Docker Infrastructure Map</h2>
-<p>This section maps the architectural concepts above to the physical Docker resources. Note that <code>Leaf-X</code> and <code>Spine-X</code> are single-instance containers for simulator purposes; high-availability redundancy is not modeled. Additionally, VRF/VNI mapping is logical and depends on the host kernel's capability.</p>
-<h3 id="container-naming-policy">Container Naming Policy</h3>
-<p>Standard Docker Compose naming: <code>[project]-[service]-[replica]</code>
-*   Example: <code>cloud-networking-control-plane-simulator-control-plane-1</code></p>
-<h3 id="network-mesh-layout">Network Mesh Layout</h3>
-<p>Docker uses <strong>Underscores</strong> for network namespaces and <strong>Hyphens</strong> for container hostnames.</p>
-<div class="codehilite"><pre><span></span><code>                                NETWORK INFRASTRUCTURE (Docker)
+```
+
+## Docker Infrastructure Map
+
+This section maps the architectural concepts above to the physical Docker resources. Note that `Leaf-X` and `Spine-X` are single-instance containers for simulator purposes; high-availability redundancy is not modeled. Additionally, VRF/VNI mapping is logical and depends on the host kernel's capability.
+
+### Container Naming Policy
+Standard Docker Compose naming: `[project]-[service]-[replica]`
+*   Example: `cloud-networking-control-plane-simulator-control-plane-1`
+
+### Network Mesh Layout
+Docker uses **Underscores** for network namespaces and **Hyphens** for container hostnames.
+
+```text
+                                NETWORK INFRASTRUCTURE (Docker)
         ┌───────────────────────────────────────────────────────────────────────────────────────────┐
         │                EXTERNAL NETWORK: cloud-networking-control-plane-simulator_internet        │
         │                         (Docker Bridge: 203.0.113.0/24)                                   │
@@ -1928,12 +2303,18 @@ Diagrams are simplified for clarity. This simulator focuses on <strong>Control P
               │   Server-1   ││   Server-4   │
               │   (VPC-100)  ││   (VPC-200)  │
               └──────────────┘└──────────────┘
-</code></pre></div>
-<h2 id="control-plane-internals">Control Plane Internals</h2>
-<p>The Control Plane manages the entire life cycle of the simulated network.</p>
-<h3 id="reconciliation-lifecycle-closed-loop">Reconciliation Lifecycle (Closed Loop)</h3>
-<p>The Reconciliation Engine implements a periodic, "Closed Loop" orchestration cycle to ensure the system converges on the desired state. This cycle is <strong>idempotent</strong>, meaning it can safely re-run without side effects.</p>
-<div class="codehilite"><pre><span></span><code>        ┌──────────────┐       ┌──────────────┐
+```
+
+## Control Plane Internals
+
+The Control Plane manages the entire life cycle of the simulated network.
+
+### Reconciliation Lifecycle (Closed Loop)
+
+The Reconciliation Engine implements a periodic, "Closed Loop" orchestration cycle to ensure the system converges on the desired state. This cycle is **idempotent**, meaning it can safely re-run without side effects.
+
+```text
+        ┌──────────────┐       ┌──────────────┐
    ────▶│ Intent Store │──────▶│ Diff Engine  │───┐
         │ (Desired)    │       │ (Comparison) │   │
         └──────────────┘       └──────▲───────┘   │
@@ -1942,18 +2323,21 @@ Diagrams are simplified for clarity. This simulator focuses on <strong>Control P
                │               │ Observation │  │ Enforcement  │
                └───────────────┤ (Heartbeat) │◀─┤ (Healing)    │
                                └─────────────┘  └──────────────┘
-</code></pre></div>
-<h4 id="orchestration-steps">Orchestration Steps</h4>
-<ol>
-<li><strong>Fetch</strong>: Queries the SQLite <code>Intent Store</code> for the desired network state (VPCs, VNIs, Subnets).</li>
-<li><strong>Discover</strong>: Inspects the running environment (leaf switches) using <code>ip link</code>, <code>ip addr</code>, and <code>iptables-save</code> to determine the actual state.</li>
-<li><strong>Diff</strong>: Computes the specific delta between intended and actual resource states.</li>
-<li><strong>Action</strong>: Executes enforcement commands (<code>ip link add</code>, <code>iptables -A</code>, etc.) to reconcile the differences.</li>
-</ol>
-<h4 id="core-principle-idempotency">Core Principle: Idempotency</h4>
-<p>All reconciliation operations are designed to be <strong>idempotent</strong>. The system can safely re-run the same "Action" commands multiple times without side effects, ensuring that any transient failures or manual drifts are automatically corrected in the next cycle.</p>
-<h3 id="component-architecture">Component Architecture</h3>
-<div class="codehilite"><pre><span></span><code>                                        ┌──────────────────┐
+```
+
+#### Orchestration Steps
+1. **Fetch**: Queries the SQLite `Intent Store` for the desired network state (VPCs, VNIs, Subnets).
+2. **Discover**: Inspects the running environment (leaf switches) using `ip link`, `ip addr`, and `iptables-save` to determine the actual state.
+3. **Diff**: Computes the specific delta between intended and actual resource states.
+4. **Action**: Executes enforcement commands (`ip link add`, `iptables -A`, etc.) to reconcile the differences.
+
+#### Core Principle: Idempotency
+All reconciliation operations are designed to be **idempotent**. The system can safely re-run the same "Action" commands multiple times without side effects, ensuring that any transient failures or manual drifts are automatically corrected in the next cycle.
+
+### Component Architecture
+
+```text
+                                        ┌──────────────────┐
                                         │   User / CI/CD   │
                                         └─────────┬────────┘
                                                   │ (REST/gRPC)
@@ -1984,30 +2368,36 @@ Diagrams are simplified for clarity. This simulator focuses on <strong>Control P
              │                                                  │
       [ pyroute2 handles ]                              [ BGP Peering handled ]
       [ local netns/links]                              [ by FRR externally   ]
-</code></pre></div>
-<h3 id="logical-isolation-vs-native-enforcement">Logical Isolation vs. Native Enforcement</h3>
-<p>A key architectural feature is the <strong>Graceful Fallback</strong> for VPC isolation:
-*   <strong>Target</strong>: The reconciler attempts to use native Linux <code>vrf</code> devices for L3 isolation.
-*   <strong>Detection</strong>: If the kernel returns <code>RTNETLINK answers: Not supported</code> (common on Apple Silicon hosts), the reconciler detects this missing capability.
-*   <strong>Fallback</strong>: The system automatically switches to <strong><code>iptables</code></strong> based isolation. This ensures that even without native kernel VRFs, VPC boundaries are enforced within the simulator environment.</p>
-<h3 id="container-dependency">Container Dependency</h3>
-<p>While the Control Plane logic and reconciliation can be tested in isolation, the <strong>FRR containers are required</strong> for full overlay behavior. They handle the BGP EVPN control plane (Type-2 and Type-5 route exchange) that enables cross-leaf communication. Note: While commercial distributions like SONiC often use FRR as their internal control plane, this simulator uses standalone FRR containers for simplicity. No SONiC-specific features or ConfigDB integrations are currently active.</p>
-<h3 id="codebase-structure">Codebase Structure</h3>
-<p>The control plane logic is organized to separate scenario definition from core reconciliation logic.</p>
-<ul>
-<li><strong><code>control-plane/scripts/create_demo_scenarios.py</code></strong>: The main entry point for generating the simulator. It orchestrates the setup and teardown of resources.</li>
-<li><strong><code>control-plane/scripts/demo_scenarios/</code></strong>: A package containing modularized scenario definitions.<ul>
-<li><code>basic.py</code>: Fundamental scenarios (1-10) like Single VPC, Multi-tier, etc.</li>
-<li><code>intermediate.py</code>: More complex setups (11-20) including Hub-and-Spoke and Peering.</li>
-<li><code>advanced.py</code>: Enterprise-grade scenarios (21-35) covering Global Transit, Shared VPCs, and Legacy integrations.</li>
-</ul>
-</li>
-<li><strong><code>control-plane/api/rest_api_server.py</code></strong>: The API Server (<code>/vpc</code>) and SQLite Intent Store definitions.</li>
-<li><strong><code>control-plane/reconciler/reconciler.py</code></strong>: Contains the core <code>ReconciliationEngine</code> that enforces the desired state on the fabric.</li>
-</ul>
-<h2 id="cicd-pipeline-flow">CI/CD Pipeline Flow</h2>
-<p>The CI/CD flow ensures that configuration changes are validated before being rolled out to the entire Fabric.</p>
-<div class="codehilite"><pre><span></span><code>User          Canary Script        Leaf-1 (Canary)      Leaf-2/3 (Prod)
+```
+
+### Logical Isolation vs. Native Enforcement
+
+A key architectural feature is the **Graceful Fallback** for VPC isolation:
+*   **Target**: The reconciler attempts to use native Linux `vrf` devices for L3 isolation.
+*   **Detection**: If the kernel returns `RTNETLINK answers: Not supported` (common on Apple Silicon hosts), the reconciler detects this missing capability.
+*   **Fallback**: The system automatically switches to **`iptables`** based isolation. This ensures that even without native kernel VRFs, VPC boundaries are enforced within the simulator environment.
+
+### Container Dependency
+While the Control Plane logic and reconciliation can be tested in isolation, the **FRR containers are required** for full overlay behavior. They handle the BGP EVPN control plane (Type-2 and Type-5 route exchange) that enables cross-leaf communication. Note: While commercial distributions like SONiC often use FRR as their internal control plane, this simulator uses standalone FRR containers for simplicity. No SONiC-specific features or ConfigDB integrations are currently active.
+
+### Codebase Structure
+
+The control plane logic is organized to separate scenario definition from core reconciliation logic.
+
+*   **`control-plane/scripts/create_demo_scenarios.py`**: The main entry point for generating the simulator. It orchestrates the setup and teardown of resources.
+*   **`control-plane/scripts/demo_scenarios/`**: A package containing modularized scenario definitions.
+    *   `basic.py`: Fundamental scenarios (1-10) like Single VPC, Multi-tier, etc.
+    *   `intermediate.py`: More complex setups (11-20) including Hub-and-Spoke and Peering.
+    *   `advanced.py`: Enterprise-grade scenarios (21-35) covering Global Transit, Shared VPCs, and Legacy integrations.
+*   **`control-plane/api/rest_api_server.py`**: The API Server (`/vpc`) and SQLite Intent Store definitions.
+*   **`control-plane/reconciler/reconciler.py`**: Contains the core `ReconciliationEngine` that enforces the desired state on the fabric.
+
+## CI/CD Pipeline Flow
+
+The CI/CD flow ensures that configuration changes are validated before being rolled out to the entire Fabric.
+
+```text
+User          Canary Script        Leaf-1 (Canary)      Leaf-2/3 (Prod)
  │                 │                    │                     │
  ├─── make canary ─▶                    │                     │
  │                 ├── 1. Validate ────▶│                     │
@@ -2026,62 +2416,71 @@ Diagrams are simplified for clarity. This simulator focuses on <strong>Control P
  │                 ├── 5. Rollback ────▶│                     │
  │                 │                    │                     │
  ◀─── (Exit Code) ─┘                    │                     │
-</code></pre></div>
-<h3 id="canary-verification-methods">Canary Verification Methods</h3>
-<p>The <code>canary.sh</code> script employs several verification techniques to ensure stability:
-*   <strong>Configuration Hash</strong>: Compares the intended configuration state against a hash of the current active configuration on the leaf switch.
-*   <strong>Connectivity Probes</strong>: Executes <code>ping</code> and <code>curl</code> commands from within VPC server namespaces to verify end-to-end reachability.
-*   <strong>BGP Session Status</strong>: Queries the FRR API to ensure BGP EVPN peering is "Established" and routes are being exchanged.</p>
-<h2 id="logging-telemetry-observation">Logging, Telemetry &amp; Observation</h2>
-<p>As a simulator, observability is crucial for understanding the "closed-loop" behavior.</p>
-<ul>
-<li><strong>Metrics</strong>: The Control Plane exposes a Prometheus metric endpoint (<code>/metrics</code>). Key signals include <code>reconciliation_duration_ms</code>, <code>active_vpcs_count</code>, and <code>drift_detected_total</code>.</li>
-<li><strong>Logging</strong>: All containers output logs to <code>stdout/stderr</code>, which are aggregated by Docker. The reconciler provides detailed trace-level logging of every "Discover" and "Action" step.</li>
-<li><strong>State Inspection</strong>: The SQLite <code>Intent Store</code> can be queried directly to see the "Source of Truth" at any time.</li>
-</ul>
-<h2 id="vpc-view">VPC View</h2>
-<p>The simulator includes a dedicated visual <strong>VPC View</strong> accessible via <code>make vpc</code> or <code>http://localhost:8000/vpc</code>.</p>
-<h3 id="design-philosophy">Design Philosophy:</h3>
-<p>The visual <strong>VPC View</strong> ignores the Docker host environment and renders only the resources defined in the Control Plane database (VPCs, Subnets, Gateways, Leaves).</p>
-<h3 id="persona-the-cloud-networking-architect">Persona: The Cloud Networking Architect</h3>
-<p>The VPC View is designed specifically for the <strong>Cloud Networking Architect</strong> persona. Since the physical infrastructure (Leaves) is static, the Architect needs to see the <strong>Dynamics of Logical Intent</strong>:
-*   <strong>VPC Lifecycle</strong>: Visualizing 0, 1, or <em>N</em> VPCs as they are created and destroyed.
-*   <strong>Logical Mapping</strong>: Real-time visualization of how these logical boundaries map onto the underlying Fabric.
-*   <strong>Resource Membership</strong>: Seeing the relationship between Subnets and Gateways within the scope of their parent VPC boundary.</p>
-<h3 id="resource-model-logical-boundaries">Resource Model: Logical Boundaries</h3>
-<p>Aligned with the "VPC as an Isolated Network" principle, the UI uses a <strong>Logical Boundary Model</strong>:
-*   <strong>VPC Boundaries</strong>: Rendered as transparent, dashed-border zones. These represent logical network isolation, not "Docker Containers" or physical hardware boxes. 
-*   <strong>Membership</strong>: Resources like Subnets, NAT Gateways, and Internet Gateways are visually grouped within these boundaries to show logical ownership.
-*   <strong>EVPN Placement</strong>: Blue dashed lines represent the EVPN "placement"—showing which physical Leaf switches are currently hosting the VPC's control plane.</p>
-<h3 id="source-of-truth-vs-configuration">Source of Truth vs. Configuration</h3>
-<p>To avoid confusion between static definitions and live state, the simulator distinguishes between three layers:</p>
-<ol>
-<li><strong>Static Blueprint (<code>configs/topology.json</code>)</strong>: This is a design-time template. It is used by CI/CD scripts to validate schemas and defines the "golden state" of the underlay and initial VPC requirements.</li>
-<li><strong>Live State API (<code>/vpc</code>)</strong>: This is the machine-readable "Source of Truth" from the running Control Plane. It queries the SQLite database in real-time to show what has actually been provisioned.</li>
-<li><strong>VPC View (<code>/vpc</code> - HTML)</strong>: The human-readable view that consumes the Live State API. Accessible via <code>make vpc</code>.</li>
-</ol>
-<h3 id="data-flow">Data Flow</h3>
-<ol>
-<li><strong>Backend</strong>: The Control Plane exposes a <code>/vpc</code> endpoint that exports a curated JSON map of simulator nodes and edges when the <code>Accept</code> header is not <code>text/html</code>.</li>
-<li><strong>Frontend</strong>: The Dashboard (<code>/vpc</code> HTML view) polls this endpoint every 15 seconds.</li>
-<li><strong>Rendering</strong>: Renders a map of the intended and actual network state.</li>
-</ol>
-<h2 id="performance-caveats">Performance Caveats</h2>
-<p>This simulator is designed for functional validation and educational purposes, not for stress-testing or production traffic modeling.
-*   <strong>Docker Latency</strong>: Packet traversal through multiple Docker bridges and the userspace-heavy VXLAN implementation will show significantly higher latency than ASIC-based hardware.
-*   <strong>Kernel Limitations</strong>: As noted, the lack of <code>vrf</code> modules in Docker Desktop on MacOS using Apple Silicon hosts requires fallback to <code>iptables</code>, which has different scaling characteristics than native VRFs.
-*   <strong>Resource Contention</strong>: Running multiple FRR instances and a Python-based reconciler on a single host may lead to CPU contention during heavy reconciliation cycles. Memory usage scales linearly with the number of VPCs and virtual switches.
-*   <strong>MTU Mismatches</strong>: Docker network MTU mismatches (standard 1500 vs. VXLAN overhead) may affect packet fragmentation and throughput if not manually tuned.
-*   <strong>Simulated NAT</strong>: NAT/SNAT logic is not hardware-accelerated and runs via Linux kernel <code>netns</code> transitions, further limiting throughput.</p></div>
-<div id="rendered-content"></div>
+```
+
+### Canary Verification Methods
+The `canary.sh` script employs several verification techniques to ensure stability:
+*   **Configuration Hash**: Compares the intended configuration state against a hash of the current active configuration on the leaf switch.
+*   **Connectivity Probes**: Executes `ping` and `curl` commands from within VPC server namespaces to verify end-to-end reachability.
+*   **BGP Session Status**: Queries the FRR API to ensure BGP EVPN peering is "Established" and routes are being exchanged.
+
+## Logging, Telemetry &amp; Observation
+
+As a simulator, observability is crucial for understanding the "closed-loop" behavior.
+
+*   **Metrics**: The Control Plane exposes a Prometheus metric endpoint (`/metrics`). Key signals include `reconciliation_duration_ms`, `active_vpcs_count`, and `drift_detected_total`.
+*   **Logging**: All containers output logs to `stdout/stderr`, which are aggregated by Docker. The reconciler provides detailed trace-level logging of every "Discover" and "Action" step.
+*   **State Inspection**: The SQLite `Intent Store` can be queried directly to see the "Source of Truth" at any time.
+
+## VPC View
+
+The simulator includes a dedicated visual **VPC View** accessible via `make vpc` or `http://localhost:8000/vpc`.
+
+### Design Philosophy:
+The visual **VPC View** ignores the Docker host environment and renders only the resources defined in the Control Plane database (VPCs, Subnets, Gateways, Leaves).
+
+### Persona: The Cloud Networking Architect
+The VPC View is designed specifically for the **Cloud Networking Architect** persona. Since the physical infrastructure (Leaves) is static, the Architect needs to see the **Dynamics of Logical Intent**:
+*   **VPC Lifecycle**: Visualizing 0, 1, or *N* VPCs as they are created and destroyed.
+*   **Logical Mapping**: Real-time visualization of how these logical boundaries map onto the underlying Fabric.
+*   **Resource Membership**: Seeing the relationship between Subnets and Gateways within the scope of their parent VPC boundary.
+
+### Resource Model: Logical Boundaries
+Aligned with the "VPC as an Isolated Network" principle, the UI uses a **Logical Boundary Model**:
+*   **VPC Boundaries**: Rendered as transparent, dashed-border zones. These represent logical network isolation, not "Docker Containers" or physical hardware boxes. 
+*   **Membership**: Resources like Subnets, NAT Gateways, and Internet Gateways are visually grouped within these boundaries to show logical ownership.
+*   **EVPN Placement**: Blue dashed lines represent the EVPN "placement"—showing which physical Leaf switches are currently hosting the VPC's control plane.
+
+### Source of Truth vs. Configuration
+To avoid confusion between static definitions and live state, the simulator distinguishes between three layers:
+
+1.  **Static Blueprint (`configs/topology.json`)**: This is a design-time template. It is used by CI/CD scripts to validate schemas and defines the "golden state" of the underlay and initial VPC requirements.
+2.  **Live State API (`/vpc`)**: This is the machine-readable "Source of Truth" from the running Control Plane. It queries the SQLite database in real-time to show what has actually been provisioned.
+3.  **VPC View (`/vpc` - HTML)**: The human-readable view that consumes the Live State API. Accessible via `make vpc`.
+
+### Data Flow
+1.  **Backend**: The Control Plane exposes a `/vpc` endpoint that exports a curated JSON map of simulator nodes and edges when the `Accept` header is not `text/html`.
+2.  **Frontend**: The Dashboard (`/vpc` HTML view) polls this endpoint every 15 seconds.
+3.  **Rendering**: Renders a map of the intended and actual network state.
+
+## Performance Caveats
+
+This simulator is designed for functional validation and educational purposes, not for stress-testing or production traffic modeling.
+*   **Docker Latency**: Packet traversal through multiple Docker bridges and the userspace-heavy VXLAN implementation will show significantly higher latency than ASIC-based hardware.
+*   **Kernel Limitations**: As noted, the lack of `vrf` modules in Docker Desktop on MacOS using Apple Silicon hosts requires fallback to `iptables`, which has different scaling characteristics than native VRFs.
+*   **Resource Contention**: Running multiple FRR instances and a Python-based reconciler on a single host may lead to CPU contention during heavy reconciliation cycles. Memory usage scales linearly with the number of VPCs and virtual switches.
+*   **MTU Mismatches**: Docker network MTU mismatches (standard 1500 vs. VXLAN overhead) may affect packet fragmentation and throughput if not manually tuned.
+*   **Simulated NAT**: NAT/SNAT logic is not hardware-accelerated and runs via Linux kernel `netns` transitions, further limiting throughput.
+</div>
+<div id="rendered-content-ARCHITECTURE-md"></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
 <script>
-            // Client-side markdown rendering for better performance
-            const markdownContent = document.getElementById('markdown-content').textContent;
-            const renderedContent = marked.parse(markdownContent);
-            document.getElementById('rendered-content').innerHTML = renderedContent;
-        </script>
+                // Client-side markdown rendering for ARCHITECTURE.md
+                const markdownContentARCHITECTURE-md = document.getElementById('markdown-content-ARCHITECTURE-md').textContent;
+                const renderedContentARCHITECTURE-md = marked.parse(markdownContentARCHITECTURE-md);
+                document.getElementById('rendered-content-ARCHITECTURE-md').innerHTML = renderedContentARCHITECTURE-md;
+            </script>
 </div>
 <!-- VPC Details Tab -->
 <div id="content-vpc-details" style="display: none;">
@@ -2142,6 +2541,342 @@ Diagrams are simplified for clarity. This simulator focuses on <strong>Control P
 <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/ARCHITECTURE.md" target="_blank">🏗️ System Architecture</a></li>
 </ul>
 </div>
+
+<style>
+            .markdown-content {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                line-height: 1.6;
+            }
+            .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {
+                color: #232f3e;
+                margin: 20px 0 10px 0;
+            }
+            .markdown-content pre {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content code {
+                background: #f8f9fa;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }
+            .markdown-content pre code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content .codehilite {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content .codehilite pre {
+                background: transparent;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+            .markdown-content .codehilite code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content blockquote {
+                border-left: 4px solid #00897b;
+                padding-left: 16px;
+                margin: 15px 0;
+                color: #666;
+            }
+            .markdown-content table {
+                border-collapse: collapse;
+                width: 100%;
+                margin: 15px 0;
+            }
+            .markdown-content th, .markdown-content td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            .markdown-content th {
+                background: #f5f5f5;
+                font-weight: bold;
+            }
+            </style>
+<!-- Divider between original content and VPC.md -->
+<div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
+<h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 VPC Implementation Details</h3>
+<p style="margin: 0; color: #555;">Detailed VPC implementation and scenarios from docs/VPC.md</p>
+</div>
+<div class="markdown-content">
+<div id="markdown-content-VPC-md" style="display: none;"># VPC Architecture &amp; Visualization
+
+This document details VPC implementation, visualization features, and available demo scenarios based on the current static data in index.html.
+
+## Visualization Features
+
+The VPC visualization (`/vpc`) provides a real-time logical map of your cloud network.
+
+### Visualization Details
+
+The visualization provides a comprehensive view of your architecture, including:
+
+* **Route Tables**: Per-VPC routing rules.
+* **Kubernetes Node Groups**: Visual blocks for simulated container nodes (via `secondary_cidrs`).
+* **Cloud Routing Hub**: Centralized hub connections.
+* **Standalone Data Centers**: On-premises network integration.
+* **VPN Gateways**: Secure tunnel connections.
+* **WireGuard Gateways**: Modern VPN connectivity.
+* **Headscale Nodes**: Mesh networking capabilities.
+
+### Connection Types
+
+| Type            | Visual Style       | Use Case                                                              |
+| :-------------- | :----------------- | :-------------------------------------------------------------------- |
+| **Peering**     | Purple Solid Line  | Simple VPC-to-VPC connection in same region.                      |
+| **VPN Gateway** | Orange Dashed Line | Managed encrypted tunnels (e.g., On-Prem to Cloud).                   |
+| **Mesh VPN**    | Green Dotted Line  | Zero-trust mesh overlays for secure service-to-service communication. |
+| **Routing Hub** | Blue Solid Line    | Centralized routing via Cloud Routing Hub.                            |
+
+## Demo Scenarios
+
+The simulator includes 36 key scenarios, ordered from basic connectivity to complex enterprise architectures. All scenarios use generic, non-proprietary terminology.
+
+### 1. Single VPC
+
+* **Goal**: Simplest cloud network with one public subnet.
+* **Architecture**: One VPC containing a single Cloud Data Center (CDC) and a Public Subnet with Internet Gateway access.
+
+### 2. Multi-tier VPC
+
+* **Goal**: Professional VPC with public/private segmentation.
+* **Architecture**: A Production VPC with a Public Subnet (internet-accessible) and a Private Subnet for internal application tiers.
+
+### 3. Secure Database Tier
+
+* **Goal**: Isolation of sensitive data between web DMZ and secure backend.
+* **Architecture**: A Production Environment VPC with a Web DMZ subnet and a separate Secure DB Tier for database isolation.
+
+### 4. Public Load Balancer &amp; Private Backend
+
+* **Goal**: Ingress traffic management with a public listener and private workers.
+* **Architecture**: An Application Service VPC with a Frontend Entry subnet containing a Load Balancer and a Backend Pool with application servers.
+
+### 5. NAT Router for Private Subnets
+
+* **Goal**: Controlled internet access for isolated instances.
+* **Architecture**: Private subnets route outbound traffic through a centralized NAT Router, preventing direct inbound internet exposure.
+
+### 6. Secure Microservices Mesh
+
+* **Goal**: Secure service-to-service communication.
+* **Architecture**: A microservices-oriented network with dedicated subnets for individual services and mesh-based routing.
+
+### 7. Managed VPN
+
+* **Goal**: Secure cloud-to-on-prem or region-to-region connectivity.
+* **Architecture**: Encrypted tunnels between distinct environments using generic VPN gateways.
+
+### 8. Private Mesh Overlay
+
+* **Goal**: Zero-trust mesh overlay networking.
+* **Architecture**: A coordination server facilitates flat, encrypted mesh connectivity between nodes across arbitrary network boundaries.
+
+### 9. VPC Peering
+
+* **Goal**: Simple VPC-to-VPC connectivity within same region.
+* **Architecture**: Two VPCs (Frontend and Backend) connected via bidirectional peering routes, enabling direct communication between resources in different VPCs.
+
+### 10. Private Service Connectivity
+
+* **Goal**: Private service connectivity without full network peering.
+* **Architecture**: A "Consumer VPC" connects to a specific "Provider VPC" service via a logical private service endpoint link, maintaining isolation for all other traffic.
+
+### 11. Collaborative Shared Network
+
+* **Goal**: Centralized network management with departmental isolation.
+* **Architecture**: A single "Shared Network VPC" divided into isolated subnets for HR, Finance, and IT groups.
+
+### 12. Kubernetes Hybrid Network
+
+* **Goal**: Cloud Routing Hub and spoke design with secondary addressing.
+* **Architecture**: Complex enterprise connectivity with Kubernetes clusters, secondary CIDR blocks, and centralized routing through Cloud Routing Hubs.
+
+### 13. Secure Application Service Mesh
+
+* **Goal**: Advanced service mesh with secure communication patterns.
+* **Architecture**: Multi-tier service architecture with mesh ingress, service tiers, and storage layers.
+
+### 14. Network Lifecycle: Automated vs Manual
+
+* **Goal**: Demonstrate automated vs manual network management.
+* **Architecture**: Comparison between automated subnet provisioning across regions and manual subnet configuration.
+
+### 15. Policy Enforcement
+
+* **Goal**: Network policy compliance and enforcement.
+* **Architecture**: Policy-driven network with compliant subnets and security controls.
+
+### 16. Hybrid Connectivity: Dedicated &amp; Redundant VPN
+
+* **Goal**: High-availability hybrid connectivity.
+* **Architecture**: Redundant VPN connections between cloud and on-premises environments.
+
+### 17. Enterprise Hub-and-Spoke
+
+* **Goal**: Centralized enterprise network management.
+* **Architecture**: Central hub connecting multiple spoke networks (Dev, Billing, Employee Portal, Security Scanner).
+
+### 18. Virtual Appliance Routing
+
+* **Goal**: Integration with virtual network appliances.
+* **Architecture**: Network traffic routing through virtual appliances like firewalls.
+
+### 19. Hub Gateway Transit
+
+* **Goal**: Centralized traffic routing through hub gateways.
+* **Architecture**: Hub-based transit architecture for traffic management.
+
+### 20. Data-Scale Network: Secondary CIDR Expansion &amp; Pre-initialized Instances
+
+* **Goal**: Large-scale network with expanded addressing.
+* **Architecture**: Enterprise-scale network with secondary CIDR blocks and pre-configured instances.
+
+### 21. Subnet-Level Peering
+
+* **Goal**: Granular network connectivity at subnet level.
+* **Architecture**: Direct peering between specific subnets across VPCs.
+
+### 22. Shared Cluster Infrastructure
+
+* **Goal**: Multi-tenant cluster sharing.
+* **Architecture**: Shared infrastructure with isolated pools for different teams.
+
+### 23. Cloud-Native Service Hub
+
+* **Goal**: Centralized service management hub.
+* **Architecture**: Service-oriented architecture with checkout, inventory, and web client components.
+
+### 24. Hybrid Appliance Bridge
+
+* **Goal**: Bridge between cloud and on-prem appliances.
+* **Architecture**: Hybrid connectivity with software gateway integration.
+
+### 25. AI Infrastructure: Accelerated RDMA Network
+
+* **Goal**: High-performance AI workloads.
+* **Architecture**: GPU cluster with RDMA networking for AI/ML workloads.
+
+### 26. Global Transit: Multi-Region Hubs with GRE Support
+
+* **Goal**: Global multi-region connectivity.
+* **Architecture**: Multi-region hub architecture with GRE tunnel support.
+
+### 27. Dual-Stack Infrastructure: IPv4 &amp; IPv6 Coexistence
+
+* **Goal**: IPv4/IPv6 dual-stack networking.
+* **Architecture**: Dual-stack network supporting both IPv4 and IPv6 addressing.
+
+### 28. Cloud Native NAT Router
+
+* **Goal**: Software-based NAT routing.
+* **Architecture**: Host-based NAT routing with multiple services.
+
+### 29. Heterogeneous Load Balancing
+
+* **Goal**: Multi-platform load balancing.
+* **Architecture**: Load balancer supporting heterogeneous server environments.
+
+### 30. Standard IPsec VPN (Site-to-Site)
+
+* **Goal**: Traditional IPsec VPN connectivity.
+* **Architecture**: Standard site-to-site IPsec VPN tunnel.
+
+### 31. Remote Access VPN
+
+* **Goal**: Remote user access to private networks.
+* **Architecture**: VPN endpoints for remote user connectivity.
+
+### 32. Private DNS Discovery
+
+* **Goal**: Internal DNS resolution and service discovery.
+* **Architecture**: Private DNS server with internal service resolution.
+
+### 33. Legacy Windows Integration
+
+* **Goal**: Integration with Windows-based infrastructure.
+* **Architecture**: Windows AD and SQL server integration with proper subnet isolation.
+
+### 34. Brownfield Endpoint Adoption
+
+* **Goal**: Integration with existing network infrastructure.
+* **Architecture**: Adoption of existing subnets into cloud network management.
+
+### 35. Partial Brownfield Adoption
+
+* **Goal**: Gradual migration of existing networks.
+* **Architecture**: Selective adoption of existing network components.
+
+### 36. Brownfield Adoption Under Churn
+
+* **Goal**: Network management during dynamic changes.
+* **Architecture**: Handling network topology changes during ongoing operations.
+
+## Scenario Selection
+
+The visualization interface allows you to:
+1. **Browse scenarios** using the dropdown menu
+2. **Load specific scenarios** to see their network topology
+3. **Examine connections** between different network components
+4. **Understand relationships** between VPCs, hubs, and standalone data centers
+
+Each scenario demonstrates specific networking concepts and can be used as a reference for designing similar architectures in real cloud environments.
+
+## API Usage
+
+### Create a Kubernetes VPC
+
+```json
+POST /vpcs
+{
+  "name": "k8s-prod",
+  "cidr": "10.0.0.0/16",
+  "secondary_cidrs": ["100.64.0.0/16"]
+}
+```
+
+### Create a VPN Gateway
+
+```json
+POST /vpn-gateways
+{
+  "vpc_id": "vpc-xxx",
+  "endpoint": "1.2.3.4:51820",
+  "public_key": "abc...",
+  "allowed_ips": ["10.0.0.0/16"]
+}
+```
+</div>
+<div id="rendered-content-VPC-md"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+<script>
+                // Client-side markdown rendering for VPC.md
+                const markdownContentVPC-md = document.getElementById('markdown-content-VPC-md').textContent;
+                const renderedContentVPC-md = marked.parse(markdownContentVPC-md);
+                document.getElementById('rendered-content-VPC-md').innerHTML = renderedContentVPC-md;
+            </script>
 </div>
 <!-- Examples Tab -->
 <div id="content-examples" style="display: none;">
@@ -2220,7 +2955,14 @@ Diagrams are simplified for clarity. This simulator focuses on <strong>Control P
 <code style="display: block; background: #fff; padding: 10px; border-radius: 4px; margin: 5px 0;"># Run all tests with coverage<br/>make test-cov<br/><br/># Run specific tests<br/>cd control-plane &amp;&amp; python -m pytest tests/test_rest_api.py -v<br/><br/># Run linting<br/>make lint-extreme<br/><br/># Security scan<br/>make security-scan</code>
 </div>
 <h4>Test Coverage</h4>
-<div style="background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 10px 0;"><strong>Current Coverage (as of commit 3c0c98f):</strong><br/>• models.py: 100% ✅ All SQLAlchemy models<br/>• grpc_api_server.py: 77% 📈 gRPC API implementation (improved from 28%)<br/>• rest_api_server.py: 71% 📈 REST API endpoints (improved from 57%)<br/>• shared_api_logic.py: 45% 📈 Core business logic (improved from 12%)<br/>• diagnostic_logger.py: 25% 📈 Diagnostic logging (improved from 6%)<br/>• <strong>Overall: 56% 📈 (was 35%)</strong><br/><br/><em>Uncovered: Database initialization, entry points, some gRPC methods</em></div>
+<div style="background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 10px 0;">
+<strong>Current Coverage:</strong><br/>
+                    • models.py: 100%<br/>
+                    • shared_api_logic.py: 100%<br/>
+                    • rest_api_server.py: 96%<br/>
+                    • grpc_api_server.py: 94%<br/><br/>
+<em>Uncovered: Database initialization and entry points</em>
+</div>
 <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
 <h4>📚 Related Documentation</h4>
 <ul style="margin: 0; padding-left: 20px;">
@@ -2229,6 +2971,1165 @@ Diagrams are simplified for clarity. This simulator focuses on <strong>Control P
 <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/LICENSE" target="_blank">⚖️ License Information</a></li>
 </ul>
 </div>
+
+<style>
+            .markdown-content {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                line-height: 1.6;
+            }
+            .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {
+                color: #232f3e;
+                margin: 20px 0 10px 0;
+            }
+            .markdown-content pre {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content code {
+                background: #f8f9fa;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }
+            .markdown-content pre code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content .codehilite {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content .codehilite pre {
+                background: transparent;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+            .markdown-content .codehilite code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content blockquote {
+                border-left: 4px solid #00897b;
+                padding-left: 16px;
+                margin: 15px 0;
+                color: #666;
+            }
+            .markdown-content table {
+                border-collapse: collapse;
+                width: 100%;
+                margin: 15px 0;
+            }
+            .markdown-content th, .markdown-content td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            .markdown-content th {
+                background: #f5f5f5;
+                font-weight: bold;
+            }
+            </style>
+<!-- Divider between original content and TESTING.md -->
+<div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
+<h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 Comprehensive Testing Guide</h3>
+<p style="margin: 0; color: #555;">Complete testing documentation and coverage from docs/TESTING.md</p>
+</div>
+<div class="markdown-content">
+<div id="markdown-content-TESTING-md" style="display: none;"># Testing &amp; Performance Guide
+
+This document covers the testing infrastructure, coverage achievements, and performance considerations for the Cloud Networking Control Plane Simulator.
+
+## Test Suite Overview
+
+The project uses a multi-layered testing approach:
+
+| Layer | Tool | Purpose |
+|-------|------|---------|
+| Unit Tests | pytest | Test individual functions and API endpoints |
+| Integration Tests | pytest + TestClient | Verify REST↔gRPC interoperability |
+| Static Analysis | mypy, flake8 | Type checking and code quality |
+| Security Scanning | bandit | Vulnerability detection |
+| Load Testing | httpx + asyncio | Performance verification |
+
+## Running Tests
+
+```bash
+# Run all tests with coverage
+make test-cov
+
+# Run specific test files
+cd control-plane &amp;&amp; python -m pytest tests/test_rest_api.py -v
+
+# Run linting and formatting
+make lint-extreme
+
+# Run security scan
+make security-scan
+```
+
+## Test Coverage
+
+Current coverage by component (as of latest commit 3c0c98f):
+
+| Component | Coverage | Status |
+|-----------|----------|--------|
+| `models.py` | 100% | ✅ All SQLAlchemy models |
+| `grpc_api_server.py` | 77% | 📈 gRPC API implementation (improved from 28%) |
+| `rest_api_server.py` | 71% | 📈 REST API endpoints (improved from 57%) |
+| `shared_api_logic.py` | 45% | 📈 Core business logic (improved from 12%) |
+| `diagnostic_logger.py` | 25% | 📈 Diagnostic logging (improved from 6%) |
+| **Overall** | **56%** | 📈 **Improved from 35%** |
+
+**Recent Improvements** (Commit 596365e):
+- ✅ Fixed test environment issues (filesystem permissions)
+- ✅ Added missing API functions in shared_api_logic.py
+- ✅ Created diagnostic logger tests (25% coverage)
+- ✅ Added startup event handler tests
+- ✅ Fixed import and environment variable handling
+
+**Uncovered areas**:
+- Database initialization and entry points (startup code)
+- Some gRPC service methods
+- Diagnostic logging methods (partially covered)
+- Main.py entry point functions
+
+**Test Files Added**:
+```
+control-plane/tests/
+├── conftest.py                    # Updated with proper test isolation
+├── test_diagnostic_logger.py       # NEW: Diagnostic logging tests
+├── test_startup.py                # NEW: Startup event handler tests
+├── test_shared_api_logic.py       # Core business logic tests
+├── test_rest_api.py               # REST API endpoint tests
+├── test_grpc_api.py               # gRPC API tests
+└── test_integration_polyglot.py   # REST↔gRPC interoperability tests
+```
+
+## Performance Findings
+
+### Async/Sync SQLAlchemy Issue
+
+&gt; [!IMPORTANT]
+&gt; When using FastAPI with synchronous SQLAlchemy, endpoint functions should use `def`, not `async def`.
+
+**Problem Identified**: During load testing (500 concurrent VPC creations), event loop starvation occurred.
+
+**Root Cause**: 
+- FastAPI runs `async def` functions directly on the event loop
+- Synchronous SQLAlchemy operations block the event loop
+- All other requests are blocked until the DB operation completes
+
+**Solution Applied**:
+```python
+# ❌ WRONG - Blocks event loop
+@app.post("/vpcs")
+async def create_vpc(db: Session = Depends(get_db)):
+    return db.query(VPCModel).all()  # Blocking call!
+
+# ✅ CORRECT - Runs in threadpool
+@app.post("/vpcs")
+def create_vpc(db: Session = Depends(get_db)):
+    return db.query(VPCModel).all()  # FastAPI runs this in a thread
+```
+
+**Result**: The control plane now handles 500+ concurrent requests without blocking.
+
+### Database Concurrency Considerations
+
+For production workloads with high write concurrency, consider:
+
+1. **Async Database Drivers**: Use `databases` or `sqlalchemy[asyncio]` with async drivers
+2. **Connection Pooling**: Configure appropriate pool sizes for SQLAlchemy
+3. **NoSQL Alternatives**: For very high write throughput, consider:
+   - Apache Cassandra
+   - ScyllaDB
+
+### Load Testing
+
+The `scripts/load_simulation.py` script provides configurable load testing:
+
+```bash
+# Default: 500 VPCs, 50 concurrent
+python control-plane/scripts/load_simulation.py
+
+# Custom configuration
+NUM_VPCS=1000 CONCURRENCY=100 python control-plane/scripts/load_simulation.py
+```
+
+## Writing New Tests
+
+### REST API Tests
+
+```python
+from fastapi.testclient import TestClient
+from api.rest_api_server import app
+
+client = TestClient(app)
+
+def test_create_vpc():
+    response = client.post("/vpcs", json={"name": "test", "cidr": "10.0.0.0/16"})
+    assert response.status_code == 201
+```
+
+### gRPC Tests
+
+```python
+import grpc
+from api.grpc_api_server import NetworkService
+from api import cloud_networking_control_plane_simulator_pb2
+
+def test_list_vpcs(grpc_stub):
+    request = cloud_networking_control_plane_simulator_pb2.ListVPCsRequest(limit=10)
+    response = grpc_stub.ListVPCs(request)
+    assert response.total &gt;= 0
+```
+
+### Integration Tests
+
+Integration tests verify that resources created via one API are visible via the other:
+
+```python
+def test_polyglot_flow(grpc_service):
+    # Create via REST
+    resp = client.post("/vpcs", json={"name": "test", "cidr": "10.0.0.0/16"})
+    vpc_id = resp.json()["id"]
+    
+    # Verify via gRPC
+    list_resp = grpc_service.ListVPCs(request, context)
+    assert any(v.id == vpc_id for v in list_resp.vpcs)
+```
+
+## CI/CD Integration
+
+The Makefile provides targets for CI/CD pipelines:
+
+```makefile
+# Full validation pipeline
+make all        # lint + test + validate
+
+# Individual steps
+make lint       # Basic Python syntax check
+make lint-extreme  # mypy + flake8 + black
+make test       # Run pytest
+make test-cov   # Run pytest with coverage
+make security-scan  # Run bandit
+```
+
+## Troubleshooting
+
+### "Database is locked" errors
+
+SQLite has limited concurrency. For tests, ensure:
+- Each test uses isolated database sessions
+- Tests don't run in parallel against the same DB file
+
+### Import errors in tests
+
+Ensure `sys.path` includes the necessary directories:
+```python
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'api'))
+```
+
+### gRPC stub import issues
+
+The gRPC generated files need the `api/` directory in path:
+```python
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'api'))
+from api import cloud_networking_control_plane_simulator_pb2
+```
+</div>
+<div id="rendered-content-TESTING-md"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+<script>
+                // Client-side markdown rendering for TESTING.md
+                const markdownContentTESTING-md = document.getElementById('markdown-content-TESTING-md').textContent;
+                const renderedContentTESTING-md = marked.parse(markdownContentTESTING-md);
+                document.getElementById('rendered-content-TESTING-md').innerHTML = renderedContentTESTING-md;
+            </script>
+</div><div id="content-api-examples" style="display: none;">
+<h3>📚 API Usage Examples</h3>
+<p>Comprehensive API examples and use cases from docs/API_EXAMPLES.md</p>
+<style>
+            .markdown-content {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                line-height: 1.6;
+            }
+            .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {
+                color: #232f3e;
+                margin: 20px 0 10px 0;
+            }
+            .markdown-content pre {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content code {
+                background: #f8f9fa;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }
+            .markdown-content pre code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content .codehilite {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content .codehilite pre {
+                background: transparent;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+            .markdown-content .codehilite code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content blockquote {
+                border-left: 4px solid #00897b;
+                padding-left: 16px;
+                margin: 15px 0;
+                color: #666;
+            }
+            .markdown-content table {
+                border-collapse: collapse;
+                width: 100%;
+                margin: 15px 0;
+            }
+            .markdown-content th, .markdown-content td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            .markdown-content th {
+                background: #f5f5f5;
+                font-weight: bold;
+            }
+            </style>
+<div class="markdown-content">
+<div id="markdown-content-API_EXAMPLES-md" style="display: none;"># VPC API Examples
+
+This document provides comprehensive API examples for managing VPC resources using the Cloud Networking Control Plane Simulator REST API. These examples use `curl` and mirror the scenarios created in the demo script.
+
+## Base URL
+
+```bash
+API_URL="http://localhost:8000"
+```
+
+## VPC Management
+
+### Create a VPC
+
+Create a basic VPC with a single CIDR block:
+
+```bash
+curl -X POST "${API_URL}/vpcs" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Production VPC",
+    "cidr": "10.0.0.0/16",
+    "region": "us-east-1"
+  }'
+```
+
+Create a VPC with secondary CIDR blocks:
+
+```bash
+curl -X POST "${API_URL}/vpcs" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Kubernetes Cluster VPC",
+    "cidr": "10.1.0.0/16",
+    "region": "us-east-1",
+    "secondary_cidrs": ["100.64.0.0/16"]
+  }'
+```
+
+### List All VPCs
+
+```bash
+curl -X GET "${API_URL}/vpcs"
+```
+
+### Get VPC Details
+
+```bash
+VPC_ID="vpc-abc123"
+curl -X GET "${API_URL}/vpcs/${VPC_ID}"
+```
+
+### Delete a VPC
+
+```bash
+VPC_ID="vpc-abc123"
+curl -X DELETE "${API_URL}/vpcs/${VPC_ID}"
+```
+
+## Subnet Management
+
+### Create a Subnet
+
+```bash
+VPC_ID="vpc-abc123"
+curl -X POST "${API_URL}/vpcs/${VPC_ID}/subnets" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Public Subnet",
+    "cidr": "10.0.1.0/24",
+    "data_center": "CDC-1"
+  }'
+```
+
+### List Subnets in a VPC
+
+```bash
+VPC_ID="vpc-abc123"
+curl -X GET "${API_URL}/vpcs/${VPC_ID}/subnets"
+```
+
+## Route Management
+
+### Create an Internet Gateway Route
+
+```bash
+VPC_ID="vpc-abc123"
+curl -X POST "${API_URL}/vpcs/${VPC_ID}/routes" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "destination": "0.0.0.0/0",
+    "next_hop": "igw-auto",
+    "next_hop_type": "internet_gateway"
+  }'
+```
+
+### Create a VPN Gateway Route
+
+```bash
+VPC_ID="vpc-abc123"
+curl -X POST "${API_URL}/vpcs/${VPC_ID}/routes" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "destination": "192.168.0.0/16",
+    "next_hop": "dc-onprem-001",
+    "next_hop_type": "vpn_gateway"
+  }'
+```
+
+### Create a Cloud Routing Hub Route
+
+```bash
+VPC_ID="vpc-abc123"
+HUB_ID="hub-xyz789"
+curl -X POST "${API_URL}/vpcs/${VPC_ID}/routes" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "destination": "10.0.0.0/8",
+    "next_hop": "'${HUB_ID}'",
+    "next_hop_type": "cloud_routing_hub"
+  }'
+```
+
+### Create an Instance Route (NAT)
+
+```bash
+VPC_ID="vpc-abc123"
+curl -X POST "${API_URL}/vpcs/${VPC_ID}/routes" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "destination": "0.0.0.0/0",
+    "next_hop": "10.49.96.3",
+    "next_hop_type": "instance"
+  }'
+```
+
+## Internet Gateway
+
+### Attach Internet Gateway to VPC
+
+```bash
+VPC_ID="vpc-abc123"
+curl -X POST "${API_URL}/vpcs/${VPC_ID}/internet-gateways"
+```
+
+## Cloud Routing Hub Management
+
+### Create a Cloud Routing Hub
+
+```bash
+curl -X POST "${API_URL}/hubs" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Global Transit Hub",
+    "region": "global"
+  }'
+```
+
+### Add Routes to a Hub
+
+```bash
+HUB_ID="hub-xyz789"
+VPC_ID="vpc-abc123"
+curl -X POST "${API_URL}/hubs/${HUB_ID}/routes" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "destination": "10.1.0.0/16",
+    "next_hop": "'${VPC_ID}'",
+    "next_hop_type": "cloud_routing_hub"
+  }'
+```
+
+### Delete a Hub
+
+```bash
+HUB_ID="hub-xyz789"
+curl -X DELETE "${API_URL}/hubs/${HUB_ID}"
+```
+
+## Standalone Data Center Management
+
+### Create a Standalone Data Center
+
+```bash
+curl -X POST "${API_URL}/standalone-dcs" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "On-Premise Data Center",
+    "cidr": "192.168.0.0/16",
+    "region": "on-prem"
+  }'
+```
+
+### Create a Subnet in a Standalone DC
+
+```bash
+DC_ID="dc-onprem-001"
+curl -X POST "${API_URL}/standalone-dcs/${DC_ID}/subnets" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Corporate Network",
+    "cidr": "192.168.1.0/24",
+    "data_center": "ODC-1"
+  }'
+```
+
+### Add Routes to a Standalone DC
+
+```bash
+DC_ID="dc-onprem-001"
+HUB_ID="hub-xyz789"
+curl -X POST "${API_URL}/standalone-dcs/${DC_ID}/routes" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "destination": "10.0.0.0/8",
+    "next_hop": "'${HUB_ID}'",
+    "next_hop_type": "vpn_gateway"
+  }'
+```
+
+## WireGuard Gateway Management
+
+### Create a WireGuard Gateway
+
+```bash
+VPC_ID="vpc-abc123"
+curl -X POST "${API_URL}/wireguard-gateways" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "vpc_id": "'${VPC_ID}'",
+    "endpoint": "192.0.2.1:51820",
+    "public_key": "US_WEST_PUB_KEY",
+    "allowed_ips": "10.10.0.1/32"
+  }'
+```
+
+## Headscale Node Management
+
+### Create a Headscale Node
+
+```bash
+VPC_ID="vpc-abc123"
+curl -X POST "${API_URL}/headscale-nodes" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "vpc_id": "'${VPC_ID}'",
+    "node_key": "mkey:west-node-01",
+    "tailnet": "demo-mesh"
+  }'
+```
+
+## Scenario Management
+
+### Create a Scenario
+
+```bash
+curl -X POST "${API_URL}/scenarios" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Multi-tier Web Application",
+    "description": "A three-tier architecture with web, app, and database layers",
+    "resource_order": [
+      {"type": "vpc", "label": "Production VPC"}
+    ]
+  }'
+```
+
+### List All Scenarios
+
+```bash
+curl -X GET "${API_URL}/scenarios"
+```
+
+## Complete Example: NAT Router Setup
+
+This example creates a complete NAT router scenario similar to Scenario 28:
+
+```bash
+# 1. Create the VPC
+VPC_RESPONSE=$(curl -s -X POST "${API_URL}/vpcs" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "NAT Router VPC",
+    "cidr": "10.49.96.0/20",
+    "region": "us-east-1",
+    "scenario": "NAT Router Demo"
+  }')
+
+VPC_ID=$(echo $VPC_RESPONSE | jq -r '.id')
+
+# 2. Create subnets for each host
+curl -X POST "${API_URL}/vpcs/${VPC_ID}/subnets" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Host 1 (NAT Router/DNS)",
+    "cidr": "10.49.96.3/32",
+    "data_center": "CDC-1"
+  }'
+
+curl -X POST "${API_URL}/vpcs/${VPC_ID}/subnets" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Host 2 (FTP Server)",
+    "cidr": "10.49.96.4/32",
+    "data_center": "CDC-1"
+  }'
+
+curl -X POST "${API_URL}/vpcs/${VPC_ID}/subnets" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Host 3 (Web Server)",
+    "cidr": "10.49.96.5/32",
+    "data_center": "CDC-1"
+  }'
+
+curl -X POST "${API_URL}/vpcs/${VPC_ID}/subnets" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Host 4 (Windows Server)",
+    "cidr": "10.49.96.6/32",
+    "data_center": "CDC-1"
+  }'
+
+# 3. Configure NAT routing
+curl -X POST "${API_URL}/vpcs/${VPC_ID}/routes" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "destination": "0.0.0.0/0",
+    "next_hop": "10.49.96.3",
+    "next_hop_type": "instance"
+  }'
+
+echo "NAT Router VPC created with ID: ${VPC_ID}"
+```
+
+## Complete Example: Managed IPsec VPN
+
+This example creates a managed IPsec VPN scenario similar to Scenario 30:
+
+```bash
+# 1. Create the Cloud VPC
+CLOUD_VPC=$(curl -s -X POST "${API_URL}/vpcs" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Cloud VPC",
+    "cidr": "203.0.113.0/24",
+    "region": "us-east-1",
+    "scenario": "Managed IPsec"
+  }')
+
+CLOUD_VPC_ID=$(echo $CLOUD_VPC | jq -r '.id')
+
+# 2. Create the On-Premises DC
+ONPREM_DC=$(curl -s -X POST "${API_URL}/standalone-dcs" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "On-Premises Network",
+    "cidr": "192.168.1.0/24",
+    "region": "on-prem",
+    "scenario": "Managed IPsec"
+  }')
+
+ONPREM_DC_ID=$(echo $ONPREM_DC | jq -r '.id')
+
+# 3. Create Cloud VPC subnets
+curl -X POST "${API_URL}/vpcs/${CLOUD_VPC_ID}/subnets" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "VPC VPN Gateway",
+    "cidr": "203.0.113.2/32",
+    "data_center": "CDC-1"
+  }'
+
+curl -X POST "${API_URL}/vpcs/${CLOUD_VPC_ID}/subnets" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "App Server (Debian)",
+    "cidr": "203.0.113.3/32",
+    "data_center": "CDC-1"
+  }'
+
+# 4. Create On-Prem DC subnets
+curl -X POST "${API_URL}/standalone-dcs/${ONPREM_DC_ID}/subnets" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "On-Prem VPN Gateway",
+    "cidr": "192.168.1.1/32",
+    "data_center": "ODC-1"
+  }'
+
+curl -X POST "${API_URL}/standalone-dcs/${ONPREM_DC_ID}/subnets" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Windows Client",
+    "cidr": "192.168.1.2/32",
+    "data_center": "ODC-1"
+  }'
+
+# 5. Configure IPsec tunnel routes
+curl -X POST "${API_URL}/vpcs/${CLOUD_VPC_ID}/routes" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "destination": "192.168.1.0/24",
+    "next_hop": "'${ONPREM_DC_ID}'",
+    "next_hop_type": "vpn_gateway"
+  }'
+
+curl -X POST "${API_URL}/standalone-dcs/${ONPREM_DC_ID}/routes" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "destination": "203.0.113.0/24",
+    "next_hop": "'${CLOUD_VPC_ID}'",
+    "next_hop_type": "vpn_gateway"
+  }'
+
+echo "Managed IPsec VPN created"
+echo "Cloud VPC ID: ${CLOUD_VPC_ID}"
+echo "On-Prem DC ID: ${ONPREM_DC_ID}"
+```
+
+## Viewing the Network Topology
+
+### Get Complete Network View
+
+```bash
+curl -X GET "${API_URL}/vpc"
+```
+
+This returns a comprehensive view including all nodes (VPCs, hubs, standalone DCs) and edges (routes, peerings, VPN connections).
+
+## Notes
+
+- All IDs returned by the API should be used in subsequent requests
+- The API supports idempotent operations where applicable
+- Use `jq` for JSON parsing in shell scripts (as shown in examples)
+- Replace placeholder values like `vpc-abc123` with actual IDs from your API responses
+</div>
+<div id="rendered-content-API_EXAMPLES-md"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+<script>
+                // Client-side markdown rendering for API_EXAMPLES.md
+                const markdownContentAPI_EXAMPLES-md = document.getElementById('markdown-content-API_EXAMPLES-md').textContent;
+                const renderedContentAPI_EXAMPLES-md = marked.parse(markdownContentAPI_EXAMPLES-md);
+                document.getElementById('rendered-content-API_EXAMPLES-md').innerHTML = renderedContentAPI_EXAMPLES-md;
+            </script>
+</div><div id="content-ideas" style="display: none;">
+<h3>💡 Project Ideas and Future Development</h3>
+<p>Ideas for future features and improvements from docs/IDEAS.md</p>
+<style>
+            .markdown-content {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                line-height: 1.6;
+            }
+            .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {
+                color: #232f3e;
+                margin: 20px 0 10px 0;
+            }
+            .markdown-content pre {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content code {
+                background: #f8f9fa;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }
+            .markdown-content pre code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content .codehilite {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content .codehilite pre {
+                background: transparent;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+            .markdown-content .codehilite code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content blockquote {
+                border-left: 4px solid #00897b;
+                padding-left: 16px;
+                margin: 15px 0;
+                color: #666;
+            }
+            .markdown-content table {
+                border-collapse: collapse;
+                width: 100%;
+                margin: 15px 0;
+            }
+            .markdown-content th, .markdown-content td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            .markdown-content th {
+                background: #f5f5f5;
+                font-weight: bold;
+            }
+            </style>
+<div class="markdown-content">
+<div id="markdown-content-IDEAS-md" style="display: none;"># IDEAS.md
+
+# Cloud Networking Control Plane Simulator Ideas
+
+This document outlines potential extension areas for the Cloud Networking Control Plane Simulator. The focus is on Control Plane correctness, clear system boundaries, and integration with external orchestration systems. All components are simulations or reference implementations, not production infrastructure.
+
+## Current State
+
+The system provides a functional baseline for intent-driven networking.
+
+Implemented capabilities include:
+
+* Python-based intent controller
+* EVPN-VXLAN fabric using BGP Control Plane signaling
+* Persistent source of truth backed by SQLite
+* Host-level security groups enforced via nftables
+* Basic observability and state inspection
+
+The priority is correctness, transparency, and debuggability rather than performance.
+
+## Control Plane Scaling and Integration
+
+### Distributed Link Agent
+
+A lightweight host-level agent may be implemented in Go to collect link state and apply intent locally. This shifts responsibility away from a centralized controller and helps limit the impact of host or process faults.
+
+The focus is on failure isolation and clear ownership, not performance. The agent targets simulator-scale environments and emphasizes predictable behavior.
+
+References:
+
+* [Linux netlink and rtnetlink overview](https://www.kernel.org/doc/html/latest/userspace-api/netlink/intro.html)
+* [pyroute2 Docs](https://docs.pyroute2.org/)
+
+### Unified Service Interface
+
+Internal services may converge on a gRPC interface defined by a single network.proto contract. The goal is strong schema enforcement, explicit contracts, and streaming semantics for state updates.
+
+This does not imply automatic latency improvements over REST. Serialization overhead, flow control, and backpressure still apply.
+
+References:
+
+* [gRPC core concepts and tradeoffs](https://grpc.io/docs/what-is-grpc/core-concepts/)
+
+### IPv6-Based Fabric Underlay
+
+The simulated fabric underlay may use IPv6 link-local addressing with BGP unnumbered sessions. This mirrors common data center patterns and simplifies address management.
+
+The simulator models Control Plane adjacency and route distribution only. Hardware forwarding, MTU edge cases, or NIC-specific optimizations are not included.
+
+References:
+
+* [RFC 5549, IPv6 support for IPv4 routing](https://datatracker.ietf.org/doc/html/rfc5549)
+* [RFC 4271, Border Gateway Protocol version 4](https://datatracker.ietf.org/doc/html/rfc4271)
+* [RFC 7432, BGP MPLS-Based Ethernet VPN](https://datatracker.ietf.org/doc/html/rfc7432)
+* [FRR Documentation](https://docs.frrouting.org/)
+* [FRR EVPN Docs](https://docs.frrouting.org/en/latest/bgp.html#evpn)
+
+### Northbound Consumption
+
+The system exposes a stable API boundary for external consumption. Reference clients may demonstrate integration patterns.
+
+Broad language support is treated as a documentation concern rather than a networking feature. The emphasis is on contract clarity.
+
+References:
+
+* [OpenAPI Specification](https://spec.openapis.org/)
+* [FastAPI Docs](https://fastapi.tiangolo.com/)
+
+## Dataplane and Orchestration Extensions
+
+### Kernel-Level Packet Handling
+
+Selective packet handling may be simulated using eBPF or XDP programs to show how intent maps to kernel hooks. These are educational and illustrative.
+
+Line-rate forwarding, NIC offload, or production-grade packet processing are not included.
+
+References:
+
+* [XDP architecture and constraints](https://www.kernel.org/doc/html/latest/networking/xdp.html)
+* [AF_XDP zero-copy limitations](https://www.kernel.org/doc/html/latest/networking/af_xdp.html)
+
+### Kubernetes Integration
+
+A reference Kubernetes CNI and controller may demonstrate how cluster lifecycle events drive network intent. Focus is on reconciliation, state propagation, and failure handling.
+
+Feature parity with existing CNIs or cloud controllers is not the goal.
+
+References:
+
+* [CNI specification](https://github.com/containernetworking/cni)
+* [Kubernetes controller patterns](https://kubernetes.io/docs/concepts/architecture/controller/)
+
+### Inter-VPC Connectivity
+
+Transit and peering may be simulated to demonstrate route distribution and policy enforcement between isolated networks, including selective route leaking and shared services.
+
+All behavior is Control Plane level; security guarantees and performance are out of scope.
+
+### Specialized Networking
+
+The Control Plane may include placeholders for topology awareness and specialized links, limited to metadata and scheduling hints.
+
+Lossless Ethernet, RDMA congestion control, and NIC-specific tuning are not modeled.
+
+References:
+
+* [IEEE 802.1Q and RoCEv2 background](https://standards.ieee.org/ieee/802.1Q/7024/)
+
+## Testing and Scale Exploration
+
+Larger topologies may be simulated using container-based network emulation to observe convergence and failure scenarios. Experiments are qualitative, intended for learning and validating Control Plane logic.
+
+Results are not suitable for capacity planning or performance benchmarking.
+
+References:
+
+* [containerlab documentation](https://containerlab.dev/)
+
+## Summary
+
+This document captures constrained extension ideas for the Cloud Networking Control Plane Simulator. The emphasis is on correctness, clear system boundaries, and realistic Control Plane behavior. Advanced features are framed as simulations or reference implementations, not production claims. The goal is learning and experimentation rather than deployment.
+</div>
+<div id="rendered-content-IDEAS-md"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+<script>
+                // Client-side markdown rendering for IDEAS.md
+                const markdownContentIDEAS-md = document.getElementById('markdown-content-IDEAS-md').textContent;
+                const renderedContentIDEAS-md = marked.parse(markdownContentIDEAS-md);
+                document.getElementById('rendered-content-IDEAS-md').innerHTML = renderedContentIDEAS-md;
+            </script>
+</div><div id="content-implementation" style="display: none;">
+<h3>⚙️ Networking Implementation Details</h3>
+<p>Deep dive into networking implementation from docs/NETWORKING_IMPLEMENTATION.md</p>
+<style>
+            .markdown-content {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                line-height: 1.6;
+            }
+            .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {
+                color: #232f3e;
+                margin: 20px 0 10px 0;
+            }
+            .markdown-content pre {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content code {
+                background: #f8f9fa;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }
+            .markdown-content pre code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content .codehilite {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 16px;
+                overflow-x: auto;
+                margin: 15px 0;
+            }
+            .markdown-content .codehilite pre {
+                background: transparent;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+            .markdown-content .codehilite code {
+                background: transparent;
+                padding: 0;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+            .markdown-content blockquote {
+                border-left: 4px solid #00897b;
+                padding-left: 16px;
+                margin: 15px 0;
+                color: #666;
+            }
+            .markdown-content table {
+                border-collapse: collapse;
+                width: 100%;
+                margin: 15px 0;
+            }
+            .markdown-content th, .markdown-content td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            .markdown-content th {
+                background: #f5f5f5;
+                font-weight: bold;
+            }
+            </style>
+<div class="markdown-content">
+<div id="markdown-content-NETWORKING_IMPLEMENTATION-md" style="display: none;"># Networking Implementation Details
+
+This document clarifies the implementation status of core networking features within the simulator, distinguishing between protocol-level implementation and logical simulator.
+
+## Overview
+
+The Cloud Networking Control Plane Simulator focuses on **Control Plane correctness** and **Intent reconciliation**. To maintain a lightweight and educational environment, certain data plane features are logically modeled when native kernel support is absent, while others are fully implemented in the Linux kernel on-the-fly.
+
+## Implementation Status
+
+| Feature | Control Plane Status | Data Plane / Enforcement |
+| :--- | :--- | :--- |
+| **EVPN-VXLAN** | **Implemented (FRR)** | **Implemented (Linux Kernel)** |
+| **VRFs** | **Simulated** | **Enforced via `iptables` (Logical Fallback)** |
+| **VTEPs** | **Implemented (FRR)** | **VXLAN interfaces bound to loopback** |
+
+---
+
+### EVPN-VXLAN &amp; VTEPs
+
+*   **Implementation**: Leaf and spine switches run **FRRouting (FRR)** for control plane signaling. The **Reconciliation Engine** performs actual kernel-level configuration using `ip link` to create and manage VXLAN interfaces (e.g., `vxlan1000`).
+*   **VTEP Configuration**: Leaf switches act as VTEPs. The reconciler ensures the loopback and VXLAN interfaces are correctly configured and peered via BGP EVPN, with VXLAN ID (VNI) mapping explicitly controlled by the reconciler logic.
+*   **Persistence**: The reconciler uses detailed link discovery (`ip -d link`) to verify VNI and device status. All reconciliation operations are idempotent, ensuring stable and predictable state maintenance.
+
+### VPC Isolation (VRFs)
+
+*   **Implementation**: The reconciler attempts to create native Linux VRF devices. However, some environments (like Docker Desktop on macOS using Apple Silicon, such as M-series) lacks the `vrf` kernel module.
+*   **Enforcement Fallback**: The simulator automatically falls back to **`iptables`** isolation on the leaf switches when native VRFs are not supported. This provides the required logical VPC isolation (preventing cross-VPC traffic) while maintaining stable control plane behavior.
+*   **Unified Discovery**: The reconciler handles "Unified Discovery" by treating both native VRF devices and `iptables` rules equally during state reconciliation to determine if a VPC's isolation is active ("available").
+
+#### Technical Rationale for Fallback
+Native VRF support in Linux requires a kernel compiled with `CONFIG_NET_VRF=y`. In this simulator environment:
+1.  **Elevated Permissions**: Although the switch containers run in `privileged: true` mode with `NET_ADMIN` capabilities, these only grant permission to *use* existing kernel features; they cannot provide features the kernel doesn't have.
+2.  **Host Kernel Constraints**: Containers share the host kernel. On macOS (Docker Desktop on macOS using Apple Silicon, such as M-series), this is a lightweight Linux utility VM.
+3.  **Apple Silicon Constraints**: The ARM64 Linux VM used by Docker Desktop on macOS using Apple Silicon, such as M-series on Apple Silicon has a distinct feature set compared to Intel-based environments. Native VRF support remains restricted or uncompiled in the standard Docker utility VM kernel.
+4.  **Specific Error**: The error `RTNETLINK answers: Not supported` explicitly confirms that the `vrf` device type is unregistered in the running kernel's driver table.
+5.  **Automatic Recovery**: The Reconciliation Engine detects this "Not supported" response and automatically switches to **Logical Isolation** using `iptables`. This ensures VPC boundaries are still enforced despite architecture-specific network limitations.
+
+### Intent-Driven Orchestration
+
+The Reconciliation Engine implements a periodic, "Closed Loop" orchestration cycle triggered by both timers and event changes:
+1. **Fetch**: Queries the SQLite database for desired network intent.
+2. **Discover**: Inspects leaf switches using `ip link` and `iptables-save` to determine actual state.
+3. **Diff**: Computes the difference between intended and actual resource states.
+4. **Action**: Executes system commands (`ip link add`, `iptables -A`, etc.) to converge the state.
+
+## Further Reading
+
+*   [Architecture Overview](ARCHITECTURE.md)
+*   [Control Plane Design](IDEAS.md)
+*   [FRRouting Documentation](https://docs.frrouting.org/)
+</div>
+<div id="rendered-content-NETWORKING_IMPLEMENTATION-md"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+<script>
+                // Client-side markdown rendering for NETWORKING_IMPLEMENTATION.md
+                const markdownContentNETWORKING_IMPLEMENTATION-md = document.getElementById('markdown-content-NETWORKING_IMPLEMENTATION-md').textContent;
+                const renderedContentNETWORKING_IMPLEMENTATION-md = marked.parse(markdownContentNETWORKING_IMPLEMENTATION-md);
+                document.getElementById('rendered-content-NETWORKING_IMPLEMENTATION-md').innerHTML = renderedContentNETWORKING_IMPLEMENTATION-md;
+            </script>
 </div>
 </div>
 </div>
