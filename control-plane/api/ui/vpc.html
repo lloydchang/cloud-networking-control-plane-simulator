@@ -1545,6 +1545,61 @@
                 modal.style.display = 'none';
             }
         }
+
+        // ==========================================
+        // LICENSE MODAL LOGIC
+        // ==========================================
+        const licenseLink = document.getElementById('licenseLink');
+        const licenseModal = document.getElementById('licenseModal');
+        const closeLicenseModalBtn = document.getElementById('closeLicenseModal');
+        const licenseTextEl = document.getElementById('licenseText');
+        
+        if (licenseLink && licenseModal && closeLicenseModalBtn && licenseTextEl) {
+            let licenseContent = null;
+            const licenseUrl = 'https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/LICENSE';
+
+            const openLicenseModal = async () => {
+                if (!licenseContent) {
+                    try {
+                        licenseTextEl.textContent = 'Loading...';
+                        const response = await fetch(licenseUrl);
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        licenseContent = await response.text();
+                        licenseTextEl.textContent = licenseContent;
+                    } catch (error) {
+                        console.error('Failed to fetch license:', error);
+                        licenseTextEl.textContent = 'Failed to load license content. Please try again later.';
+                        licenseContent = null; // Allow refetching
+                    }
+                }
+                licenseModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            };
+
+            const closeLicenseModal = () => {
+                licenseModal.classList.add('hidden');
+                document.body.style.overflow = '';
+            };
+
+            licenseLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                openLicenseModal();
+            });
+
+            closeLicenseModalBtn.addEventListener('click', closeLicenseModal);
+
+            licenseModal.addEventListener('click', (event) => {
+                if (event.target === licenseModal) {
+                    closeLicenseModal();
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && !licenseModal.classList.contains('hidden')) {
+                    closeLicenseModal();
+                }
+            });
+        }
     </script>
 
     <!-- API Guide Modal -->
@@ -1887,6 +1942,31 @@
                         <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/LICENSE" target="_blank">⚖️ License Information</a></li>
                     </ul>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-6 mt-8">
+        <div class="max-w-7xl mx-auto flex justify-between items-center text-xs text-slate-400 px-4">
+            <p>Data updated: Jan 2026.</p>
+            <div class="flex items-center gap-4">
+                <a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 hover:underline transition-colors">View on GitHub</a>
+                <a href="#" id="licenseLink" class="hover:text-indigo-600 hover:underline transition-colors cursor-pointer">License</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- License Modal -->
+    <div id="licenseModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+            <div class="p-4 border-b border-slate-200 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-slate-800">License</h2>
+                <button id="closeLicenseModal" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto">
+                <pre id="licenseText" class="text-sm text-slate-600 whitespace-pre-wrap font-mono"></pre>
             </div>
         </div>
     </div>
