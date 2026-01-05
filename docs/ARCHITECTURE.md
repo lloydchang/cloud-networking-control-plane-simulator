@@ -165,7 +165,7 @@ This diagram shows how a request at `localhost:8080` traverses the simulated lay
 [ User ] ──▶ [ Port 8080 ] ──▶ [ Load-Balancer ] ──▶ [ Fabric (VXLAN) ] ──▶ [ Server-1 ]
                 │                   │                     │                    │
              Host IP            LB Container        (Decapsulation)         VPC Subnet
-          (203.0.113.1)         (10.0.0.100)           (at Leaf)           (10.1.1.10)
+          (203.0.113.10)        (10.0.0.103)           (at Leaf)           (10.1.1.10)
 ```
 
 ### Outbound Traffic Traversal (VPC to Internet)

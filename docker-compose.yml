@@ -158,7 +158,7 @@ services:
              ip route replace default via 10.1.3.1 &&
              mkdir -p /app/www &&
              echo '<h1>Server-3 (VPC-100)</h1><p>Cloud Networking Control Plane Simulator - Workload Node</p>' > /app/www/index.html &&
-             python3 -m http.server 8080 --directory /app/www"
+             python3 -m http.server 80 --directory /app/www"
     cap_add:
       - NET_ADMIN
     networks:
