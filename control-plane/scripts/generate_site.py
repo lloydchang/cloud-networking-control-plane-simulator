@@ -124,14 +124,46 @@ def extract_scenarios_from_vpc_md():
         with open(vpc_md_path, 'r') as f:
             content = f.read()
         
-        # Extract scenario numbers using regex
-        scenario_pattern = r'### (\d+)\. (.+)'
+        # Extract scenario numbers and names using regex
+        scenario_pattern = r'### (\d+)\. (.+?)(?:\n.*?### (\d+)\. (.+?))*'
         matches = re.findall(scenario_pattern, content)
         
         if matches:
             scenarios = []
-            for num, name in matches:
-                scenarios.append(name.strip())
+            for match in matches:
+                num = match[0]
+                title = match[1].strip()
+                description = ''
+                resources = []
+                
+                # Extract description for this scenario
+                desc_pattern = rf'### {num}\. {re.escape(match[1])}.*?\n\n(.*?)(?=### \d+\.|$)'
+                desc_match = re.search(desc_pattern, content, re.MULTILINE | re.DOTALL)
+                if desc_match:
+                    description = desc_match.group(1).strip()
+                
+                # Extract resources for this scenario
+                resource_pattern = rf'### {num}\. {re.escape(match[1])}.*?\n\n.*?- \*\*(.*?)\*\*: (.*?)\n'
+                resource_matches = re.findall(resource_pattern, content, re.MULTILINE | re.DOTALL)
+                
+                for resource_match in resource_matches:
+                    resource_type = resource_match[1].strip()
+                    resource_label = resource_match[2].strip()
+                    
+                    # Map resource types to standard names
+                    if resource_type.lower() in ['vpc', 'virtual private cloud', 'vpc with']:
+                        resources.append({"type": "vpc", "label": resource_label})
+                    elif resource_type.lower() in ['cloud routing hub', 'hub']:
+                        resources.append({"type": "hub", "label": resource_label})
+                    elif 'data center' in resource_type.lower():
+                        resources.append({"type": "standalone_dc", "label": resource_label})
+                
+                scenarios.append({
+                    "title": title,
+                    "description": description,
+                    "resources": resources
+                })
+            
             return scenarios
     except Exception as e:
         print(f"Error parsing VPC.md: {e}")
