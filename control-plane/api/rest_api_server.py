@@ -67,6 +67,7 @@ def get_processed_architecture_content():
     """Extract and process architecture content with diagram formatting"""
     arch_md_path = os.path.join(os.path.dirname(__file__), "..", "..", "docs", "ARCHITECTURE.md")
     if not os.path.exists(arch_md_path):
+        print(f"ARCHITECTURE.md not found at: {arch_md_path}")
         return None
     
     try:
@@ -425,6 +426,12 @@ async def vpc_view():
         
         # Process architecture content with diagram formatting
         arch_content = get_processed_architecture_content()
+        
+        # Debug logging
+        print(f"DEBUG: arch_content type: {type(arch_content)}")
+        print(f"DEBUG: arch_content length: {len(arch_content) if arch_content else 'None'}")
+        if arch_content:
+            print(f"DEBUG: Contains LOGICAL OVERLAY: {'LOGICAL OVERLAY' in arch_content}")
         
         # Replace the architecture tab content
         if arch_content:
