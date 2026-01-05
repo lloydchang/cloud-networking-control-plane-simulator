@@ -286,8 +286,8 @@ def export_static_fully_offline():
     # Find the architecture tab in the HTML and update it
     arch_tab = soup.find("div", {"id": "content-architecture"})
     if arch_tab:
-        # Replace the architecture tab content with processed markdown HTML
-        arch_content = f"""
+        # Use client-side markdown rendering for better performance (same as Vercel)
+        new_arch_content = f"""
         <style>
         .architecture-content {{
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -361,7 +361,17 @@ def export_static_fully_offline():
             font-weight: bold;
         }}
         </style>
-        <div class="architecture-content">{arch_data}</div>
+        <div class="architecture-content">
+            <div id="markdown-content" style="display: none;">{arch_data}</div>
+            <div id="rendered-content"></div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+        <script>
+            // Client-side markdown rendering for better performance
+            const markdownContent = document.getElementById('markdown-content').textContent;
+            const renderedContent = marked.parse(markdownContent);
+            document.getElementById('rendered-content').innerHTML = renderedContent;
+        </script>
         """
         
         # Create new content div
