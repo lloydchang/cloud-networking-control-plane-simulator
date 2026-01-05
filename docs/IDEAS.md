@@ -1,5 +1,3 @@
-# IDEAS.md
-
 # Cloud Networking Control Plane Simulator Ideas
 
 This document outlines potential extension areas for the Cloud Networking Control Plane Simulator. The focus is on Control Plane correctness, clear system boundaries, and integration with external orchestration systems. All components are simulations or reference implementations, not production infrastructure.
