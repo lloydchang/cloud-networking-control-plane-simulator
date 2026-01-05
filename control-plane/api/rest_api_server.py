@@ -45,14 +45,6 @@ except ImportError:
     METRICS = {}
     PROMETHEUS_AVAILABLE = False
 
-try:
-    import markdown
-    import requests
-    from bs4 import BeautifulSoup
-    MARKDOWN_AVAILABLE = True
-except ImportError:
-    MARKDOWN_AVAILABLE = False
-
 from .models import (
     Base,
     VPC as VPCModel,
@@ -106,98 +98,6 @@ if not os.getenv("VERCEL"):
 # Mount UI assets directory for logo and other static files
 if os.path.exists(UI_DIR):
     app.mount("/ui", StaticFiles(directory=UI_DIR), name="ui")
-
-def get_markdown_content(filename):
-    """Get markdown content and convert to HTML (server-side rendering)"""
-    if not MARKDOWN_AVAILABLE:
-        return f"<p>Error: Markdown rendering not available on this platform</p>"
-    
-    try:
-        # Check if it's a root file (README.md, LICENSE)
-        if filename in ["README.md", "LICENSE"]:
-            github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/{filename}"
-        else:
-            github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/docs/{filename}"
-        
-        response = requests.get(github_url)
-        if response.status_code == 200:
-            content = response.text
-        else:
-            # Fallback to local file
-            if filename in ["README.md", "LICENSE"]:
-                md_path = os.path.join(os.path.dirname(__file__), "..", "..", filename)
-            else:
-                md_path = os.path.join(os.path.dirname(__file__), "..", "..", "docs", filename)
-            if os.path.exists(md_path):
-                with open(md_path, 'r') as f:
-                    content = f.read()
-            else:
-                return None
-    except Exception as e:
-        logging.warning(f"Error fetching {filename} from GitHub: {e}")
-        # Fallback to local file
-        if filename in ["README.md", "LICENSE"]:
-            md_path = os.path.join(os.path.dirname(__file__), "..", "..", filename)
-        else:
-            md_path = os.path.join(os.path.dirname(__file__), "..", "..", "docs", filename)
-        if os.path.exists(md_path):
-            with open(md_path, 'r') as f:
-                content = f.read()
-        else:
-            return None
-    
-    # Handle LICENSE as plain text in code block
-    if filename == "LICENSE":
-        return f'<pre style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; padding: 16px; overflow-x: auto; margin: 15px 0;"><code>{content}</code></pre>'
-    
-    # Convert markdown to HTML (server-side rendering)
-    try:
-        # Format text diagrams as code blocks first
-        lines = content.split('\n')
-        formatted_lines = []
-        in_code_block = False
-        in_diagram = False
-        
-        for line in lines:
-            # Detect diagram blocks (start with ```text or contain diagram patterns)
-            if line.strip().startswith('```text'):
-                formatted_lines.append(line)
-                in_code_block = True
-                in_diagram = True
-            elif line.strip() == '```' and in_diagram:
-                formatted_lines.append(line)
-                in_code_block = False
-                in_diagram = False
-            # Detect ASCII diagram patterns (box drawing characters, arrows, etc.)
-            elif any(char in line for char in ['┌', '┐', '└', '┘', '─', '│', '├', '┤', '┬', '┴', '┼', '▶', '───']):
-                if not in_code_block:
-                    formatted_lines.append('```text')
-                    in_code_block = True
-                    in_diagram = True
-                formatted_lines.append(line)
-            elif in_diagram and (line.strip() == '' or line.strip().startswith('```')):
-                if line.strip() == '```':
-                    formatted_lines.append(line)
-                    in_code_block = False
-                    in_diagram = False
-                else:
-                    formatted_lines.append(line)
-            else:
-                formatted_lines.append(line)
-        
-        # Close any open code block
-        if in_code_block:
-            formatted_lines.append('```')
-        
-        formatted_content = '\n'.join(formatted_lines)
-        
-        # Convert markdown to HTML
-        html_content = markdown.markdown(formatted_content, extensions=['fenced_code', 'codehilite', 'tables', 'toc'])
-        return html_content
-        
-    except Exception as e:
-        logging.warning(f"Error converting markdown to HTML: {e}")
-        return f"<p>Error rendering {filename}</p>"
 
 DB_DIR = "/tmp" if os.getenv("VERCEL") else os.getenv("DB_DIR", os.path.join(os.path.dirname(__file__), "..", "data"))
 DB_PATH = os.getenv("DB_PATH", f"{DB_DIR}/network.db")
@@ -459,170 +359,21 @@ async def openapi_json():
 
 @app.get("/", include_in_schema=False)
 async def vpc_view():
-    """Serve the VPC view with dynamically rendered markdown content"""
-    # Try to serve the base template and render markdown content dynamically
-    vpc_html_path = os.path.join(os.path.dirname(__file__), "ui", "vpc.html")
-    
-    if os.path.exists(vpc_html_path):
-        try:
-            with open(vpc_html_path, "r") as f:
-                html_content = f.read()
-            
-            # Parse HTML and inject markdown content if available
-            if MARKDOWN_AVAILABLE:
-                soup = BeautifulSoup(html_content, "html.parser")
-                
-                # Define markdown files and their mapping to tabs
-                markdown_files = {
-                    "ARCHITECTURE.md": {
-                        "tab_id": "content-architecture",
-                        "title": "Detailed Architecture Documentation",
-                        "description": "Comprehensive architecture documentation from docs/ARCHITECTURE.md"
-                    },
-                    "API_GUIDE.md": {
-                        "tab_id": "content-api-guide", 
-                        "title": "Complete API Documentation",
-                        "description": "Full API reference and documentation from docs/API_GUIDE.md"
-                    },
-                    "TESTING.md": {
-                        "tab_id": "content-testing",
-                        "title": "Comprehensive Testing Guide",
-                        "description": "Complete testing documentation and coverage from docs/TESTING.md"
-                    },
-                    "VPC.md": {
-                        "tab_id": "content-vpc",
-                        "title": "VPC Implementation Details", 
-                        "description": "Detailed VPC implementation and scenarios from docs/VPC.md"
-                    },
-                    "README.md": {
-                        "tab_id": "readme",
-                        "title": "Project README",
-                        "description": "Main project documentation and getting started guide from README.md"
-                    },
-                    "API_EXAMPLES.md": {
-                        "tab_id": "api-examples",
-                        "title": "API Usage Examples",
-                        "description": "Comprehensive API examples and use cases from docs/API_EXAMPLES.md"
-                    },
-                    "IDEAS.md": {
-                        "tab_id": "ideas",
-                        "title": "Project Ideas and Future Development",
-                        "description": "Ideas for future features and improvements from docs/IDEAS.md"
-                    },
-                    "NETWORKING.md": {
-                        "tab_id": "networking",
-                        "title": "Networking Implementation Details",
-                        "description": "Deep dive into networking implementation from docs/NETWORKING.md"
-                    },
-                    "LICENSE": {
-                        "tab_id": "license",
-                        "title": "Project License",
-                        "description": "GNU Affero General Public License terms and conditions"
-                    }
-                }
-                
-                # Process each markdown file
-                for filename, config in markdown_files.items():
-                    content = get_markdown_content(filename)
-                    if content:
-                        tab = soup.find("div", {"id": config["tab_id"]})
-                        if tab:
-                            # Add CSS and content
-                            new_content = f"""
-                            <style>
-                            .markdown-content {{
-                                font-family: 'Segoe UI', Arial, sans-serif;
-                                line-height: 1.6;
-                            }}
-                            .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {{
-                                color: #232f3e;
-                                margin: 20px 0 10px 0;
-                            }}
-                            .markdown-content pre {{
-                                background: #f8f9fa;
-                                border: 1px solid #e9ecef;
-                                border-radius: 4px;
-                                padding: 16px;
-                                overflow-x: auto;
-                                margin: 15px 0;
-                            }}
-                            .markdown-content code {{
-                                background: #f8f9fa;
-                                padding: 2px 4px;
-                                border-radius: 3px;
-                                font-size: 0.9em;
-                            }}
-                            .markdown-content pre code {{
-                                background: transparent;
-                                padding: 0;
-                                font-family: 'Courier New', Consolas, monospace;
-                                font-size: 0.85em;
-                                line-height: 1.4;
-                            }}
-                            .markdown-content .codehilite {{
-                                background: #f8f9fa;
-                                border: 1px solid #e9ecef;
-                                border-radius: 4px;
-                                padding: 16px;
-                                overflow-x: auto;
-                                margin: 15px 0;
-                            }}
-                            .markdown-content .codehilite pre {{
-                                background: transparent;
-                                border: none;
-                                padding: 0;
-                                margin: 0;
-                            }}
-                            .markdown-content .codehilite code {{
-                                background: transparent;
-                                padding: 0;
-                                font-family: 'Courier New', Consolas, monospace;
-                                font-size: 0.85em;
-                                line-height: 1.4;
-                            }}
-                            .markdown-content blockquote {{
-                                border-left: 4px solid #00897b;
-                                padding-left: 16px;
-                                margin: 15px 0;
-                                color: #666;
-                            }}
-                            .markdown-content table {{
-                                border-collapse: collapse;
-                                width: 100%;
-                                margin: 15px 0;
-                            }}
-                            .markdown-content th, .markdown-content td {{
-                                border: 1px solid #ddd;
-                                padding: 8px;
-                                text-align: left;
-                            }}
-                            .markdown-content th {{
-                                background: #f5f5f5;
-                                font-weight: bold;
-                            }}
-                            </style>
-                            
-                            <!-- Divider between original content and {filename} -->
-                            <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
-                                <h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 {config['title']}</h3>
-                                <p style="margin: 0; color: #555;">{config['description']}</p>
-                            </div>
-                            
-                            <div class="markdown-content">
-                                {content}
-                            </div>
-                            """
-                            
-                            tab.append(BeautifulSoup(new_content, "html.parser"))
-            
-            return HTMLResponse(str(soup) if MARKDOWN_AVAILABLE else html_content)
-        except Exception as e:
-            logging.warning(f"Error processing VPC view: {e}")
-            # Fallback to basic content
-            return HTMLResponse(html_content)
-    
-    # Final fallback
-    return HTMLResponse("<h1>VPC View Not Found</h1><p>The VPC view HTML file could not be found.</p>", status_code=404)
+    """Serve the pre-built static index.html directly from GitHub raw"""
+    try:
+        import httpx
+        github_raw_url = "https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/refs/heads/main/docs/index.html"
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(github_raw_url)
+            if response.status_code == 200:
+                logging.info("Serving pre-built static index.html from GitHub raw")
+                return HTMLResponse(response.text)
+            else:
+                return HTMLResponse(f"<h1>Static Content Not Available</h1><p>Could not fetch index.html from GitHub (status: {response.status_code})</p>", status_code=503)
+    except Exception as e:
+        logging.error(f"Error fetching static index.html from GitHub: {e}")
+        return HTMLResponse("<h1>Service Unavailable</h1><p>Unable to serve static content</p>", status_code=503)
 
 @app.get("/redoc", include_in_schema=False)
 async def redoc(request: Request):
