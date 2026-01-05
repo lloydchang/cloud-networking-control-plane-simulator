@@ -663,11 +663,29 @@
             color: #666;
             background: #f5f5f5;
             border-top: 1px solid #ddd;
-            border-top: 1px solid #ddd;
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .status-link {
+            color: #1976d2;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .status-link:hover {
+            text-decoration: underline;
+        }
+
+        .status-separator {
+            margin: 0 8px;
+            color: #ccc;
         }
 
         /* Legend */
@@ -904,7 +922,18 @@
         </div>
     </div>
 
-    <div class="status" id="status">Initializing...</div>
+    <div class="status">
+        <div class="status-left">
+            <a class="status-link" onclick="toggleApiGuide(); showTab('api-guide');">about</a>
+            <span class="status-separator">|</span>
+            <span id="status-stats">Initializing...</span>
+        </div>
+        <div class="status-right">
+            <a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator" target="_blank" class="status-link">View on GitHub</a>
+            <span class="status-separator">|</span>
+            <a class="status-link" onclick="toggleApiGuide(); showTab('license');">License</a>
+        </div>
+    </div>
 
     <script>
         let currentView = 'detailed';
@@ -960,8 +989,8 @@
                     console.log("Using static VPC data");
                     data = window.STATIC_VPC_DATA;
                     // Disable auto-refresh in static mode
-                    const statusEl = document.getElementById('status');
-                    if (statusEl) statusEl.innerText = 'Static Reference Mode';
+                    const statusStatsEl = document.getElementById('status-stats');
+                    if (statusStatsEl) statusStatsEl.innerText = 'Static Reference Mode';
                 } else {
                     const response = await fetch('/vpc');
                     if (!response.ok) throw new Error('API unstable or not responding');
@@ -1373,7 +1402,8 @@
 
 
                 const statusLabel = window.STATIC_VPC_DATA ? 'Static Reference Mode | ' : 'Last updated: ' + new Date().toLocaleTimeString() + ' | ';
-                document.getElementById('status').innerText = statusLabel + 'VPCs: ' + vpcs.length + ' | Subnets: ' + subnets.length;
+                const statusStatsEl = document.getElementById('status-stats');
+                if (statusStatsEl) statusStatsEl.innerText = statusLabel + 'VPCs: ' + vpcs.length + ' | Subnets: ' + subnets.length;
 
                 // Draw arrows after DOM is updated
                 setTimeout(() => drawPropagationArrows(vpcs, standaloneDCs, hubs), 500);
@@ -1381,7 +1411,8 @@
             } catch (err) {
                 console.error(err);
                 document.getElementById('content').innerHTML = '<p style="color: #c62828;">Error loading data: ' + err.message + '</p>';
-                document.getElementById('status').innerText = 'Error: ' + err.message;
+                const statusStatsEl = document.getElementById('status-stats');
+                if (statusStatsEl) statusStatsEl.innerText = 'Error: ' + err.message;
             }
         }
 
