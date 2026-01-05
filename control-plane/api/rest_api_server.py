@@ -465,7 +465,7 @@ async def vpc_view():
         with open(vpc_html_path, "r") as f:
             html_content = f.read()
         
-        # Process architecture content with diagram formatting
+        # Serve raw markdown content for client-side rendering
         arch_content = get_processed_architecture_content()
         
         # Debug logging
@@ -474,12 +474,12 @@ async def vpc_view():
         if arch_content:
             print(f"DEBUG: Contains LOGICAL OVERLAY: {'LOGICAL OVERLAY' in arch_content}")
         
-        # Replace the architecture tab content
         if arch_content:
             from bs4 import BeautifulSoup
             soup = BeautifulSoup(html_content, "html.parser")
             arch_tab = soup.find("div", {"id": "content-architecture"})
             if arch_tab:
+                # Instead of processing server-side, serve raw markdown and let client render
                 new_arch_content = f"""
                 <style>
                 .architecture-content {{
@@ -554,7 +554,17 @@ async def vpc_view():
                     font-weight: bold;
                 }}
                 </style>
-                <div class="architecture-content">{arch_content}</div>
+                <div class="architecture-content">
+                    <div id="markdown-content" style="display: none;">{arch_content}</div>
+                    <div id="rendered-content"></div>
+                </div>
+                <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+                <script>
+                    // Client-side markdown rendering for better performance
+                    const markdownContent = document.getElementById('markdown-content').textContent;
+                    const renderedContent = marked.parse(markdownContent);
+                    document.getElementById('rendered-content').innerHTML = renderedContent;
+                </script>
                 """
                 new_arch_div = soup.new_tag("div", **{"id": "content-architecture", "style": "display: none;"})
                 new_arch_div.append(BeautifulSoup(new_arch_content, "html.parser"))
