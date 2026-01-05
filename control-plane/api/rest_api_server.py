@@ -11,6 +11,8 @@ Implements the Network API covering:
 - Security Groups
 - NAT Gateways
 - Internet Gateways
+
+Deployment: Cache-busting fix applied 2025-01-04 to resolve Vercel serving issues
 """
 
 import uuid
