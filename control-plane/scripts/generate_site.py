@@ -141,7 +141,11 @@ def get_markdown_content(filename):
     """Get markdown content and convert to HTML (server-side rendering)"""
     try:
         import requests
-        github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/docs/{filename}"
+        # Check if it's a root file (README.md, LICENSE)
+        if filename in ["README.md", "LICENSE"]:
+            github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/{filename}"
+        else:
+            github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/docs/{filename}"
         print(f"Fetching {filename} from GitHub: {github_url}")
         
         response = requests.get(github_url)
@@ -151,7 +155,10 @@ def get_markdown_content(filename):
         else:
             print(f"GitHub fetch failed: {response.status_code}")
             # Fallback to local file
-            md_path = os.path.join("docs", filename)
+            if filename in ["README.md", "LICENSE"]:
+                md_path = os.path.join("..", filename)  # Root directory
+            else:
+                md_path = os.path.join("docs", filename)
             if os.path.exists(md_path):
                 with open(md_path, 'r') as f:
                     content = f.read()
@@ -160,7 +167,10 @@ def get_markdown_content(filename):
     except Exception as e:
         print(f"Error fetching {filename} from GitHub: {e}")
         # Fallback to local file
-        md_path = os.path.join("docs", filename)
+        if filename in ["README.md", "LICENSE"]:
+            md_path = os.path.join("..", filename)  # Root directory
+        else:
+            md_path = os.path.join("docs", filename)
         if os.path.exists(md_path):
             with open(md_path, 'r') as f:
                 content = f.read()
@@ -619,6 +629,14 @@ def export_static_fully_offline():
         },
         
         # New tabs - create dedicated tabs
+        "README.md": {
+            "tab_id": "readme",
+            "action": "new_tab",
+            "tab_name": "README",
+            "icon": "🏠",
+            "title": "Project README",
+            "description": "Main project documentation and getting started guide from README.md"
+        },
         "API_EXAMPLES.md": {
             "tab_id": "api-examples",
             "action": "new_tab",
@@ -642,6 +660,14 @@ def export_static_fully_offline():
             "icon": "⚙️", 
             "title": "Networking Implementation Details",
             "description": "Deep dive into networking implementation from docs/NETWORKING_IMPLEMENTATION.md"
+        },
+        "LICENSE": {
+            "tab_id": "license",
+            "action": "new_tab",
+            "tab_name": "License",
+            "icon": "📄",
+            "title": "Project License",
+            "description": "MIT License terms and conditions"
         }
     }
     

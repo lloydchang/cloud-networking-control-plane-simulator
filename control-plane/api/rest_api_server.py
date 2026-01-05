@@ -71,7 +71,11 @@ def get_processed_markdown_content(filename):
     if os.getenv("VERCEL"):
         try:
             import httpx
-            github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/docs/{filename}"
+            # Check if it's a root file (README.md, LICENSE)
+            if filename in ["README.md", "LICENSE"]:
+                github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/{filename}"
+            else:
+                github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/docs/{filename}"
             print(f"DEBUG: Fetching {filename} from GitHub: {github_url}")
             
             with httpx.Client() as client:
@@ -90,14 +94,25 @@ def get_processed_markdown_content(filename):
             return None
     else:
         # Local development - try multiple possible paths
-        possible_paths = [
-            os.path.join(os.path.dirname(__file__), "..", "..", "docs", filename),
-            os.path.join(os.path.dirname(__file__), "..", "docs", filename),
-            os.path.join(os.getcwd(), "docs", filename),
-            f"/tmp/docs/{filename}",  # Vercel might copy files here
-            f"docs/{filename}",  # Relative path
-            f"../docs/{filename}",  # Another relative path
-        ]
+        if filename in ["README.md", "LICENSE"]:
+            # Root directory files
+            possible_paths = [
+                os.path.join(os.path.dirname(__file__), "..", "..", filename),
+                os.path.join(os.path.dirname(__file__), "..", filename),
+                os.path.join(os.getcwd(), filename),
+                f"../{filename}",  # Relative path
+                filename,  # Direct path
+            ]
+        else:
+            # Docs directory files
+            possible_paths = [
+                os.path.join(os.path.dirname(__file__), "..", "..", "docs", filename),
+                os.path.join(os.path.dirname(__file__), "..", "docs", filename),
+                os.path.join(os.getcwd(), "docs", filename),
+                f"/tmp/docs/{filename}",  # Vercel might copy files here
+                f"docs/{filename}",  # Relative path
+                f"../docs/{filename}",  # Another relative path
+            ]
         
         file_path = None
         for path in possible_paths:
@@ -748,6 +763,14 @@ async def vpc_view():
             },
             
             # New tabs - create dedicated tabs
+            "README.md": {
+                "tab_id": "readme",
+                "action": "new_tab",
+                "tab_name": "README",
+                "icon": "🏠",
+                "title": "Project README",
+                "description": "Main project documentation and getting started guide from README.md"
+            },
             "API_EXAMPLES.md": {
                 "tab_id": "api-examples",
                 "action": "new_tab",
@@ -771,6 +794,14 @@ async def vpc_view():
                 "icon": "⚙️", 
                 "title": "Networking Implementation Details",
                 "description": "Deep dive into networking implementation from docs/NETWORKING_IMPLEMENTATION.md"
+            },
+            "LICENSE": {
+                "tab_id": "license",
+                "action": "new_tab",
+                "tab_name": "License",
+                "icon": "📄",
+                "title": "Project License",
+                "description": "MIT License terms and conditions"
             }
         }
         
