@@ -1254,7 +1254,12 @@ window.STATIC_SCENARIOS = [{"title": "S", "description": "* **Goal**: Simplest c
                     // 2. Find resources that claim belonging to this scenario via their 'scenario' property
                     [vpcs, hubs, standaloneDCs].forEach(collection => {
                         collection.forEach(node => {
-                            if (node.scenario && getCleanTitle(node.scenario) === cleanScenarioTitle && !globalRenderedIds.has(node.id)) {
+                            // Match both numbered and unnumbered scenarios
+                            const nodeScenario = node.scenario || '';
+                            const cleanNodeScenario = getCleanTitle(nodeScenario);
+                            const cleanScenarioTitle = getCleanTitle(scenario.title);
+                            
+                            if ((nodeScenario === cleanScenarioTitle) || (nodeScenario === cleanNodeScenario)) && !globalRenderedIds.has(node.id)) {
                                 scenarioNodes.push(node);
                             }
                         });
