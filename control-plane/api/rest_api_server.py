@@ -65,9 +65,27 @@ from . import shared_api_logic as services
 
 def get_processed_architecture_content():
     """Extract and process architecture content with diagram formatting"""
-    arch_md_path = os.path.join(os.path.dirname(__file__), "..", "..", "docs", "ARCHITECTURE.md")
-    if not os.path.exists(arch_md_path):
-        print(f"ARCHITECTURE.md not found at: {arch_md_path}")
+    # Try multiple possible paths for ARCHITECTURE.md
+    possible_paths = [
+        os.path.join(os.path.dirname(__file__), "..", "..", "docs", "ARCHITECTURE.md"),
+        os.path.join(os.path.dirname(__file__), "..", "docs", "ARCHITECTURE.md"),
+        os.path.join(os.getcwd(), "docs", "ARCHITECTURE.md"),
+        "/tmp/docs/ARCHITECTURE.md",  # Vercel might copy files here
+        "docs/ARCHITECTURE.md",  # Relative path
+        "../docs/ARCHITECTURE.md",  # Another relative path
+    ]
+    
+    arch_md_path = None
+    for path in possible_paths:
+        if os.path.exists(path):
+            arch_md_path = path
+            print(f"DEBUG: Found ARCHITECTURE.md at: {path}")
+            break
+    
+    if not arch_md_path:
+        print(f"DEBUG: ARCHITECTURE.md not found in any of these paths:")
+        for path in possible_paths:
+            print(f"  - {path}")
         return None
     
     try:
