@@ -138,7 +138,7 @@ def extract_scenarios_from_vpc_md():
         return ["demo", "basic", "advanced"]
 
 def get_markdown_content(filename):
-    """Get markdown content from GitHub raw URL (like Vercel)"""
+    """Get markdown content and convert to HTML (server-side rendering)"""
     try:
         import requests
         github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/docs/{filename}"
@@ -148,23 +148,74 @@ def get_markdown_content(filename):
         if response.status_code == 200:
             content = response.text
             print(f"Successfully fetched {len(content)} characters from GitHub")
-            return content
         else:
             print(f"GitHub fetch failed: {response.status_code}")
             # Fallback to local file
             md_path = os.path.join("docs", filename)
             if os.path.exists(md_path):
                 with open(md_path, 'r') as f:
-                    return f.read()
-            return None
+                    content = f.read()
+            else:
+                return None
     except Exception as e:
         print(f"Error fetching {filename} from GitHub: {e}")
         # Fallback to local file
         md_path = os.path.join("docs", filename)
         if os.path.exists(md_path):
             with open(md_path, 'r') as f:
-                return f.read()
-        return None
+                content = f.read()
+        else:
+            return None
+    
+    # Convert markdown to HTML (server-side rendering)
+    try:
+        import markdown
+        # Format text diagrams as code blocks first
+        lines = content.split('\n')
+        formatted_lines = []
+        in_code_block = False
+        in_diagram = False
+        
+        for line in lines:
+            # Detect diagram blocks (start with ```text or contain diagram patterns)
+            if line.strip().startswith('```text'):
+                formatted_lines.append(line)
+                in_code_block = True
+                in_diagram = True
+            elif line.strip() == '```' and in_diagram:
+                formatted_lines.append(line)
+                in_code_block = False
+                in_diagram = False
+            # Detect ASCII diagram patterns (box drawing characters, arrows, etc.)
+            elif any(char in line for char in ['┌', '┐', '└', '┘', '─', '│', '├', '┤', '┬', '┴', '┼', '▶', '───']):
+                if not in_code_block:
+                    formatted_lines.append('```text')
+                    in_code_block = True
+                    in_diagram = True
+                formatted_lines.append(line)
+            elif in_diagram and (line.strip() == '' or line.strip().startswith('```')):
+                if line.strip() == '```':
+                    formatted_lines.append(line)
+                    in_code_block = False
+                    in_diagram = False
+                else:
+                    formatted_lines.append(line)
+            else:
+                formatted_lines.append(line)
+        
+        # Close any open code block
+        if in_code_block:
+            formatted_lines.append('```')
+        
+        formatted_content = '\n'.join(formatted_lines)
+        
+        # Convert markdown to HTML
+        html_content = markdown.markdown(formatted_content, extensions=['fenced_code', 'codehilite', 'tables', 'toc'])
+        return html_content
+        
+    except Exception as e:
+        print(f"Error converting markdown to HTML: {e}")
+        return f"<p>Error rendering {filename}</p>"
 
 def append_markdown_to_tab(soup, tab_id, filename, title, description):
     """Append markdown content to existing tab for GitHub Pages"""
@@ -255,17 +306,8 @@ def append_markdown_to_tab(soup, tab_id, filename, title, description):
             </div>
             
             <div class="markdown-content">
-                <div id="markdown-content-{filename.replace('.', '-')}" style="display: none;"></div>
-                <div id="rendered-content-{filename.replace('.', '-')}"></div>
+                {content}
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
-            <script>
-                // Client-side markdown rendering for {filename}
-                const markdownContent{filename.replace('.', '-')} = `{content.replace('`', '\\`').replace('${', '\\${')}`;
-                const renderedContent{filename.replace('.', '-')} = marked.parse(markdownContent{filename.replace('.', '-')});
-                document.getElementById('rendered-content-{filename.replace('.', '-')}').innerHTML = renderedContent{filename.replace('.', '-')};
-                document.getElementById('markdown-content-{filename.replace('.', '-')}').textContent = markdownContent{filename.replace('.', '-')};
-            </script>
             """
             
             tab.append(BeautifulSoup(new_content, "html.parser"))
@@ -377,17 +419,8 @@ def create_new_tab_static(soup, tab_id, tab_name, icon, filename, title, descrip
             </style>
             
             <div class="markdown-content">
-                <div id="markdown-content-{filename.replace('.', '-')}" style="display: none;"></div>
-                <div id="rendered-content-{filename.replace('.', '-')}"></div>
+                {content}
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
-            <script>
-                // Client-side markdown rendering for {filename}
-                const markdownContent{filename.replace('.', '-')} = `{content.replace('`', '\\`').replace('${', '\\${')}`;
-                const renderedContent{filename.replace('.', '-')} = marked.parse(markdownContent{filename.replace('.', '-')});
-                document.getElementById('rendered-content-{filename.replace('.', '-')}').innerHTML = renderedContent{filename.replace('.', '-')};
-                document.getElementById('markdown-content-{filename.replace('.', '-')}').textContent = markdownContent{filename.replace('.', '-')};
-            </script>
             """
             
             new_content_div.append(BeautifulSoup(markdown_html, "html.parser"))

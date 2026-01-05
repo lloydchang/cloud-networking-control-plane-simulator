@@ -79,7 +79,8 @@ def get_processed_markdown_content(filename):
                 if response.status_code == 200:
                     content = response.text
                     print(f"DEBUG: Successfully fetched {len(content)} characters from GitHub")
-                    return content  # Return raw markdown for client-side rendering
+                    # Convert markdown to HTML (server-side rendering)
+                    return convert_markdown_to_html(content)
                 else:
                     print(f"DEBUG: GitHub fetch failed: {response.status_code}")
                     return None
@@ -114,10 +115,62 @@ def get_processed_markdown_content(filename):
         try:
             with open(file_path, 'r') as f:
                 content = f.read()
-            return content  # Return raw markdown for client-side rendering
+            # Convert markdown to HTML (server-side rendering)
+            return convert_markdown_to_html(content)
         except Exception as e:
             print(f"DEBUG: Error reading {filename}: {e}")
             return None
+
+def convert_markdown_to_html(content):
+    """Convert markdown content to HTML with proper diagram formatting"""
+    try:
+        import markdown
+        # Format text diagrams as code blocks first
+        lines = content.split('\n')
+        formatted_lines = []
+        in_code_block = False
+        in_diagram = False
+        
+        for line in lines:
+            # Detect diagram blocks (start with ```text or contain diagram patterns)
+            if line.strip().startswith('```text'):
+                formatted_lines.append(line)
+                in_code_block = True
+                in_diagram = True
+            elif line.strip() == '```' and in_diagram:
+                formatted_lines.append(line)
+                in_code_block = False
+                in_diagram = False
+            # Detect ASCII diagram patterns (box drawing characters, arrows, etc.)
+            elif any(char in line for char in ['┌', '┐', '└', '┘', '─', '│', '├', '┤', '┬', '┴', '┼', '▶', '───']):
+                if not in_code_block:
+                    formatted_lines.append('```text')
+                    in_code_block = True
+                    in_diagram = True
+                formatted_lines.append(line)
+            elif in_diagram and (line.strip() == '' or line.strip().startswith('```')):
+                if line.strip() == '```':
+                    formatted_lines.append(line)
+                    in_code_block = False
+                    in_diagram = False
+                else:
+                    formatted_lines.append(line)
+            else:
+                formatted_lines.append(line)
+        
+        # Close any open code block
+        if in_code_block:
+            formatted_lines.append('```')
+        
+        formatted_content = '\n'.join(formatted_lines)
+        
+        # Convert markdown to HTML
+        html_content = markdown.markdown(formatted_content, extensions=['fenced_code', 'codehilite', 'tables', 'toc'])
+        return html_content
+        
+    except Exception as e:
+        print(f"Error converting markdown to HTML: {e}")
+        return f"<p>Error rendering markdown content</p>"
 
 def get_processed_architecture_content():
     """Extract and process architecture content with diagram formatting"""
@@ -213,16 +266,8 @@ def append_markdown_content(soup, tab_id, filename, title, description):
             </div>
             
             <div class="markdown-content">
-                <div id="markdown-content-{filename.replace('.', '-')}" style="display: none;">{content}</div>
-                <div id="rendered-content-{filename.replace('.', '-')}"></div>
+                {content}
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
-            <script>
-                // Client-side markdown rendering for {filename}
-                const markdownContent{filename.replace('.', '-')} = document.getElementById('markdown-content-{filename.replace('.', '-')}').textContent;
-                const renderedContent{filename.replace('.', '-')} = marked.parse(markdownContent{filename.replace('.', '-')});
-                document.getElementById('rendered-content-{filename.replace('.', '-')}').innerHTML = renderedContent{filename.replace('.', '-')};
-            </script>
             """
             
             # Append the new content to the existing tab
@@ -336,16 +381,8 @@ def create_new_tab(soup, tab_id, tab_name, icon, filename, title, description):
             </style>
             
             <div class="markdown-content">
-                <div id="markdown-content-{filename.replace('.', '-')}" style="display: none;">{content}</div>
-                <div id="rendered-content-{filename.replace('.', '-')}"></div>
+                {content}
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
-            <script>
-                // Client-side markdown rendering for {filename}
-                const markdownContent{filename.replace('.', '-')} = document.getElementById('markdown-content-{filename.replace('.', '-')}').textContent;
-                const renderedContent{filename.replace('.', '-')} = marked.parse(markdownContent{filename.replace('.', '-')});
-                document.getElementById('rendered-content-{filename.replace('.', '-')}').innerHTML = renderedContent{filename.replace('.', '-')};
-            </script>
             """
             
             new_content_div.append(BeautifulSoup(markdown_html, "html.parser"))
