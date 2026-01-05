@@ -71,6 +71,76 @@ def extract_coverage_from_testing_md():
         print(f"Error parsing TESTING.md: {e}")
         return None
 
+def extract_coverage_from_testing_md_html():
+    """Get coverage data formatted as a compact HTML block"""
+    data = extract_coverage_from_testing_md()
+    if not data:
+        return None
+        
+    # Build new coverage HTML
+    coverage_html = "<div style='font-size: 11px; line-height: 1.4; color: #444; border: 1px solid #eee; padding: 10px; border-radius: 4px; background: #fafafa; margin: 10px 0;'>"
+    coverage_html += "<strong>Current Coverage (Baseline):</strong><br/>"
+    for component, val in data.items():
+        if component == "overall":
+            coverage_html += f"• <strong>Overall: {val}% 📈</strong><br/>"
+        else:
+            coverage_html += f"• {component}: {val['percentage']}% {val['status']}<br/>"
+    coverage_html += "<em>Uncovered: Database initialization and entry points</em></div>"
+    
+    return coverage_html
+
+def preprocess_markdown(content):
+    """Support GitHub-style alerts and other custom formatting before markdown conversion"""
+    if not content:
+        return content
+        
+    # Pattern for GitHub alerts: > [!TYPE]\n> Content
+    # Types: NOTE, TIP, IMPORTANT, WARNING, CAUTION
+    alert_types = {
+        "NOTE": {"icon": "ℹ️", "title": "Note", "color": "#0969da"},
+        "TIP": {"icon": "💡", "title": "Tip", "color": "#1a7f37"},
+        "IMPORTANT": {"icon": "📢", "title": "Important", "color": "#8250df"},
+        "WARNING": {"icon": "⚠️", "title": "Warning", "color": "#9a6700"},
+        "CAUTION": {"icon": "🚫", "title": "Caution", "color": "#d1242f"}
+    }
+    
+    # Also support [!TYPE] on a line by itself if it's within a quote
+    lines = content.split('\n')
+    processed_lines = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        alert_match = re.match(r'^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]', line.strip())
+        
+        if alert_match:
+            alert_type = alert_match.group(1).upper()
+            config = alert_types[alert_type]
+            
+            # Start of alert block
+            processed_lines.append(f'<div class="markdown-alert markdown-alert-{alert_type.lower()}">')
+            processed_lines.append(f'<p class="markdown-alert-title">{config["icon"]} {config["title"]}</p>')
+            
+            # Continue reading quoted lines for this alert
+            i += 1
+            while i < len(lines):
+                if lines[i].strip().startswith('>'):
+                    # Remove the '>' and optional trailing space
+                    content_line = re.sub(r'^>\s?', '', lines[i])
+                    if content_line.strip():
+                        processed_lines.append(content_line)
+                    else:
+                        processed_lines.append('')
+                    i += 1
+                else:
+                    break
+            
+            processed_lines.append('</div>')
+        else:
+            processed_lines.append(line)
+            i += 1
+            
+    return '\n'.join(processed_lines)
+
 def extract_architecture_from_md():
     """Extract architecture content from ARCHITECTURE.md and format diagrams as code blocks"""
     arch_md_path = "docs/ARCHITECTURE.md"
@@ -282,12 +352,14 @@ def get_markdown_content(filename):
         
         formatted_content = '\n'.join(formatted_lines)
         
+        # Pre-process for GitHub alerts and extras
+        preprocessed_content = preprocess_markdown(formatted_content)
+        
         # Convert markdown to HTML (server-side rendering)
         import markdown
         # Add extensions for better formatting (same as Vercel)
         # nl2br preserves line breaks as <br> tags
-        # Note: formatted_content already handled backticks
-        html_content = markdown.markdown(formatted_content, extensions=['fenced_code', 'codehilite', 'tables', 'toc', 'nl2br'])
+        html_content = markdown.markdown(preprocessed_content, extensions=['fenced_code', 'codehilite', 'tables', 'toc', 'nl2br'])
         
         return html_content
         
@@ -568,6 +640,7 @@ def export_static_fully_offline():
         except Exception as e:
             print(f"Warning: Could not fetch VPC data from API ({e}), using sample data")
             # Use sample data (same as before)
+            # Improved fallback sample data with subnets so visual isn't empty
             vpc_data = {
                 "nodes": [
                     {
@@ -575,22 +648,27 @@ def export_static_fully_offline():
                         "type": "vpc",
                         "label": "Demo VPC",
                         "cidr": "10.0.0.0/16",
-                        "region": "us-east-1",
-                        "secondary_cidrs": ["10.1.0.0/16"],
-                        "scenario": "demo",
-                        "status": "active",
-                        "created_at": "2024-01-01T00:00:00Z"
+                        "status": "active"
+                    },
+                    {
+                        "id": "subnet-demo-1",
+                        "type": "subnet",
+                        "label": "Public Subnet",
+                        "cidr": "10.0.1.0/24",
+                        "parent": "vpc-demo-1"
+                    },
+                    {
+                        "id": "subnet-demo-2",
+                        "type": "subnet",
+                        "label": "Private Subnet",
+                        "cidr": "10.0.2.0/24",
+                        "parent": "vpc-demo-1"
                     }
                 ],
                 "edges": [
                     {
                         "source": "vpc-demo-1",
                         "target": "leaf-1",
-                        "type": "vpc-hosting"
-                    },
-                    {
-                        "source": "vpc-demo-1",
-                        "target": "leaf-2",
                         "type": "vpc-hosting"
                     }
                 ]
@@ -682,19 +760,15 @@ def export_static_fully_offline():
                 print(f"Updated logo path for GitHub Pages: {logo_img['src']}")
 
     # Extract coverage from TESTING.md and inject into HTML
-    coverage_data = extract_coverage_from_testing_md()
-    if coverage_data:
+    coverage_html_content = extract_coverage_from_testing_md_html()
+    if coverage_html_content:
         # Find the coverage section in the HTML and update it
         coverage_section = soup.find("strong", string=lambda text: text and "Current Coverage:" in text)
         if coverage_section and coverage_section.parent:
-            # Build new coverage HTML
-            coverage_html = "<strong>Current Coverage (as of commit 3c0c98f):</strong><br/>"
-            for component, data in coverage_data.items():
-                if component == "overall":
-                    coverage_html += f"• <strong>Overall: {data}% 📈 (was 35%)</strong><br/>"
-                else:
-                    coverage_html += f"• {component}: {data['percentage']}% {data['status']}<br/>"
-            coverage_html += "<br/><em>Uncovered: Database initialization, entry points, some gRPC methods</em>"
+            # Replace the entire parent element (e.g., a <p> tag) with the new HTML
+            new_coverage_tag = BeautifulSoup(coverage_html_content, "html.parser")
+            coverage_section.parent.replace_with(new_coverage_tag)
+            print("Updated coverage section in HTML.")
     
     # Define markdown files and their mapping to tabs (same as Vercel)
     markdown_files = {
@@ -790,6 +864,34 @@ def export_static_fully_offline():
                 config["description"]
             )
 
+    # Universal Image Inlining pass (Base64)
+    # This ensures images in markdown (like the logo in README) are visible offline
+    for img_tag in soup.find_all("img"):
+        src = img_tag.get("src")
+        if src and not src.startswith("data:"):
+            # Resolve path relative to project root
+            # Images like 'control-plane/api/ui/assets/images/cncps_logo.svg'
+            # should be found if this script runs from root
+            img_path = src
+            if not os.path.exists(img_path):
+                # Try relative to template_dir if not found in root
+                img_path = os.path.join(template_dir, src.replace("/ui/", ""))
+                
+            if os.path.exists(img_path):
+                try:
+                    with open(img_path, 'rb') as f:
+                        img_data = f.read()
+                    
+                    mime_type = "image/png"
+                    if img_path.endswith(".svg"): mime_type = "image/svg+xml"
+                    elif img_path.endswith(".jpg") or img_path.endswith(".jpeg"): mime_type = "image/jpeg"
+                    
+                    b64_data = base64.b64encode(img_data).decode()
+                    img_tag['src'] = f"data:{mime_type};base64,{b64_data}"
+                    print(f"Inlined image: {img_path}")
+                except Exception as e:
+                    print(f"Warning: Could not inline image {img_path}: {e}")
+
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     output_path = os.path.join(OUTPUT_DIR, "index.html")
 
@@ -798,6 +900,7 @@ def export_static_fully_offline():
 
     print(f"Fully offline static dashboard written to {os.path.abspath(output_path)}")
     print(f"Contains {len(scenarios)} scenarios, all JS/CSS inlined (local + remote).")
+    coverage_data = extract_coverage_from_testing_md()
     if coverage_data:
         print(f"Updated coverage from TESTING.md: {coverage_data.get('overall', 'N/A')}% overall")
 

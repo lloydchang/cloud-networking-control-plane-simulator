@@ -919,8 +919,6 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 </div>
 <div class="status">
 <div class="status-left">
-<a class="status-link" onclick="toggleApiGuide(); showTab('api-guide');">about</a>
-<span class="status-separator">|</span>
 <span id="status-stats">Initializing...</span>
 </div>
 <div class="status-right">
@@ -1014,8 +1012,8 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
                 rawScenarios.forEach(s => {
                     const clean = getCleanTitle(s.title);
                     if (clean && !seenTitles.has(clean)) {
-                         seenTitles.add(clean);
-                         scenarios.push(s);
+                        seenTitles.add(clean);
+                        scenarios.push(s);
                     }
                 });
 
@@ -1105,14 +1103,14 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
                         .map(e => {
                             const targetNode = data.nodes.find(n => n.id === e.target);
                             let targetDisplay = targetNode ? targetNode.label : e.target;
-                            
+
                             // Add explanation for internal IDs
                             if (e.target.includes('igw-') && e.target !== 'igw-auto') {
                                 targetDisplay = `Internet Gateway (${targetDisplay})`;
                             } else if (e.target.includes('vpc-dc-') || e.target.includes('standalone-dc-')) {
                                 targetDisplay = `${targetDisplay} (On-Prem DC)`;
                             }
-                            
+
                             return {
                                 destination: e.destination || '0.0.0.0/0',
                                 target: targetDisplay
@@ -1222,7 +1220,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
                                 // Add explanation for internal IDs
                                 let sourceExplanation = '';
                                 let targetExplanation = '';
-                                
+
                                 if (edge.source.includes('vpc-dc-') || edge.source.includes('standalone-dc-')) {
                                     sourceExplanation = ' <span style="color: #666; font-size: 9px;">(ODC)</span>';
                                 }
@@ -1289,48 +1287,48 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
                     if (uniqueNodes.length > 0) {
                         // Mark as seen globally to prevent re-rendering in later scenarios or miscellaneous
                         uniqueNodes.forEach(n => globalRenderedIds.add(n.id));
-                        
+
                         const resourceIds = uniqueNodes.map(n => n.id);
-                        
+
                         // Count VPCs in this scenario
                         const vpcCount = uniqueNodes.filter(n => n.type === 'vpc').length;
                         const hubCount = uniqueNodes.filter(n => n.type === 'hub').length;
                         const dcCount = uniqueNodes.filter(n => n.type === 'standalone_dc').length;
-                        
+
                         // Update title for display to force sequential numbering
                         scenario.title = `${displayCounter}. ${cleanScenarioTitle}`;
-                        
+
                         let scenarioHtml = '';
 
                         // Use automatic hub centering for all scenarios
                         const hubNodes = uniqueNodes.filter(n => n.type === 'hub');
                         const nonHubNodes = uniqueNodes.filter(n => n.type !== 'hub');
-                        
+
                         // Auto-position hubs in the middle if there are multiple resources
                         let scenarioLayout = '';
                         if (hubNodes.length > 0 && nonHubNodes.length > 1) {
                             // Create a layout with hubs in the center
                             const leftColumn = nonHubNodes.slice(0, Math.ceil(nonHubNodes.length / 2));
                             const rightColumn = nonHubNodes.slice(Math.ceil(nonHubNodes.length / 2));
-                            
+
                             scenarioLayout = `
                                 <div class="scenario-content" style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 30px; align-items: start;">
                                     <div class="scenario-column">
                                         ${leftColumn.map(r => {
-                                            if (r.type === 'vpc') return formatVpcHtml(r);
-                                            if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
-                                            return '';
-                                        }).join('')}
+                                if (r.type === 'vpc') return formatVpcHtml(r);
+                                if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
+                                return '';
+                            }).join('')}
                                     </div>
                                     <div class="hub-column">
                                         ${hubNodes.map(h => formatHubHtml(h)).join('')}
                                     </div>
                                     <div class="scenario-column">
                                         ${rightColumn.map(r => {
-                                            if (r.type === 'vpc') return formatVpcHtml(r);
-                                            if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
-                                            return '';
-                                        }).join('')}
+                                if (r.type === 'vpc') return formatVpcHtml(r);
+                                if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
+                                return '';
+                            }).join('')}
                                     </div>
                                 </div>
                             `;
@@ -1339,15 +1337,15 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
                             scenarioLayout = `
                                 <div class="scenario-content">
                                     ${uniqueNodes.map(r => {
-                                        if (r.type === 'vpc') return formatVpcHtml(r);
-                                        if (r.type === 'hub') return formatHubHtml(r);
-                                        if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
-                                        return '';
-                                    }).join('')}
+                                if (r.type === 'vpc') return formatVpcHtml(r);
+                                if (r.type === 'hub') return formatHubHtml(r);
+                                if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
+                                return '';
+                            }).join('')}
                                 </div>
                             `;
                         }
-                        
+
                         scenarioHtml = `
                             <div class="scenario-group">
                                 <div class="scenario-title">${scenario.title} <span style="font-size: 11px; color: #666; font-weight: normal;">(${vpcCount} VPC${vpcCount !== 1 ? 's' : ''}${hubCount > 0 ? `, ${hubCount} CRH${hubCount !== 1 ? 's' : ''}` : ''}${dcCount > 0 ? `, ${dcCount} ODC${dcCount !== 1 ? 's' : ''}` : ''})</span></div>
@@ -1358,7 +1356,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
                                 ${scenarioLayout}
                             </div>
                         `;
-                        
+
                         if (scenarioHtml) {
                             html += scenarioHtml;
                             displayCounter++;
@@ -1376,7 +1374,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
                     const vpcCount = unassignedVpcs.length;
                     const hubCount = unassignedHubs.length;
                     const dcCount = unassignedDCs.length;
-                    
+
                     html += `
                         <div class="scenario-group">
                             <div class="scenario-title">Miscellaneous <span style="font-size: 11px; color: #666; font-weight: normal;">(${vpcCount} VPC${vpcCount !== 1 ? 's' : ''}${hubCount > 0 ? `, ${hubCount} CRH${hubCount !== 1 ? 's' : ''}` : ''}${dcCount > 0 ? `, ${dcCount} ODC${dcCount !== 1 ? 's' : ''}` : ''})</span></div>
@@ -1415,7 +1413,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
             // Ensure the SVG covers the full scrollable area, not just the viewport
             const mainContainer = document.querySelector('.main-container');
             if (mainContainer) {
-                 svg.style.height = mainContainer.scrollHeight + 'px';
+                svg.style.height = mainContainer.scrollHeight + 'px';
             }
 
             // Clear existing propagation arrows
@@ -1444,7 +1442,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
                     x1 = eRect.right - sRect.left;
                     // Adjust Y based on scroll because bounding client rect is viewport relative
                     // But our SVG is absolute positioned at top:0
-                    y1 = eRect.top + eRect.height / 2 - sRect.top + verticalOffset; 
+                    y1 = eRect.top + eRect.height / 2 - sRect.top + verticalOffset;
                     x2 = hRect.left - sRect.left;
                     y2 = hRect.top + hRect.height / 2 - sRect.top + verticalOffset;
                 } else {
@@ -1540,7 +1538,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
                     contentDiv.style.display = 'none';
                 }
             });
-            
+
             // Remove active state from all tab buttons (except external links)
             const tabButtons = ['api-guide', 'architecture', 'vpc', 'examples', 'testing', 'readme', 'api-examples', 'ideas', 'networking', 'license'];
             tabButtons.forEach(content => {
@@ -1549,7 +1547,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
                     tabButton.style.borderBottom = 'none';
                 }
             });
-            
+
             // Show selected content and activate tab (only for internal tabs)
             if (contents.includes(tabName)) {
                 const selectedContent = document.getElementById(`content-${tabName}`);
@@ -1564,7 +1562,7 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
         }
 
         // Close modal when clicking outside
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modal = document.getElementById('api-guide-modal');
             if (event.target === modal) {
                 modal.style.display = 'none';
@@ -1581,12 +1579,17 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 <!-- Navigation Tabs -->
 <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0;">
 <button id="tab-api-guide" onclick="showTab('api-guide')" style="background: none; border: none; padding: 10px; cursor: pointer; border-bottom: 2px solid #00897b;">📋 API Guide</button>
-<button id="tab-architecture" onclick="showTab('architecture')" style="background: none; border: none; padding: 10px; cursor: pointer;">🏗️ Architecture</button>
+<button id="tab-architecture" onclick="showTab('architecture')" style="background: none; border: none; padding: 10px; cursor: pointer;">🏗️
+                    Architecture</button>
 <button id="tab-vpc" onclick="showTab('vpc')" style="background: none; border: none; padding: 10px; cursor: pointer;">🌐 VPC</button>
-<button id="tab-examples" onclick="showTab('examples')" style="background: none; border: none; padding: 10px; cursor: pointer;">💡 Examples</button>
-<button id="tab-testing" onclick="showTab('testing')" style="background: none; border: none; padding: 10px; cursor: pointer;">🧪 Testing</button>
-<button id="tab-readme" onclick="showTab('readme')" style="background: none; border: none; padding: 10px; cursor: pointer;">🏠 README</button><button id="tab-api-examples" onclick="showTab('api-examples')" style="background: none; border: none; padding: 10px; cursor: pointer;">📚 API Examples</button><button id="tab-ideas" onclick="showTab('ideas')" style="background: none; border: none; padding: 10px; cursor: pointer;">💡 Ideas</button><button id="tab-networking" onclick="showTab('networking')" style="background: none; border: none; padding: 10px; cursor: pointer;">⚙️ Networking</button><button id="tab-license" onclick="showTab('license')" style="background: none; border: none; padding: 10px; cursor: pointer;">📄 License</button><button onclick="window.open('https://cloud-networking-control-plane-simulator.vercel.app/redoc', '_blank')" style="background: none; border: none; padding: 10px; cursor: pointer; text-decoration: none; color: inherit; margin-left: auto;">📖 ReDoc</button>
-<button onclick="window.open('https://cloud-networking-control-plane-simulator.vercel.app/docs', '_blank')" style="background: none; border: none; padding: 10px; cursor: pointer; text-decoration: none; color: inherit;">📚 Docs</button>
+<button id="tab-examples" onclick="showTab('examples')" style="background: none; border: none; padding: 10px; cursor: pointer;">💡
+                    Examples</button>
+<button id="tab-testing" onclick="showTab('testing')" style="background: none; border: none; padding: 10px; cursor: pointer;">🧪
+                    Testing</button>
+<button id="tab-readme" onclick="showTab('readme')" style="background: none; border: none; padding: 10px; cursor: pointer;">🏠 README</button><button id="tab-api-examples" onclick="showTab('api-examples')" style="background: none; border: none; padding: 10px; cursor: pointer;">📚 API Examples</button><button id="tab-ideas" onclick="showTab('ideas')" style="background: none; border: none; padding: 10px; cursor: pointer;">💡 Ideas</button><button id="tab-networking" onclick="showTab('networking')" style="background: none; border: none; padding: 10px; cursor: pointer;">⚙️ Networking</button><button id="tab-license" onclick="showTab('license')" style="background: none; border: none; padding: 10px; cursor: pointer;">📄 License</button><button onclick="window.open('https://cloud-networking-control-plane-simulator.vercel.app/redoc', '_blank')" style="background: none; border: none; padding: 10px; cursor: pointer; text-decoration: none; color: inherit; margin-left: auto;">📖
+                    ReDoc</button>
+<button onclick="window.open('https://cloud-networking-control-plane-simulator.vercel.app/docs', '_blank')" style="background: none; border: none; padding: 10px; cursor: pointer; text-decoration: none; color: inherit;">📚
+                    Docs</button>
 </div>
 <!-- API Guide Tab -->
 <div id="content-api-guide" style="display: block;">
@@ -1594,7 +1597,8 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 <!-- REST API Section -->
 <div>
 <h3>🌐 REST API (v1)</h3>
-<p>All endpoints return JSON responses. Use <code>Content-Type: application/json</code> for all POST requests.</p>
+<p>All endpoints return JSON responses. Use <code>Content-Type: application/json</code> for all
+                            POST requests.</p>
 <h4>Interface Overview</h4>
 <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
 <tr style="background: #f5f5f5;">
@@ -1664,8 +1668,10 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 4px;">
 <h4>🔗 Interactive Documentation</h4>
 <ul style="margin: 0; padding-left: 20px;">
-<li><strong>Swagger UI:</strong> <a href="/docs" target="_blank">Interactive API explorer with "Try it out"</a></li>
-<li><strong>ReDoc:</strong> <a href="/redoc" target="_blank">Clean, readable API reference</a></li>
+<li><strong>Swagger UI:</strong> <a href="/docs" target="_blank">Interactive API explorer with
+                                "Try it out"</a></li>
+<li><strong>ReDoc:</strong> <a href="/redoc" target="_blank">Clean, readable API reference</a>
+</li>
 <li><strong>Protocol Buffers:</strong> <a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/control-plane/proto/cloud_networking_control_plane_simulator.proto" target="_blank">gRPC service definition</a></li>
 </ul>
 </div>
@@ -1789,10 +1795,10 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 </tr>
 </tbody>
 </table>
-<blockquote>
-<p>[!NOTE]<br/>
-<strong>Configurability</strong>: Default ports are defined in <code>control-plane/main.py</code>. These can be overridden via environment variables <code>REST_PORT</code> and <code>GRPC_PORT</code> when starting the service.</p>
-</blockquote>
+<div class="markdown-alert markdown-alert-note">
+<p class="markdown-alert-title">ℹ️ Note</p>
+**Configurability**: Default ports are defined in `control-plane/main.py`. These can be overridden via environment variables `REST_PORT` and `GRPC_PORT` when starting the service.
+</div>
 <h2 id="resource-hierarchy">Resource Hierarchy</h2>
 <p>The simulator follows a standard cloud resource hierarchy:</p>
 <div class="codehilite"><pre><span></span><code><span class="nf">graph</span><span class="w"> </span><span class="n">TD</span>
@@ -1806,10 +1812,10 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 <h2 id="rest-api-v1">REST API (v1)</h2>
 <p>All endpoints return JSON responses. Use <code>Content-Type: application/json</code> for all <code>POST</code> requests.</p>
 <h3 id="identification-deletion">Identification &amp; Deletion</h3>
-<blockquote>
-<p>[!IMPORTANT]<br/>
-Resource IDs (e.g., <code>vpc-001</code>, <code>subnet-001</code>) are dynamically generated. Always perform a <code>GET</code> list operation to retrieve the correct ID before attempting a <code>DELETE</code> or specific <code>GET</code> request.</p>
-</blockquote>
+<div class="markdown-alert markdown-alert-important">
+<p class="markdown-alert-title">📢 Important</p>
+Resource IDs (e.g., `vpc-001`, `subnet-001`) are dynamically generated. Always perform a `GET` list operation to retrieve the correct ID before attempting a `DELETE` or specific `GET` request.
+</div>
 <h3 id="1-vpcs-virtual-private-clouds">1. VPCs (Virtual Private Clouds)</h3>
 <p><strong>List VPCs</strong></p>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8000/vpcs<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
@@ -1950,10 +1956,10 @@ Resource IDs (e.g., <code>vpc-001</code>, <code>subnet-001</code>) are dynamical
 <p><strong>Sample Usage (grpcurl):</strong></p>
 <div class="codehilite"><pre><span></span><code>grpcurl<span class="w"> </span>-plaintext<span class="w"> </span>-d<span class="w"> </span><span class="s1">'{"limit": 10}'</span><span class="w"> </span>localhost:50051<span class="w"> </span>network.NetworkService/ListVPCs
 </code></pre></div>
-<blockquote>
-<p>[!TIP]<br/>
-Refer to the <a href="../control-plane/proto/cloud_networking_control_plane_simulator.proto">cloud_networking_control_plane_simulator.proto</a> file for the full list of request/response messages and error codes.</p>
-</blockquote>
+<div class="markdown-alert markdown-alert-tip">
+<p class="markdown-alert-title">💡 Tip</p>
+Refer to the [cloud_networking_control_plane_simulator.proto](../control-plane/proto/cloud_networking_control_plane_simulator.proto) file for the full list of request/response messages and error codes.
+</div>
 <hr/>
 <h2 id="error-handling">Error Handling</h2>
 <p>The API uses standard HTTP status codes for errors.</p>
@@ -1996,12 +2002,16 @@ Refer to the <a href="../control-plane/proto/cloud_networking_control_plane_simu
 <!-- Architecture Tab -->
 <div id="content-architecture" style="display: none;">
 <h3>🏗️ System Architecture</h3>
-<p>The simulator provides a conceptual exploration of cloud networking internals using Linux networking primitives.</p>
+<p>The simulator provides a conceptual exploration of cloud networking internals using Linux networking
+                    primitives.</p>
 <h4>Core Concepts</h4>
 <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
-<strong>Physical Fabric:</strong> Docker-based network providing basic reachability between Spines, Leafs, and Control Plane.<br/><br/>
-<strong>Logical Overlay:</strong> VXLAN-EVPN overlay built on top using BGP EVPN for VPC isolation and routing.<br/><br/>
-<strong>Cloud Routing Hub:</strong> Centralized routing aggregation point for hub-and-spoke architectures.
+<strong>Physical Fabric:</strong> Docker-based network providing basic reachability between Spines,
+                    Leafs, and Control Plane.<br/><br/>
+<strong>Logical Overlay:</strong> VXLAN-EVPN overlay built on top using BGP EVPN for VPC isolation
+                    and routing.<br/><br/>
+<strong>Cloud Routing Hub:</strong> Centralized routing aggregation point for hub-and-spoke
+                    architectures.
                 </div>
 <h4>Implementation Status</h4>
 <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
@@ -2133,11 +2143,12 @@ Refer to the <a href="../control-plane/proto/cloud_networking_control_plane_simu
 </ul>
 <h2 id="system-architecture">System Architecture</h2>
 <p>The following diagram illustrates the logical overlay and its relationship with the Physical Fabric and control plane.</p>
-<blockquote>
-<p>[!NOTE]<br/>
-Diagrams are simplified for clarity. This simulator focuses on <strong>Control Plane correctness</strong> and <strong>Intent reconciliation</strong>. High-throughput data plane behavior is secondary to functional correctness and protocol stability.</p>
-<p><strong>Platform Compatibility</strong>: Native Linux VRFs are used where supported. On platforms without native VRF kernel modules—such as <strong>Apple Silicon (M1-M4) via Docker Desktop</strong>—the simulator automatically falls back to <strong><code>iptables</code></strong> for logical isolation.</p>
-</blockquote>
+<div class="markdown-alert markdown-alert-note">
+<p class="markdown-alert-title">ℹ️ Note</p>
+Diagrams are simplified for clarity. This simulator focuses on **Control Plane correctness** and **Intent reconciliation**. High-throughput data plane behavior is secondary to functional correctness and protocol stability.
+
+**Platform Compatibility**: Native Linux VRFs are used where supported. On platforms without native VRF kernel modules—such as **Apple Silicon (M1-M4) via Docker Desktop**—the simulator automatically falls back to **`iptables`** for logical isolation.
+</div>
 <div class="codehilite"><pre><span></span><code>        ┌───────────────────────────────────────────────────────────────┐
         │                       LOGICAL OVERLAY                         │
         │ ┌────────────────┐ ┌────────────────┐ ┌─────────────────────┐ │
@@ -2426,7 +2437,8 @@ Diagrams are simplified for clarity. This simulator focuses on <strong>Control P
 <!-- VPC Tab -->
 <div id="content-vpc" style="display: none;">
 <h3>🌐 VPC Architecture &amp; Visualization</h3>
-<p>The VPC visualization provides a real-time logical map of your cloud network with 33 demo scenarios.</p>
+<p>The VPC visualization provides a real-time logical map of your cloud network with 33 demo scenarios.
+                </p>
 <h4>Connection Types</h4>
 <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
 <tr style="background: #f5f5f5;">
@@ -2894,14 +2906,7 @@ Diagrams are simplified for clarity. This simulator focuses on <strong>Control P
 <code style="display: block; background: #fff; padding: 10px; border-radius: 4px; margin: 5px 0;"># Run all tests with coverage<br/>make test-cov<br/><br/># Run specific tests<br/>cd control-plane &amp;&amp; python -m pytest tests/test_rest_api.py -v<br/><br/># Run linting<br/>make lint-extreme<br/><br/># Security scan<br/>make security-scan</code>
 </div>
 <h4>Test Coverage</h4>
-<div style="background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 10px 0;">
-<strong>Current Coverage:</strong><br/>
-                    • models.py: 100%<br/>
-                    • shared_api_logic.py: 100%<br/>
-                    • rest_api_server.py: 96%<br/>
-                    • grpc_api_server.py: 94%<br/><br/>
-<em>Uncovered: Database initialization and entry points</em>
-</div>
+<div style="font-size: 11px; line-height: 1.4; color: #444; border: 1px solid #eee; padding: 10px; border-radius: 4px; background: #fafafa; margin: 10px 0;"><strong>Current Coverage (Baseline):</strong><br/>• models.py: 100% ✅ All SQLAlchemy models<br/>• grpc_api_server.py: 77% 📈 gRPC API implementation (improved from 28%)<br/>• rest_api_server.py: 71% 📈 REST API endpoints (improved from 57%)<br/>• shared_api_logic.py: 45% 📈 Core business logic (improved from 12%)<br/>• diagnostic_logger.py: 25% 📈 Diagnostic logging (improved from 6%)<br/>• <strong>Overall: 56% 📈</strong><br/><em>Uncovered: Database initialization and entry points</em></div>
 <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
 <h4>📚 Related Documentation</h4>
 <ul style="margin: 0; padding-left: 20px;">
@@ -3109,10 +3114,10 @@ make<span class="w"> </span>security-scan
 </code></pre></div>
 <h2 id="performance-findings">Performance Findings</h2>
 <h3 id="asyncsync-sqlalchemy-issue">Async/Sync SQLAlchemy Issue</h3>
-<blockquote>
-<p>[!IMPORTANT]<br/>
-When using FastAPI with synchronous SQLAlchemy, endpoint functions should use <code>def</code>, not <code>async def</code>.</p>
-</blockquote>
+<div class="markdown-alert markdown-alert-important">
+<p class="markdown-alert-title">📢 Important</p>
+When using FastAPI with synchronous SQLAlchemy, endpoint functions should use `def`, not `async def`.
+</div>
 <p><strong>Problem Identified</strong>: During load testing (500 concurrent VPC creations), event loop starvation occurred.</p>
 <p><strong>Root Cause</strong>: <br/>
 - FastAPI runs <code>async def</code> functions directly on the event loop<br/>
@@ -3285,20 +3290,21 @@ python<span class="w"> </span>control-plane/scripts/load_simulation.py
             </style>
 <div class="markdown-content">
 <h1 id="cloud-networking-control-plane-simulator">Cloud Networking Control Plane Simulator</h1>
-<blockquote>
-<p>[!CAUTION]<br/>
-<strong>Production Disclaimer</strong></p>
-<p>This project is a <strong>conceptual simulator</strong>. It is <strong>not</strong> intended for production environments and provides no production-grade guarantees regarding security, performance, or availability.</p>
-</blockquote>
+<div class="markdown-alert markdown-alert-caution">
+<p class="markdown-alert-title">🚫 Caution</p>
+**Production Disclaimer**
+
+This project is a **conceptual simulator**. It is **not** intended for production environments and provides no production-grade guarantees regarding security, performance, or availability.
+</div>
 <p>This project is intended for students, educators, researchers, software engineers, and network engineers. It provides a conceptual exploration of cloud networking internals—demonstrating how VPCs, isolation, and connectivity services are implemented using Linux networking primitives.</p>
 <h2 id="safety-security">Safety &amp; Security</h2>
-<blockquote>
-<p>[!WARNING]<br/>
-<strong>Operational Scope &amp; Security</strong>
-*   <strong>Environment</strong>: Assumes Linux or WSL2. Requires <code>iproute2</code>, <code>nftables</code>, and <code>iptables</code>. <code>nftables</code> is the primary mechanism for Security Groups; <code>iptables</code> is required for legacy container networking and specific NAT defaults.
-*   <strong>Isolation</strong>: This is a <strong>conceptual simulator</strong>, not a security-hardened environment. Services bound to <code>127.0.0.1</code> are accessible locally on the host. Do <strong>not</strong> deploy in a public network or expose ports without explicit host-level firewalling.
-*   <strong>Performance</strong>: Focused on <strong>Control Plane correctness</strong> and <strong>Intent reconciliation</strong>. It does <strong>not</strong> emulate hardware throughput or production-scale traffic. Logical isolation is prioritized over data plane performance.</p>
-</blockquote>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">⚠️ Warning</p>
+**Operational Scope &amp; Security**
+*   **Environment**: Assumes Linux or WSL2. Requires `iproute2`, `nftables`, and `iptables`. `nftables` is the primary mechanism for Security Groups; `iptables` is required for legacy container networking and specific NAT defaults.
+*   **Isolation**: This is a **conceptual simulator**, not a security-hardened environment. Services bound to `127.0.0.1` are accessible locally on the host. Do **not** deploy in a public network or expose ports without explicit host-level firewalling.
+*   **Performance**: Focused on **Control Plane correctness** and **Intent reconciliation**. It does **not** emulate hardware throughput or production-scale traffic. Logical isolation is prioritized over data plane performance.
+</div>
 <h2 id="core-concepts">Core Concepts</h2>
 <p>High-level cloud abstractions map to standard Linux networking constructs:</p>
 <ul>
@@ -3349,30 +3355,32 @@ pre-commit<span class="w"> </span>install
 make<span class="w"> </span>status<span class="w"> </span><span class="c1"># Verify current health of the containerized fabric</span>
 make<span class="w"> </span>down<span class="w">   </span><span class="c1"># Stop and cleanup all containers and networks</span>
 </code></pre></div>
-<blockquote>
-<p>[!NOTE]<br/>
-Depending on your Docker configuration, some <code>make</code> commands may require <code>sudo</code> for proper execution.</p>
-<p>[!NOTE]<br/>
-Terminology: In this documentation and codebase, "leaves" denotes the leaf switches in a leaf-spine network topology.</p>
-</blockquote>
+<div class="markdown-alert markdown-alert-note">
+<p class="markdown-alert-title">ℹ️ Note</p>
+Depending on your Docker configuration, some `make` commands may require `sudo` for proper execution.
+</div>
+<div class="markdown-alert markdown-alert-note">
+<p class="markdown-alert-title">ℹ️ Note</p>
+Terminology: In this documentation and codebase, "leaves" denotes the leaf switches in a leaf-spine network topology.
+</div>
 <h3 id="6-provision-sample-environment">6. Provision Sample Environment</h3>
 <div class="codehilite"><pre><span></span><code>make<span class="w"> </span>create-sample-vpc
 </code></pre></div>
-<blockquote>
-<p>[!IMPORTANT]<br/>
-<strong>Requirements</strong>:
-*   <strong>Docker Compose</strong>: Requires Docker Compose v2+.
-*   <strong>Permissions</strong>: This command requires Docker networking and namespace privileges. On some systems, this may require <code>sudo</code> or specific container capabilities (e.g., <code>CAP_NET_ADMIN</code>).</p>
-</blockquote>
+<div class="markdown-alert markdown-alert-important">
+<p class="markdown-alert-title">📢 Important</p>
+**Requirements**:
+*   **Docker Compose**: Requires Docker Compose v2+.
+*   **Permissions**: This command requires Docker networking and namespace privileges. On some systems, this may require `sudo` or specific container capabilities (e.g., `CAP_NET_ADMIN`).
+</div>
 <p>This command generates cloud networking control plane demo scenarios:<br/>
 See <a href="docs/VPC.md">docs/VPC.md</a></p>
 <h2 id="api-usage">API Usage</h2>
-<blockquote>
-<p>[!IMPORTANT]<br/>
-<strong>API Access &amp; Security</strong>
-*   <strong>No Authentication</strong>: This simulator implements no authentication. It should <strong>only</strong> be run on <code>localhost</code> or within a protected firewall; it should <strong>never</strong> be exposed externally.
-*   <strong>WSL2/Remote</strong>: If using WSL2 or remote hosts, ensure ports 8000 (REST) and 50051 (gRPC) are properly mapped.</p>
-</blockquote>
+<div class="markdown-alert markdown-alert-important">
+<p class="markdown-alert-title">📢 Important</p>
+**API Access &amp; Security**
+*   **No Authentication**: This simulator implements no authentication. It should **only** be run on `localhost` or within a protected firewall; it should **never** be exposed externally.
+*   **WSL2/Remote**: If using WSL2 or remote hosts, ensure ports 8000 (REST) and 50051 (gRPC) are properly mapped.
+</div>
 <h3 id="rest-api">REST API</h3>
 <p>The control plane exposes a REST API (port 8000) for intent declaration. API operations are <strong>idempotent</strong>, allowing for safe retries without unintended side effects.</p>
 <p>Detailed examples for creating <strong>VPCs</strong>, <strong>Subnets</strong>, and <strong>Security Groups</strong> are available in <a href="docs/VPC.md">docs/VPC.md</a> and <a href="docs/API_GUIDE.md">docs/API_GUIDE.md</a>.</p>
@@ -3411,14 +3419,14 @@ make<span class="w"> </span>test-connectivity
 *   <strong>VPC View</strong> (http://localhost:8000/vpc): A real-time view of your simulator. See <a href="docs/VPC.md">docs/VPC.md</a> for details.</p>
 <p><strong>Key Metric</strong>: <code>reconciliation_duration_ms</code><br/>
 This measures the time taken for a single <strong>reconciliation loop</strong> to sync the <strong>Intent Store</strong> (Desired State) with the actual fabric (Observed State).</p>
-<blockquote>
-<p>[!NOTE]<br/>
-<strong>Scope &amp; Limitations</strong>:
-*   <strong>Aggregation</strong>: Resource metrics (CPU/RAM) and traffic are aggregated per container; VPC counts and reconciliation metrics are scoped to the control plane.
-*   <strong>Simulated Timing</strong>: This metric is simulated and host-dependent. It does <strong>not</strong> reflect actual network latency, packet loss, jitter, or throughput.
-*   <strong>Simulator Range</strong>: Typically 50ms–500ms.
-*   <strong>Production Context</strong>: Real-world systems target sub-second local reconciliation but may have longer global consistency latencies.</p>
-</blockquote>
+<div class="markdown-alert markdown-alert-note">
+<p class="markdown-alert-title">ℹ️ Note</p>
+**Scope &amp; Limitations**:
+*   **Aggregation**: Resource metrics (CPU/RAM) and traffic are aggregated per container; VPC counts and reconciliation metrics are scoped to the control plane.
+*   **Simulated Timing**: This metric is simulated and host-dependent. It does **not** reflect actual network latency, packet loss, jitter, or throughput.
+*   **Simulator Range**: Typically 50ms–500ms.
+*   **Production Context**: Real-world systems target sub-second local reconciliation but may have longer global consistency latencies.
+</div>
 <h3 id="debugging-logs">Debugging &amp; Logs</h3>
 <p>To inspect internal service behavior:</p>
 <div class="codehilite"><pre><span></span><code>make<span class="w"> </span>logs<span class="w">                   </span><span class="c1"># View all component logs</span>
@@ -3482,7 +3490,7 @@ Total number of neighbors 3
 <li><a href="https://wiki.nftables.org/wiki-nftables/index.php/Main_Page">nftables Wiki</a></li>
 </ul>
 <h2 id="logo">Logo</h2>
-<p><img alt="CNCPS Logo" src="control-plane/api/ui/assets/images/cncps_logo.svg"/></p>
+<p><img alt="CNCPS Logo" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjAwIDIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ic2t5R3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRThGNEZGO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNCOEQ5RjU7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJjbG91ZENvcmFsR3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNBOEQ1RjI7c3RvcC1vcGFjaXR5OjAuOSIgLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojN0JCM0UwO3N0b3Atb3BhY2l0eTowLjg1IiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ibWlzdEdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRkZGRkZGO3N0b3Atb3BhY2l0eTowLjciIC8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6I0Q0RTlGNztzdG9wLW9wYWNpdHk6MC41IiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ibm9kZUdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojNkVDOUUwO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM0QTkwRTI7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0iY2xvdWRHbG93Ij4KICAgICAgPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMiIgcmVzdWx0PSJjb2xvcmVkQmx1ciIvPgogICAgICA8ZmVNZXJnZT4KICAgICAgICA8ZmVNZXJnZU5vZGUgaW49ImNvbG9yZWRCbHVyIi8+CiAgICAgICAgPGZlTWVyZ2VOb2RlIGluPSJTb3VyY2VHcmFwaGljIi8+CiAgICAgIDwvZmVNZXJnZT4KICAgIDwvZmlsdGVyPgogICAgPGZpbHRlciBpZD0ic29mdEdsb3ciPgogICAgICA8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIxLjUiIHJlc3VsdD0iY29sb3JlZEJsdXIiLz4KICAgICAgPGZlTWVyZ2U+CiAgICAgICAgPGZlTWVyZ2VOb2RlIGluPSJjb2xvcmVkQmx1ciIvPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPgogICAgICA8L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CiAgCiAgPCEtLSBTa3kgYmFja2dyb3VuZCAtLT4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNza3lHcmFkKSIvPgogIAogIDwhLS0gQmFja2dyb3VuZCBjbG91ZCB3aXNwcyAtLT4KICA8ZWxsaXBzZSBjeD0iNDUiIGN5PSI2MCIgcng9IjI1IiByeT0iMTIiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuNCIgZmlsdGVyPSJ1cmwoI2Nsb3VkR2xvdykiLz4KICA8ZWxsaXBzZSBjeD0iMTU1IiBjeT0iNzAiIHJ4PSIyOCIgcnk9IjE0IiBmaWxsPSIjRkZGRkZGIiBvcGFjaXR5PSIwLjM1IiBmaWx0ZXI9InVybCgjY2xvdWRHbG93KSIvPgogIDxlbGxpcHNlIGN4PSI3MCIgY3k9IjEyMCIgcng9IjIwIiByeT0iMTAiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuMyIgZmlsdGVyPSJ1cmwoI2Nsb3VkR2xvdykiLz4KICA8ZWxsaXBzZSBjeD0iMTQwIiBjeT0iMTE1IiByeD0iMjIiIHJ5PSIxMSIgZmlsbD0iI0ZGRkZGRiIgb3BhY2l0eT0iMC4zIiBmaWx0ZXI9InVybCgjY2xvdWRHbG93KSIvPgogIAogIDwhLS0gRXRoZXJlYWwgdmFwb3IgYmFzZSAoZmxvYXRpbmcgY2xvdWQgZm91bmRhdGlvbikgLS0+CiAgPGVsbGlwc2UgY3g9IjEwMCIgY3k9IjEyNSIgcng9IjQ1IiByeT0iMTUiIGZpbGw9InVybCgjbWlzdEdyYWQpIiBvcGFjaXR5PSIwLjYiIGZpbHRlcj0idXJsKCNjbG91ZEdsb3cpIi8+CiAgPGVsbGlwc2UgY3g9Ijk1IiBjeT0iMTI4IiByeD0iMzUiIHJ5PSIxMCIgZmlsbD0iI0ZGRkZGRiIgb3BhY2l0eT0iMC40IiBmaWx0ZXI9InVybCgjY2xvdWRHbG93KSIvPgogIAogIDwhLS0gTWFpbiBjb3JhbCBicmFuY2ggc3RydWN0dXJlIC0gd2lzcHkgY2xvdWQgdGV4dHVyZSAtLT4KICA8cGF0aCBkPSJNIDEwMCAxMjUgUSA5OCAxMTAgMTAwIDk1IFEgMTAyIDgwIDEwMCA2NSIgCiAgICAgICAgc3Ryb2tlPSJ1cmwoI2Nsb3VkQ29yYWxHcmFkKSIgc3Ryb2tlLXdpZHRoPSI4IiBmaWxsPSJub25lIiAKICAgICAgICBvcGFjaXR5PSIwLjc1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIGZpbHRlcj0idXJsKCNzb2Z0R2xvdykiLz4KICAKICA8IS0tIENsb3VkIGNvcmFsIHRleHR1cmUgb3ZlcmxheSBvbiBtYWluIGJyYW5jaCAtLT4KICA8ZWxsaXBzZSBjeD0iMTAwIiBjeT0iOTUiIHJ4PSI2IiByeT0iMTgiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuMyIgZmlsdGVyPSJ1cmwoI2Nsb3VkR2xvdykiLz4KICA8ZWxsaXBzZSBjeD0iMTAwIiBjeT0iNzUiIHJ4PSI1IiByeT0iMTUiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuMjUiIGZpbHRlcj0idXJsKCNjbG91ZEdsb3cpIi8+CiAgCiAgPCEtLSBMZWZ0IG1haW4gYnJhbmNoIHdpdGggbWlzdCAtLT4KICA8cGF0aCBkPSJNIDEwMCAxMDUgUSA4OCAxMDAgNzggODggUSA3MiA4MCA2OCA3MiIgCiAgICAgICAgc3Ryb2tlPSJ1cmwoI2Nsb3VkQ29yYWxHcmFkKSIgc3Ryb2tlLXdpZHRoPSI2IiBmaWxsPSJub25lIiAKICAgICAgICBvcGFjaXR5PSIwLjc1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIGZpbHRlcj0idXJsKCNzb2Z0R2xvdykiLz4KICA8ZWxsaXBzZSBjeD0iNzgiIGN5PSI4OCIgcng9IjUiIHJ5PSIxMiIgZmlsbD0iI0ZGRkZGRiIgb3BhY2l0eT0iMC4yNSIgZmlsdGVyPSJ1cmwoI2Nsb3VkR2xvdykiLz4KICAKICA8IS0tIFJpZ2h0IG1haW4gYnJhbmNoIHdpdGggbWlzdCAtLT4KICA8cGF0aCBkPSJNIDEwMCAxMDUgUSAxMTIgMTAwIDEyMiA4OCBRIDEyOCA4MCAxMzIgNzIiIAogICAgICAgIHN0cm9rZT0idXJsKCNjbG91ZENvcmFsR3JhZCkiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSIgCiAgICAgICAgb3BhY2l0eT0iMC43NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGVsbGlwc2UgY3g9IjEyMiIgY3k9Ijg4IiByeD0iNSIgcnk9IjEyIiBmaWxsPSIjRkZGRkZGIiBvcGFjaXR5PSIwLjI1IiBmaWx0ZXI9InVybCgjY2xvdWRHbG93KSIvPgogIAogIDwhLS0gTGVmdCBzZWNvbmRhcnkgYnJhbmNoZXMgLS0+CiAgPHBhdGggZD0iTSA3OCA4OCBRIDcyIDg0IDY4IDc4IiAKICAgICAgICBzdHJva2U9InVybCgjY2xvdWRDb3JhbEdyYWQpIiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9Im5vbmUiIAogICAgICAgIG9wYWNpdHk9IjAuNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPHBhdGggZD0iTSA3OCA4OCBRIDgyIDgyIDg0IDc1IiAKICAgICAgICBzdHJva2U9InVybCgjY2xvdWRDb3JhbEdyYWQpIiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9Im5vbmUiIAogICAgICAgIG9wYWNpdHk9IjAuNjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsdGVyPSJ1cmwoI3NvZnRHbG93KSIvPgogIAogIDwhLS0gUmlnaHQgc2Vjb25kYXJ5IGJyYW5jaGVzIC0tPgogIDxwYXRoIGQ9Ik0gMTIyIDg4IFEgMTI4IDg0IDEzMiA3OCIgCiAgICAgICAgc3Ryb2tlPSJ1cmwoI2Nsb3VkQ29yYWxHcmFkKSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIiAKICAgICAgICBvcGFjaXR5PSIwLjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsdGVyPSJ1cmwoI3NvZnRHbG93KSIvPgogIDxwYXRoIGQ9Ik0gMTIyIDg4IFEgMTE4IDgyIDExNiA3NSIgCiAgICAgICAgc3Ryb2tlPSJ1cmwoI2Nsb3VkQ29yYWxHcmFkKSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIiAKICAgICAgICBvcGFjaXR5PSIwLjY1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIGZpbHRlcj0idXJsKCNzb2Z0R2xvdykiLz4KICAKICA8IS0tIENlbnRlciB0b3AgYnJhbmNoZXMgLS0+CiAgPHBhdGggZD0iTSAxMDAgNjUgUSA5NCA2MCA5MCA1MyIgCiAgICAgICAgc3Ryb2tlPSJ1cmwoI2Nsb3VkQ29yYWxHcmFkKSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIiAKICAgICAgICBvcGFjaXR5PSIwLjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsdGVyPSJ1cmwoI3NvZnRHbG93KSIvPgogIDxwYXRoIGQ9Ik0gMTAwIDY1IFEgMTA2IDYwIDExMCA1MyIgCiAgICAgICAgc3Ryb2tlPSJ1cmwoI2Nsb3VkQ29yYWxHcmFkKSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIiAKICAgICAgICBvcGFjaXR5PSIwLjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsdGVyPSJ1cmwoI3NvZnRHbG93KSIvPgogIAogIDwhLS0gTmV0d29yayBub2RlIHBvbHlwcyAtIGdsb3dpbmcgaW4gdGhlIGFpciAtLT4KICA8Y2lyY2xlIGN4PSI5MCIgY3k9IjUzIiByPSI1IiBmaWxsPSJ1cmwoI25vZGVHcmFkKSIgb3BhY2l0eT0iMC45IiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iOTAiIGN5PSI1MyIgcj0iMyIgZmlsbD0iI0ZGRkZGRiIgb3BhY2l0eT0iMC42Ii8+CiAgCiAgPGNpcmNsZSBjeD0iMTEwIiBjeT0iNTMiIHI9IjUiIGZpbGw9InVybCgjbm9kZUdyYWQpIiBvcGFjaXR5PSIwLjkiIGZpbHRlcj0idXJsKCNzb2Z0R2xvdykiLz4KICA8Y2lyY2xlIGN4PSIxMTAiIGN5PSI1MyIgcj0iMyIgZmlsbD0iI0ZGRkZGRiIgb3BhY2l0eT0iMC42Ii8+CiAgCiAgPGNpcmNsZSBjeD0iNjgiIGN5PSI3MiIgcj0iNSIgZmlsbD0idXJsKCNub2RlR3JhZCkiIG9wYWNpdHk9IjAuOSIgZmlsdGVyPSJ1cmwoI3NvZnRHbG93KSIvPgogIDxjaXJjbGUgY3g9IjY4IiBjeT0iNzIiIHI9IjMiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuNiIvPgogIAogIDxjaXJjbGUgY3g9IjEzMiIgY3k9IjcyIiByPSI1IiBmaWxsPSJ1cmwoI25vZGVHcmFkKSIgb3BhY2l0eT0iMC45IiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iMTMyIiBjeT0iNzIiIHI9IjMiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuNiIvPgogIAogIDxjaXJjbGUgY3g9Ijg0IiBjeT0iNzUiIHI9IjQuNSIgZmlsbD0idXJsKCNub2RlR3JhZCkiIG9wYWNpdHk9IjAuODUiIGZpbHRlcj0idXJsKCNzb2Z0R2xvdykiLz4KICA8Y2lyY2xlIGN4PSI4NCIgY3k9Ijc1IiByPSIyLjUiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuNSIvPgogIAogIDxjaXJjbGUgY3g9IjExNiIgY3k9Ijc1IiByPSI0LjUiIGZpbGw9InVybCgjbm9kZUdyYWQpIiBvcGFjaXR5PSIwLjg1IiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iMTE2IiBjeT0iNzUiIHI9IjIuNSIgZmlsbD0iI0ZGRkZGRiIgb3BhY2l0eT0iMC41Ii8+CiAgCiAgPGNpcmNsZSBjeD0iNjgiIGN5PSI3OCIgcj0iNCIgZmlsbD0idXJsKCNub2RlR3JhZCkiIG9wYWNpdHk9IjAuODUiIGZpbHRlcj0idXJsKCNzb2Z0R2xvdykiLz4KICA8Y2lyY2xlIGN4PSI2OCIgY3k9Ijc4IiByPSIyLjUiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuNSIvPgogIAogIDxjaXJjbGUgY3g9IjEzMiIgY3k9Ijc4IiByPSI0IiBmaWxsPSJ1cmwoI25vZGVHcmFkKSIgb3BhY2l0eT0iMC44NSIgZmlsdGVyPSJ1cmwoI3NvZnRHbG93KSIvPgogIDxjaXJjbGUgY3g9IjEzMiIgY3k9Ijc4IiByPSIyLjUiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuNSIvPgogIAogIDxjaXJjbGUgY3g9IjEwMCIgY3k9IjY1IiByPSI1IiBmaWxsPSJ1cmwoI25vZGVHcmFkKSIgb3BhY2l0eT0iMC45IiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iMTAwIiBjeT0iNjUiIHI9IjMiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuNiIvPgogIAogIDwhLS0gRGF0YSBwYWNrZXRzIGZsb2F0aW5nIHRocm91Z2ggdGhlIHNreSAtLT4KICA8Y2lyY2xlIGN4PSI2MCIgY3k9IjcwIiByPSIyLjUiIGZpbGw9IiM2RUM5RTAiIG9wYWNpdHk9IjAuNyI+CiAgICA8YW5pbWF0ZSBhdHRyaWJ1dGVOYW1lPSJjeSIgdmFsdWVzPSI3MDs1NTs3MCIgZHVyPSI0cyIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiLz4KICAgIDxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9Im9wYWNpdHkiIHZhbHVlcz0iMC43OzAuMzswLjciIGR1cj0iNHMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+CiAgPC9jaXJjbGU+CiAgPGNpcmNsZSBjeD0iMTQwIiBjeT0iNjUiIHI9IjIuNSIgZmlsbD0iIzZFQzlFMCIgb3BhY2l0eT0iMC42Ij4KICAgIDxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9ImN5IiB2YWx1ZXM9IjY1OzUwOzY1IiBkdXI9IjQuNXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+CiAgICA8YW5pbWF0ZSBhdHRyaWJ1dGVOYW1lPSJvcGFjaXR5IiB2YWx1ZXM9IjAuNjswLjI7MC42IiBkdXI9IjQuNXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+CiAgPC9jaXJjbGU+CiAgPGNpcmNsZSBjeD0iOTUiIGN5PSI2MCIgcj0iMiIgZmlsbD0iIzZFQzlFMCIgb3BhY2l0eT0iMC44Ij4KICAgIDxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9ImN5IiB2YWx1ZXM9IjYwOzQ4OzYwIiBkdXI9IjMuNXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+CiAgICA8YW5pbWF0ZSBhdHRyaWJ1dGVOYW1lPSJvcGFjaXR5IiB2YWx1ZXM9IjAuODswLjM7MC44IiBkdXI9IjMuNXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+CiAgPC9jaXJjbGU+CiAgPGNpcmNsZSBjeD0iMTA4IiBjeT0iNjIiIHI9IjIiIGZpbGw9IiM2RUM5RTAiIG9wYWNpdHk9IjAuNjUiPgogICAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0iY3kiIHZhbHVlcz0iNjI7NTA7NjIiIGR1cj0iMy44cyIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiLz4KICAgIDxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9Im9wYWNpdHkiIHZhbHVlcz0iMC42NTswLjI1OzAuNjUiIGR1cj0iMy44cyIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiLz4KICA8L2NpcmNsZT4KICAKICA8IS0tIFdpc3B5IGNsb3VkIHBhcnRpY2xlcyBkcmlmdGluZyAtLT4KICA8ZWxsaXBzZSBjeD0iNzUiIGN5PSI5NSIgcng9IjQiIHJ5PSIyIiBmaWxsPSIjRkZGRkZGIiBvcGFjaXR5PSIwLjUiPgogICAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0iY3giIHZhbHVlcz0iNzU7NzI7NzUiIGR1cj0iNXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+CiAgPC9lbGxpcHNlPgogIDxlbGxpcHNlIGN4PSIxMjUiIGN5PSI5MCIgcng9IjQiIHJ5PSIyIiBmaWxsPSIjRkZGRkZGIiBvcGFjaXR5PSIwLjQ1Ij4KICAgIDxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9ImN4IiB2YWx1ZXM9IjEyNTsxMjg7MTI1IiBkdXI9IjUuNXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIi8+CiAgPC9lbGxpcHNlPgogIAogIDwhLS0gQ05DUFMgdGV4dCAtLT4KICA8dGV4dCB4PSIxMDAiIHk9IjE1NSIgZm9udC1mYW1pbHk9IidDb3VyaWVyIE5ldycsIG1vbm9zcGFjZSIgZm9udC1zaXplPSIyMiIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMyQzNFNTAiIGxldHRlci1zcGFjaW5nPSIzIj4KICAgIENOQ1BTCiAgPC90ZXh0PgogIDx0ZXh0IHg9IjEwMCIgeT0iMTcwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iOSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzVBNkM3RCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+CiAgICBDbG91ZCBOZXR3b3JraW5nIENvbnRyb2wgUGxhbmUgU2ltdWxhdG9yCiAgPC90ZXh0Pgo8L3N2Zz4="/></p>
 <h2 id="license">License</h2>
 <p>GNU Affero General Public License v3.0 (AGPL-3.0)</p>
 <h1 id="trigger-vercel-redeployment">Trigger Vercel redeployment</h1>

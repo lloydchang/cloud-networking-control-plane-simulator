@@ -924,12 +924,11 @@
 
     <div class="status">
         <div class="status-left">
-            <a class="status-link" onclick="toggleApiGuide(); showTab('api-guide');">about</a>
-            <span class="status-separator">|</span>
             <span id="status-stats">Initializing...</span>
         </div>
         <div class="status-right">
-            <a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator" target="_blank" class="status-link">View on GitHub</a>
+            <a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator" target="_blank"
+                class="status-link">View on GitHub</a>
             <span class="status-separator">|</span>
             <a class="status-link" onclick="toggleApiGuide(); showTab('license');">License</a>
         </div>
@@ -1020,8 +1019,8 @@
                 rawScenarios.forEach(s => {
                     const clean = getCleanTitle(s.title);
                     if (clean && !seenTitles.has(clean)) {
-                         seenTitles.add(clean);
-                         scenarios.push(s);
+                        seenTitles.add(clean);
+                        scenarios.push(s);
                     }
                 });
 
@@ -1111,14 +1110,14 @@
                         .map(e => {
                             const targetNode = data.nodes.find(n => n.id === e.target);
                             let targetDisplay = targetNode ? targetNode.label : e.target;
-                            
+
                             // Add explanation for internal IDs
                             if (e.target.includes('igw-') && e.target !== 'igw-auto') {
                                 targetDisplay = `Internet Gateway (${targetDisplay})`;
                             } else if (e.target.includes('vpc-dc-') || e.target.includes('standalone-dc-')) {
                                 targetDisplay = `${targetDisplay} (On-Prem DC)`;
                             }
-                            
+
                             return {
                                 destination: e.destination || '0.0.0.0/0',
                                 target: targetDisplay
@@ -1228,7 +1227,7 @@
                                 // Add explanation for internal IDs
                                 let sourceExplanation = '';
                                 let targetExplanation = '';
-                                
+
                                 if (edge.source.includes('vpc-dc-') || edge.source.includes('standalone-dc-')) {
                                     sourceExplanation = ' <span style="color: #666; font-size: 9px;">(ODC)</span>';
                                 }
@@ -1295,48 +1294,48 @@
                     if (uniqueNodes.length > 0) {
                         // Mark as seen globally to prevent re-rendering in later scenarios or miscellaneous
                         uniqueNodes.forEach(n => globalRenderedIds.add(n.id));
-                        
+
                         const resourceIds = uniqueNodes.map(n => n.id);
-                        
+
                         // Count VPCs in this scenario
                         const vpcCount = uniqueNodes.filter(n => n.type === 'vpc').length;
                         const hubCount = uniqueNodes.filter(n => n.type === 'hub').length;
                         const dcCount = uniqueNodes.filter(n => n.type === 'standalone_dc').length;
-                        
+
                         // Update title for display to force sequential numbering
                         scenario.title = `${displayCounter}. ${cleanScenarioTitle}`;
-                        
+
                         let scenarioHtml = '';
 
                         // Use automatic hub centering for all scenarios
                         const hubNodes = uniqueNodes.filter(n => n.type === 'hub');
                         const nonHubNodes = uniqueNodes.filter(n => n.type !== 'hub');
-                        
+
                         // Auto-position hubs in the middle if there are multiple resources
                         let scenarioLayout = '';
                         if (hubNodes.length > 0 && nonHubNodes.length > 1) {
                             // Create a layout with hubs in the center
                             const leftColumn = nonHubNodes.slice(0, Math.ceil(nonHubNodes.length / 2));
                             const rightColumn = nonHubNodes.slice(Math.ceil(nonHubNodes.length / 2));
-                            
+
                             scenarioLayout = `
                                 <div class="scenario-content" style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 30px; align-items: start;">
                                     <div class="scenario-column">
                                         ${leftColumn.map(r => {
-                                            if (r.type === 'vpc') return formatVpcHtml(r);
-                                            if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
-                                            return '';
-                                        }).join('')}
+                                if (r.type === 'vpc') return formatVpcHtml(r);
+                                if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
+                                return '';
+                            }).join('')}
                                     </div>
                                     <div class="hub-column">
                                         ${hubNodes.map(h => formatHubHtml(h)).join('')}
                                     </div>
                                     <div class="scenario-column">
                                         ${rightColumn.map(r => {
-                                            if (r.type === 'vpc') return formatVpcHtml(r);
-                                            if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
-                                            return '';
-                                        }).join('')}
+                                if (r.type === 'vpc') return formatVpcHtml(r);
+                                if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
+                                return '';
+                            }).join('')}
                                     </div>
                                 </div>
                             `;
@@ -1345,15 +1344,15 @@
                             scenarioLayout = `
                                 <div class="scenario-content">
                                     ${uniqueNodes.map(r => {
-                                        if (r.type === 'vpc') return formatVpcHtml(r);
-                                        if (r.type === 'hub') return formatHubHtml(r);
-                                        if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
-                                        return '';
-                                    }).join('')}
+                                if (r.type === 'vpc') return formatVpcHtml(r);
+                                if (r.type === 'hub') return formatHubHtml(r);
+                                if (r.type === 'standalone_dc') return formatStandaloneDCHtml(r);
+                                return '';
+                            }).join('')}
                                 </div>
                             `;
                         }
-                        
+
                         scenarioHtml = `
                             <div class="scenario-group">
                                 <div class="scenario-title">${scenario.title} <span style="font-size: 11px; color: #666; font-weight: normal;">(${vpcCount} VPC${vpcCount !== 1 ? 's' : ''}${hubCount > 0 ? `, ${hubCount} CRH${hubCount !== 1 ? 's' : ''}` : ''}${dcCount > 0 ? `, ${dcCount} ODC${dcCount !== 1 ? 's' : ''}` : ''})</span></div>
@@ -1364,7 +1363,7 @@
                                 ${scenarioLayout}
                             </div>
                         `;
-                        
+
                         if (scenarioHtml) {
                             html += scenarioHtml;
                             displayCounter++;
@@ -1382,7 +1381,7 @@
                     const vpcCount = unassignedVpcs.length;
                     const hubCount = unassignedHubs.length;
                     const dcCount = unassignedDCs.length;
-                    
+
                     html += `
                         <div class="scenario-group">
                             <div class="scenario-title">Miscellaneous <span style="font-size: 11px; color: #666; font-weight: normal;">(${vpcCount} VPC${vpcCount !== 1 ? 's' : ''}${hubCount > 0 ? `, ${hubCount} CRH${hubCount !== 1 ? 's' : ''}` : ''}${dcCount > 0 ? `, ${dcCount} ODC${dcCount !== 1 ? 's' : ''}` : ''})</span></div>
@@ -1421,7 +1420,7 @@
             // Ensure the SVG covers the full scrollable area, not just the viewport
             const mainContainer = document.querySelector('.main-container');
             if (mainContainer) {
-                 svg.style.height = mainContainer.scrollHeight + 'px';
+                svg.style.height = mainContainer.scrollHeight + 'px';
             }
 
             // Clear existing propagation arrows
@@ -1450,7 +1449,7 @@
                     x1 = eRect.right - sRect.left;
                     // Adjust Y based on scroll because bounding client rect is viewport relative
                     // But our SVG is absolute positioned at top:0
-                    y1 = eRect.top + eRect.height / 2 - sRect.top + verticalOffset; 
+                    y1 = eRect.top + eRect.height / 2 - sRect.top + verticalOffset;
                     x2 = hRect.left - sRect.left;
                     y2 = hRect.top + hRect.height / 2 - sRect.top + verticalOffset;
                 } else {
@@ -1546,7 +1545,7 @@
                     contentDiv.style.display = 'none';
                 }
             });
-            
+
             // Remove active state from all tab buttons (except external links)
             const tabButtons = ['api-guide', 'architecture', 'vpc', 'examples', 'testing', 'readme', 'api-examples', 'ideas', 'networking', 'license'];
             tabButtons.forEach(content => {
@@ -1555,7 +1554,7 @@
                     tabButton.style.borderBottom = 'none';
                 }
             });
-            
+
             // Show selected content and activate tab (only for internal tabs)
             if (contents.includes(tabName)) {
                 const selectedContent = document.getElementById(`content-${tabName}`);
@@ -1570,7 +1569,7 @@
         }
 
         // Close modal when clicking outside
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modal = document.getElementById('api-guide-modal');
             if (event.target === modal) {
                 modal.style.display = 'none';
@@ -1579,22 +1578,40 @@
     </script>
 
     <!-- API Guide Modal -->
-    <div id="api-guide-modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
-        <div style="background-color: white; margin: 5% auto; padding: 20px; border-radius: 8px; width: 90%; max-width: 1200px; max-height: 80vh; overflow-y: auto;">
+    <div id="api-guide-modal"
+        style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div
+            style="background-color: white; margin: 5% auto; padding: 20px; border-radius: 8px; width: 90%; max-width: 1200px; max-height: 80vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2>📋 Documentation Hub</h2>
-                <button onclick="toggleApiGuide()" style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+                <button onclick="toggleApiGuide()"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
             </div>
-            
+
             <!-- Navigation Tabs -->
             <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0;">
-                <button onclick="showTab('api-guide')" style="background: none; border: none; padding: 10px; cursor: pointer; border-bottom: 2px solid #00897b;" id="tab-api-guide">📋 API Guide</button>
-                <button onclick="showTab('architecture')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-architecture">🏗️ Architecture</button>
-                <button onclick="showTab('vpc')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-vpc">🌐 VPC</button>
-                <button onclick="showTab('examples')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-examples">💡 Examples</button>
-                <button onclick="showTab('testing')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-testing">🧪 Testing</button>
-                <button onclick="window.open('https://cloud-networking-control-plane-simulator.vercel.app/redoc', '_blank')" style="background: none; border: none; padding: 10px; cursor: pointer; text-decoration: none; color: inherit; margin-left: auto;">📖 ReDoc</button>
-                <button onclick="window.open('https://cloud-networking-control-plane-simulator.vercel.app/docs', '_blank')" style="background: none; border: none; padding: 10px; cursor: pointer; text-decoration: none; color: inherit;">📚 Docs</button>
+                <button onclick="showTab('api-guide')"
+                    style="background: none; border: none; padding: 10px; cursor: pointer; border-bottom: 2px solid #00897b;"
+                    id="tab-api-guide">📋 API Guide</button>
+                <button onclick="showTab('architecture')"
+                    style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-architecture">🏗️
+                    Architecture</button>
+                <button onclick="showTab('vpc')" style="background: none; border: none; padding: 10px; cursor: pointer;"
+                    id="tab-vpc">🌐 VPC</button>
+                <button onclick="showTab('examples')"
+                    style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-examples">💡
+                    Examples</button>
+                <button onclick="showTab('testing')"
+                    style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-testing">🧪
+                    Testing</button>
+                <button
+                    onclick="window.open('https://cloud-networking-control-plane-simulator.vercel.app/redoc', '_blank')"
+                    style="background: none; border: none; padding: 10px; cursor: pointer; text-decoration: none; color: inherit; margin-left: auto;">📖
+                    ReDoc</button>
+                <button
+                    onclick="window.open('https://cloud-networking-control-plane-simulator.vercel.app/docs', '_blank')"
+                    style="background: none; border: none; padding: 10px; cursor: pointer; text-decoration: none; color: inherit;">📚
+                    Docs</button>
             </div>
 
             <!-- API Guide Tab -->
@@ -1603,8 +1620,9 @@
                     <!-- REST API Section -->
                     <div>
                         <h3>🌐 REST API (v1)</h3>
-                        <p>All endpoints return JSON responses. Use <code>Content-Type: application/json</code> for all POST requests.</p>
-                        
+                        <p>All endpoints return JSON responses. Use <code>Content-Type: application/json</code> for all
+                            POST requests.</p>
+
                         <h4>Interface Overview</h4>
                         <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
                             <tr style="background: #f5f5f5;">
@@ -1643,7 +1661,7 @@
                     <div>
                         <h3>⚡ gRPC API</h3>
                         <p>High-performance access to network state with real-time streaming capabilities.</p>
-                        
+
                         <h4>Implementation Status</h4>
                         <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
                             <tr style="background: #f5f5f5;">
@@ -1679,9 +1697,13 @@
                 <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 4px;">
                     <h4>🔗 Interactive Documentation</h4>
                     <ul style="margin: 0; padding-left: 20px;">
-                        <li><strong>Swagger UI:</strong> <a href="/docs" target="_blank">Interactive API explorer with "Try it out"</a></li>
-                        <li><strong>ReDoc:</strong> <a href="/redoc" target="_blank">Clean, readable API reference</a></li>
-                        <li><strong>Protocol Buffers:</strong> <a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/control-plane/proto/cloud_networking_control_plane_simulator.proto" target="_blank">gRPC service definition</a></li>
+                        <li><strong>Swagger UI:</strong> <a href="/docs" target="_blank">Interactive API explorer with
+                                "Try it out"</a></li>
+                        <li><strong>ReDoc:</strong> <a href="/redoc" target="_blank">Clean, readable API reference</a>
+                        </li>
+                        <li><strong>Protocol Buffers:</strong> <a
+                                href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/control-plane/proto/cloud_networking_control_plane_simulator.proto"
+                                target="_blank">gRPC service definition</a></li>
                     </ul>
                 </div>
 
@@ -1698,13 +1720,17 @@
             <!-- Architecture Tab -->
             <div id="content-architecture" style="display: none;">
                 <h3>🏗️ System Architecture</h3>
-                <p>The simulator provides a conceptual exploration of cloud networking internals using Linux networking primitives.</p>
-                
+                <p>The simulator provides a conceptual exploration of cloud networking internals using Linux networking
+                    primitives.</p>
+
                 <h4>Core Concepts</h4>
                 <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
-                    <strong>Physical Fabric:</strong> Docker-based network providing basic reachability between Spines, Leafs, and Control Plane.<br><br>
-                    <strong>Logical Overlay:</strong> VXLAN-EVPN overlay built on top using BGP EVPN for VPC isolation and routing.<br><br>
-                    <strong>Cloud Routing Hub:</strong> Centralized routing aggregation point for hub-and-spoke architectures.
+                    <strong>Physical Fabric:</strong> Docker-based network providing basic reachability between Spines,
+                    Leafs, and Control Plane.<br><br>
+                    <strong>Logical Overlay:</strong> VXLAN-EVPN overlay built on top using BGP EVPN for VPC isolation
+                    and routing.<br><br>
+                    <strong>Cloud Routing Hub:</strong> Centralized routing aggregation point for hub-and-spoke
+                    architectures.
                 </div>
 
                 <h4>Implementation Status</h4>
@@ -1743,10 +1769,14 @@
                 <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
                     <h4>📚 Related Documentation</h4>
                     <ul style="margin: 0; padding-left: 20px;">
-                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/ARCHITECTURE.md" target="_blank">📖 Full Architecture Details</a></li>
-                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/NETWORKING_IMPLEMENTATION.md" target="_blank">🔧 Networking Implementation</a></li>
-                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/IDEAS.md" target="_blank">💡 Design Ideas & Extensions</a></li>
-                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/README.md" target="_blank">🏠 Project README</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/ARCHITECTURE.md"
+                                target="_blank">📖 Full Architecture Details</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/NETWORKING_IMPLEMENTATION.md"
+                                target="_blank">🔧 Networking Implementation</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/IDEAS.md"
+                                target="_blank">💡 Design Ideas & Extensions</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/README.md"
+                                target="_blank">🏠 Project README</a></li>
                     </ul>
                 </div>
             </div>
@@ -1754,8 +1784,9 @@
             <!-- VPC Tab -->
             <div id="content-vpc" style="display: none;">
                 <h3>🌐 VPC Architecture & Visualization</h3>
-                <p>The VPC visualization provides a real-time logical map of your cloud network with 33 demo scenarios.</p>
-                
+                <p>The VPC visualization provides a real-time logical map of your cloud network with 33 demo scenarios.
+                </p>
+
                 <h4>Connection Types</h4>
                 <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
                     <tr style="background: #f5f5f5;">
@@ -1808,9 +1839,12 @@
                 <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
                     <h4>📚 Related Documentation</h4>
                     <ul style="margin: 0; padding-left: 20px;">
-                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/VPC.md" target="_blank">📖 Complete VPC Documentation</a></li>
-                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/API_EXAMPLES.md" target="_blank">💡 VPC API Examples</a></li>
-                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/ARCHITECTURE.md" target="_blank">🏗️ System Architecture</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/VPC.md"
+                                target="_blank">📖 Complete VPC Documentation</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/API_EXAMPLES.md"
+                                target="_blank">💡 VPC API Examples</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/ARCHITECTURE.md"
+                                target="_blank">🏗️ System Architecture</a></li>
                     </ul>
                 </div>
             </div>
@@ -1819,7 +1853,7 @@
             <div id="content-examples" style="display: none;">
                 <h3>💡 API Examples & Use Cases</h3>
                 <p>Comprehensive examples for managing VPC resources using the REST API.</p>
-                
+
                 <h4>VPC Management Examples</h4>
                 <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
                     <strong>Create Basic VPC:</strong><br>
@@ -1837,7 +1871,8 @@
 
                 <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
                     <strong>Create Security Group:</strong><br>
-                    <code style="display: block; background: #fff; padding: 10px; border-radius: 4px; margin: 5px 0;">curl -X POST "/security-groups" \<br>
+                    <code
+                        style="display: block; background: #fff; padding: 10px; border-radius: 4px; margin: 5px 0;">curl -X POST "/security-groups" \<br>
   -H "Content-Type: application/json" \<br>
   -d '{"name": "web-tier", "rules": [{"direction": "ingress", "protocol": "tcp", "port_from": 80, "port_to": 80, "cidr": "0.0.0.0/0"}]}'</code>
                 </div>
@@ -1854,9 +1889,12 @@
                 <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
                     <h4>📚 Related Documentation</h4>
                     <ul style="margin: 0; padding-left: 20px;">
-                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/API_EXAMPLES.md" target="_blank">💡 Complete API Examples</a></li>
-                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/IDEAS.md" target="_blank">🚀 Extension Ideas</a></li>
-                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/API.md" target="_blank">📋 API Reference</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/API_EXAMPLES.md"
+                                target="_blank">💡 Complete API Examples</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/IDEAS.md"
+                                target="_blank">🚀 Extension Ideas</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/API.md"
+                                target="_blank">📋 API Reference</a></li>
                     </ul>
                 </div>
             </div>
@@ -1865,7 +1903,7 @@
             <div id="content-testing" style="display: none;">
                 <h3>🧪 Testing & Performance</h3>
                 <p>Multi-layered testing approach ensuring control plane correctness and reliability.</p>
-                
+
                 <h4>Test Suite Overview</h4>
                 <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
                     <tr style="background: #f5f5f5;">
@@ -1897,7 +1935,8 @@
 
                 <h4>Running Tests</h4>
                 <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
-                    <code style="display: block; background: #fff; padding: 10px; border-radius: 4px; margin: 5px 0;"># Run all tests with coverage<br>make test-cov<br><br># Run specific tests<br>cd control-plane && python -m pytest tests/test_rest_api.py -v<br><br># Run linting<br>make lint-extreme<br><br># Security scan<br>make security-scan</code>
+                    <code
+                        style="display: block; background: #fff; padding: 10px; border-radius: 4px; margin: 5px 0;"># Run all tests with coverage<br>make test-cov<br><br># Run specific tests<br>cd control-plane && python -m pytest tests/test_rest_api.py -v<br><br># Run linting<br>make lint-extreme<br><br># Security scan<br>make security-scan</code>
                 </div>
 
                 <h4>Test Coverage</h4>
@@ -1913,9 +1952,12 @@
                 <div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
                     <h4>📚 Related Documentation</h4>
                     <ul style="margin: 0; padding-left: 20px;">
-                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/TESTING.md" target="_blank">🧪 Complete Testing Guide</a></li>
-                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/README.md" target="_blank">🏠 Quick Start Guide</a></li>
-                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/LICENSE" target="_blank">⚖️ License Information</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/TESTING.md"
+                                target="_blank">🧪 Complete Testing Guide</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/README.md"
+                                target="_blank">🏠 Quick Start Guide</a></li>
+                        <li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/LICENSE"
+                                target="_blank">⚖️ License Information</a></li>
                     </ul>
                 </div>
             </div>
