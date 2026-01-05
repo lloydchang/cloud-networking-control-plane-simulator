@@ -13,5 +13,5 @@
       "dest": "/api/rest_api_server.py"
     }
   ],
-  "_comment": "Force deployment 2025-01-04 - docs/index.html has 36 scenarios"
+  "_comment": "Updated 2025-01-05 - docs/index.html now has 55 VPCs with real data"
 }
