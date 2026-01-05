@@ -692,7 +692,13 @@ def export_static_fully_offline():
     with open(TEMPLATE_PATH, 'r') as f:
         html_content = f.read()
 
+    # Use a clean parser and ensure we capture the whole structure including doctype
     soup = BeautifulSoup(html_content, "html.parser")
+    
+    # Ensure the html tag has the correct lang attribute
+    if soup.html:
+        soup.html['lang'] = 'en'
+    
     template_dir = os.path.dirname(TEMPLATE_PATH)
 
     # Inject JSON data first
@@ -901,7 +907,11 @@ def export_static_fully_offline():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     output_path = os.path.join(OUTPUT_DIR, "index.html")
 
+    # Write the output, ensuring we include the DOCTYPE and avoid doubling the html tag
     with open(output_path, 'w') as f:
+        # If soup was parsed from a full doc, str(soup) includes doctype and html tag
+        # We ensure it is not prettified too much as that can break some JS linebreaks
+        f.write("<!DOCTYPE html>\n")
         f.write(str(soup) + '\n')
 
     print(f"Fully offline static dashboard written to {os.path.abspath(output_path)}")
