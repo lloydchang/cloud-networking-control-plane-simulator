@@ -12,5 +12,6 @@
       "src": "/(.*)",
       "dest": "/api/rest_api_server.py"
     }
-  ]
+  ],
+  "_comment": "Force deployment 2025-01-04 - docs/index.html has 36 scenarios"
 }
