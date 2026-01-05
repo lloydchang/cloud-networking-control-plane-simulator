@@ -51,14 +51,14 @@ The following diagram illustrates the logical overlay and its relationship with 
       │ Leaf-1       │             │ Leaf-2       │        │
       │ ASN: 65011   │             │ ASN: 65012   │        │
       │ VNI: 100/200 │             │ VNI: 100/200 │        │
-      │ VRF: vpc-100 │             │ VRF: vpc-100 │        │
+      │ VRF: 100/200 │             │ VRF: 100/200 │        │
       └─────┬────────┘             └─────┬────────┘        │
             │                            │                 │
             ▼                            ▼                 │
      ┌──────────────┐             ┌──────────────┐         │
      │ Server-1     │             │ Server-2     │         │
-     │ (VPC-100)    │             │ (VPC-100)    │         │
-     │ 10.1.1.10    │             │ 10.1.2.10    │         │
+     │ (VPC-100)    │             │ (VPC-200)    │         │
+     │ 10.1.1.10    │             │ 10.2.1.10    │         │
      └──────────────┘             └──────────────┘         │
             │                                              │
      ┌──────────────┐                                      │
@@ -143,7 +143,7 @@ First, the placement of the Internet-GW and NAT-Gateway is ambiguous. In real VX
 
 Second, the relationship between EVPN Type 5 routes and NAT is not shown clearly. Typically, the default route 0.0.0.0/0 is leaked into tenant VRFs via EVPN Type 5 from the border leaf. That mechanism is not depicted, so the control plane path to the internet is implied rather than shown.
 
-Third, Leaf-1 and Leaf-2 list only VRF vpc-100, yet earlier the diagram claims both VNIs 100 and 200 are present on the leafs. If vpc-200 exists, its VRF should be explicitly shown on the leafs as well, or else it looks like a partial or inconsistent configuration.
+Third, while Leaf-1 and Leaf-2 now list both VRFs, the initial draft of this diagram often misses one, which is a common oversight in documenting complex multi-tenant environments.
 
 Fourth, the load balancer arrow from the NAT-Gateway implies inbound connectivity, but no DNAT, VIP, or route advertisement mechanism is shown. Without EVPN Type 5 prefix injection or service chaining details, this part is conceptually correct but operationally underspecified.
 
