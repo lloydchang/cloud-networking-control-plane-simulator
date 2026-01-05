@@ -49,3 +49,4 @@ The Reconciliation Engine implements a periodic, "Closed Loop" orchestration cyc
 *   [Architecture Overview](ARCHITECTURE.md)
 *   [Control Plane Design](IDEAS.md)
 *   [FRRouting Documentation](https://docs.frrouting.org/)
+\n## Glossary\n\nFor a comprehensive list of acronyms and terms used in this documentation (such as EVPN, VTEP, VRF, VNI), please refer to the **[Glossary of Acronyms](ARCHITECTURE.md#glossary-of-acronyms)** in the Architecture Overview.

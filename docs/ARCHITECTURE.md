@@ -368,7 +368,8 @@ Aligned with the "VPC as an Isolated Network" principle, the UI uses a **Logical
 ### Source of Truth vs. Configuration
 To avoid confusion between static definitions and live state, the simulator distinguishes between three layers:
 
-1.  **Static Blueprint (`configs/topology.json`)**: This is a design-time template. It is used by CI/CD scripts to validate schemas and defines the "golden state" of the underlay and initial VPC requirements.
+1.  **Static Blueprint (`configs/topology.json`)**: A design-time template defining the "golden state" of the underlay and initial VPC requirements.
+    *   **Validation**: This file is statically validated by `cicd/validate.py`. See **[Configuration Validation](TESTING.md#configuration-validation)** for details on enforced checks (BGP symmetry, VNI uniqueness, etc.).
 2.  **Live State API (`/vpc`)**: This is the machine-readable "Source of Truth" from the running Control Plane. It queries the SQLite database in real-time to show what has actually been provisioned.
 3.  **VPC View (`/vpc` - HTML)**: The human-readable view that consumes the Live State API. Accessible via `make vpc`.
 

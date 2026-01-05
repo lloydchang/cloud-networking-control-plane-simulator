@@ -63,7 +63,7 @@ def test_polyglot_flow(grpc_service):
 
     # 2. Verify via gRPC
     # Note: ListVPCs takes a request object
-    list_req = cloud_networking_control_plane_simulator_pb2.ListVPCsRequest(limit=10)
+    list_req = cloud_networking_control_plane_simulator_pb2.ListVPCsRequest(limit=1000)
     list_resp = grpc_service.ListVPCs(list_req, MockContext())
 
     found = False

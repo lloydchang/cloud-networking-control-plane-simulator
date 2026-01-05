@@ -110,12 +110,23 @@ def create_subnet_logic(
     db: Session, vpc_id: str, name: str, cidr: str, az: str = "us-east-1a"
 ):
     subnet_id = f"subnet-{uuid.uuid4().hex[:8]}"
+    
+    import ipaddress
+    try:
+        network = ipaddress.ip_network(cidr)
+        # Use first host as gateway
+        gateway = str(next(network.hosts()))
+    except ValueError:
+        # Fallback for invalid CIDRs
+        gateway = cidr.rsplit(".", 1)[0] + ".1"
+
     new_subnet = SubnetModel(
         id=subnet_id,
         vpc_id=vpc_id,
         name=name,
         cidr=cidr,
-        availability_zone=az,
+        gateway=gateway,
+        az=az,
         status="active"
     )
     db.add(new_subnet)

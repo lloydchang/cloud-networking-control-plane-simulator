@@ -10,6 +10,7 @@ The project uses a multi-layered testing approach:
 |-------|------|---------|
 | Unit Tests | pytest | Test individual functions and API endpoints |
 | Integration Tests | pytest + TestClient | Verify REST↔gRPC interoperability |
+| **Contract Tests** | pytest | Verify global synchronization (Docs ↔ Code ↔ Configs) |
 | Static Analysis | mypy, flake8 | Type checking and code quality |
 | Security Scanning | bandit | Vulnerability detection |
 | Load Testing | httpx + asyncio | Performance verification |
@@ -201,4 +202,53 @@ The gRPC generated files need the `api/` directory in path:
 ```python
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'api'))
 from api import cloud_networking_control_plane_simulator_pb2
+```
+\n## Global Synchronization (Contract) Tests\n\nTo ensure that documentation, configuration, and implementation details remain consistent, we use a suite of **Contract Tests**.\n\n### Purpose\nThese tests act as a guardrail against 'Documentation Drift' and 'Configuration Skew'. They automatically verify that:\n1.  **Topology Consistency**: Switches defined in `topology.json` matches `docker-compose.yml`.\n2.  **Dashboard Accuracy**: The `index.html` static data correctly reflects the underlying topology.\n3.  **Documentation Truth**: Key IP addresses documented in `ARCHITECTURE.md` match the actual configuration in `docker-compose.yml`.\n4.  **Glossary Linkage**: `NETWORKING.md` properly references the central glossary.\n\n### Running Contract Tests\n```bash\npython -m pytest tests/test_global_synchronization.py -v\n```\n\n### Coverage\nThe `tests/test_global_synchronization.py` suite covers:\n- `docker-compose.yml` (Service definitions, Networks)\n- `configs/topology.json` (Switch definitions, VRFs)\n- `docs/ARCHITECTURE.md` (Diagram IPs, Glossary)\n- `docs/index.html` (Static Dashboard Data)
+\n## Configuration Validation\n\nThe CI/CD pipeline enforces strict validation rules on the static configuration to prevent misconfigurations from reaching the runtime environment.\n\n### Tooling\nThe `cicd/validate.py` script acts as a static analysis tool for the network configuration. It is invoked via:\n```bash\nmake validate\n# or\nmake deploy  # runs validation before deployment\n```\n\n### Topology Validation (`configs/topology.json`)\nThe `topology.json` file serves as the **Static Blueprint** for the physical fabric. The validation script enforces the following invariants:\n\n1.  **BGP Neighbor Symmetry**: Checks that if Switch A lists Switch B as a neighbor, Switch B also lists Switch A.\n2.  **VNI Uniqueness**: Ensures that `vni` (VXLAN Network Identifier) values are unique per VRF across the fabric.\n3.  **CIDR Overlaps**: Scans for internal logic errors where two subnets might claim overlapping IP ranges.\n4.  **Route Loops**: Basic detection of static route next-hops pointing to themselves or known loops.\n5.  **Security Group Conflicts**: Analyzes rules to prevent conflicting allow/deny statements (warning only).
+
+## Dependency Analysis
+
+The following diagram illustrates the execution dependencies and data flow within the repository.
+
+```text
+┌─────────────────┐
+│    Makefile     │
+└────────┬────────┘
+         │
+         ├──► make up ────────────────────────────┐
+         │     │                                  │
+         │     ▼                                  ▼
+         │  ┌──────────────────────┐      ┌──────────────────────────┐
+         │  │ docker-compose up -d │      │ create_demo_scenarios.py │
+         │  └──────────┬───────────┘      └────────────┬─────────────┘
+         │             │                               │
+         │             ▼                               │
+         │    ┌──────────────────┐                     │
+         │    │  Control Plane   │◄────────────────────┘
+         │    │   (REST API)     │
+         │    └──────────┬───────┘
+         │               │
+         ├──► make       │
+         │    validate   │
+         │       │       │
+         │       ▼       │
+         │  ┌────────────┴────────┐
+         │  │  cicd/validate.py   │◄────── configs/topology.json
+         │  └─────────────────────┘
+         │
+         ├──► make test ─────────────► pytest (Unit/Contract Tests)
+         │
+         └──► python generate_site.py ──────────┐
+                   │                            │
+                   ▼                            ▼
+            ┌──────────────┐             ┌──────────────┐
+            │ docs/VPC.md  │             │ REST API     │
+            │ TESTING.md   │             │ (Live Data)  │
+            └──────┬───────┘             └──────┬───────┘
+                   │                            │
+                   ▼                            ▼
+             ┌────────────────────────────────────────┐
+             │            docs/index.html             │
+             │     (Static Dashboard - Artifact)      │
+             └────────────────────────────────────────┘
 ```

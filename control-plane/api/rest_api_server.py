@@ -226,8 +226,8 @@ class Subnet(BaseModel):
     vpc_id: str
     name: str
     cidr: str
-    availability_zone: str
-    data_center: str
+    az: str
+    data_center: Optional[str] = None
     status: str
     created_at: datetime
 
@@ -253,13 +253,12 @@ class NATGateway(BaseModel):
     vpc_id: str
     subnet_id: str
     public_ip: str
-    status: str
     created_at: datetime
 
 class InternetGateway(BaseModel):
     id: str
     vpc_id: str
-    status: str
+    vpc_id: str
     created_at: datetime
 
 @app.get("/health")
@@ -414,6 +413,8 @@ async def docs(request: Request):
 # Subnet endpoints
 @app.post("/vpcs/{vpc_id}/subnets", response_model=Subnet, status_code=201)
 def create_subnet(vpc_id: str, subnet: SubnetCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    if not db.query(VPCModel).filter(VPCModel.id == vpc_id).first():
+        raise HTTPException(status_code=404, detail="VPC not found")
     new_subnet = services.create_subnet_logic(db, vpc_id, subnet.name, subnet.cidr, subnet.availability_zone)
     background_tasks.add_task(services.provision_subnet_task, SessionLocal, new_subnet.id)
     return new_subnet
@@ -433,6 +434,8 @@ def delete_subnet(subnet_id: str, background_tasks: BackgroundTasks, db: Session
 # Route endpoints
 @app.post("/vpcs/{vpc_id}/routes", response_model=Route, status_code=201)
 def create_route(vpc_id: str, route: RouteCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    if not db.query(VPCModel).filter(VPCModel.id == vpc_id).first():
+        raise HTTPException(status_code=404, detail="VPC not found")
     new_route = services.create_route_logic(db, vpc_id, route.destination, route.next_hop, route.next_hop_type)
     background_tasks.add_task(services.provision_route_task, SessionLocal, new_route.id)
     return new_route
@@ -462,12 +465,16 @@ def list_security_groups(db: Session = Depends(get_db)):
 # Gateway endpoints
 @app.post("/vpcs/{vpc_id}/internet-gateways", response_model=InternetGateway, status_code=201)
 def create_internet_gateway(vpc_id: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    if not db.query(VPCModel).filter(VPCModel.id == vpc_id).first():
+        raise HTTPException(status_code=404, detail="VPC not found")
     igw = services.create_internet_gateway_logic(db, vpc_id)
     background_tasks.add_task(services.provision_internet_gateway_task, SessionLocal, igw.id)
     return igw
 
 @app.post("/vpcs/{vpc_id}/nat-gateways", response_model=NATGateway, status_code=201)
 def create_nat_gateway(vpc_id: str, nat: NATGatewayCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    if not db.query(VPCModel).filter(VPCModel.id == vpc_id).first():
+        raise HTTPException(status_code=404, detail="VPC not found")
     nat_gw = services.create_nat_logic(db, vpc_id, nat.subnet_id)
     background_tasks.add_task(services.provision_nat_gateway_task, SessionLocal, nat_gw.id)
     return nat_gw
