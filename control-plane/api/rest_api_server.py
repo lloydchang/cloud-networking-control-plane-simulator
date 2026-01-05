@@ -307,53 +307,18 @@ def delete_vpc(vpc_id: str, background_tasks: BackgroundTasks, db: Session = Dep
     return {"message": "VPC deletion initiated"}
 
 @app.get("/vpc", include_in_schema=False)
-async def get_vpc_data():
-    """Get all VPC data for the VPC view"""
-    db = SessionLocal()
+async def vpc_view():
+    """Serve the VPC HTML template"""
     try:
-        vpcs = db.query(VPCModel).all()
-        
-        # If no VPCs exist, fetch static data from GitHub Pages
-        if not vpcs:
-            try:
-                import httpx
-                async with httpx.AsyncClient() as client:
-                    response = await client.get("https://lloydchang.github.io/cloud-networking-control-plane-simulator/")
-                    if response.status_code == 200:
-                        # Extract STATIC_VPC_DATA from the GitHub Pages HTML
-                        import re
-                        match = re.search(r'window\.STATIC_VPC_DATA\s*=\s*({.+?});', response.text)
-                        if match:
-                            import json
-                            static_data = json.loads(match.group(1))
-                            return static_data
-            except Exception as e:
-                logging.warning(f"Could not fetch static data from GitHub Pages: {e}")
-        
-        # Transform VPCs into nodes format
-        nodes = []
-        edges = []
-        
-        for vpc in vpcs:
-            nodes.append({
-                "id": vpc.id,
-                "type": "vpc",
-                "label": vpc.name,
-                "cidr": vpc.cidr,
-                "region": vpc.region,
-                "secondary_cidrs": vpc.secondary_cidrs or [],
-                "scenario": vpc.scenario,
-                "status": vpc.status,
-                "created_at": vpc.created_at.isoformat() if vpc.created_at else None
-            })
-        
-        return {
-            "nodes": nodes,
-            "edges": edges,
-            "scenarios": []
-        }
-    finally:
-        db.close()
+        template_path = os.path.join(os.path.dirname(__file__), "ui", "vpc.html")
+        if os.path.exists(template_path):
+            with open(template_path, 'r') as f:
+                content = f.read()
+            return HTMLResponse(content)
+        else:
+            return HTMLResponse("<h1>VPC template not found</h1>", status_code=404)
+    except Exception as e:
+        return HTMLResponse(f"<h1>Error serving VPC view: {e}</h1>", status_code=500)
 
 @app.get("/openapi.json", include_in_schema=False)
 async def openapi_json():
