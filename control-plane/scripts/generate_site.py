@@ -138,17 +138,32 @@ def extract_scenarios_from_vpc_md():
         return ["demo", "basic", "advanced"]
 
 def get_markdown_content(filename):
-    """Get markdown content from docs directory"""
-    md_path = os.path.join("docs", filename)
-    if not os.path.exists(md_path):
-        print(f"Warning: {md_path} not found")
-        return None
-    
+    """Get markdown content from GitHub raw URL (like Vercel)"""
     try:
-        with open(md_path, 'r') as f:
-            return f.read()
+        import requests
+        github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/docs/{filename}"
+        print(f"Fetching {filename} from GitHub: {github_url}")
+        
+        response = requests.get(github_url)
+        if response.status_code == 200:
+            content = response.text
+            print(f"Successfully fetched {len(content)} characters from GitHub")
+            return content
+        else:
+            print(f"GitHub fetch failed: {response.status_code}")
+            # Fallback to local file
+            md_path = os.path.join("docs", filename)
+            if os.path.exists(md_path):
+                with open(md_path, 'r') as f:
+                    return f.read()
+            return None
     except Exception as e:
-        print(f"Error reading {filename}: {e}")
+        print(f"Error fetching {filename} from GitHub: {e}")
+        # Fallback to local file
+        md_path = os.path.join("docs", filename)
+        if os.path.exists(md_path):
+            with open(md_path, 'r') as f:
+                return f.read()
         return None
 
 def append_markdown_to_tab(soup, tab_id, filename, title, description):
@@ -240,15 +255,16 @@ def append_markdown_to_tab(soup, tab_id, filename, title, description):
             </div>
             
             <div class="markdown-content">
-                <div id="markdown-content-{filename.replace('.', '-')}" style="display: none;">{content}</div>
+                <div id="markdown-content-{filename.replace('.', '-')}" style="display: none;"></div>
                 <div id="rendered-content-{filename.replace('.', '-')}"></div>
             </div>
             <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
             <script>
                 // Client-side markdown rendering for {filename}
-                const markdownContent{filename.replace('.', '-')} = document.getElementById('markdown-content-{filename.replace('.', '-')}').textContent;
+                const markdownContent{filename.replace('.', '-')} = `{content.replace('`', '\\`').replace('${', '\\${')}`;
                 const renderedContent{filename.replace('.', '-')} = marked.parse(markdownContent{filename.replace('.', '-')});
                 document.getElementById('rendered-content-{filename.replace('.', '-')}').innerHTML = renderedContent{filename.replace('.', '-')};
+                document.getElementById('markdown-content-{filename.replace('.', '-')}').textContent = markdownContent{filename.replace('.', '-')};
             </script>
             """
             
@@ -361,15 +377,16 @@ def create_new_tab_static(soup, tab_id, tab_name, icon, filename, title, descrip
             </style>
             
             <div class="markdown-content">
-                <div id="markdown-content-{filename.replace('.', '-')}" style="display: none;">{content}</div>
+                <div id="markdown-content-{filename.replace('.', '-')}" style="display: none;"></div>
                 <div id="rendered-content-{filename.replace('.', '-')}"></div>
             </div>
             <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
             <script>
                 // Client-side markdown rendering for {filename}
-                const markdownContent{filename.replace('.', '-')} = document.getElementById('markdown-content-{filename.replace('.', '-')}').textContent;
+                const markdownContent{filename.replace('.', '-')} = `{content.replace('`', '\\`').replace('${', '\\${')}`;
                 const renderedContent{filename.replace('.', '-')} = marked.parse(markdownContent{filename.replace('.', '-')});
                 document.getElementById('rendered-content-{filename.replace('.', '-')}').innerHTML = renderedContent{filename.replace('.', '-')};
+                document.getElementById('markdown-content-{filename.replace('.', '-')}').textContent = markdownContent{filename.replace('.', '-')};
             </script>
             """
             
