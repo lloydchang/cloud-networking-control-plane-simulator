@@ -12,6 +12,5 @@
       "src": "/(.*)",
       "dest": "/api/rest_api_server.py"
     }
-  ],
-  "_comment": "Updated 2025-01-05 - docs/index.html now has 55 VPCs with real data"
+  ]
 }
