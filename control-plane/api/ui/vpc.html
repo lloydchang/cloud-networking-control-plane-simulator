@@ -1477,7 +1477,7 @@
                 const sRect = svg.getBoundingClientRect();
 
                 const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                const labelX = side === 'left' ? hRect.left - sRect.left - 60 : hRect.right - sRect.left + 60;
+                const labelX = side === 'left' ? hRect.left - sRect.left - 35 : hRect.right - sRect.left + 35;
                 const labelY = hRect.top + hRect.height / 2 - sRect.top;
                 text.setAttribute("x", labelX);
                 text.setAttribute("y", labelY);
