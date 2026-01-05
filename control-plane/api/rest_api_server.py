@@ -362,13 +362,16 @@ async def vpc_view():
     """Serve the pre-built static index.html directly from GitHub raw"""
     try:
         import httpx
-        github_raw_url = "https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/refs/heads/main/docs/index.html"
+        import time
+        # Add cache-busting timestamp to force fresh fetch
+        timestamp = int(time.time())
+        github_raw_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/refs/heads/main/docs/index.html?t={timestamp}"
         
         async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(github_raw_url)
+            response = await client.get(github_raw_url, headers={"Cache-Control": "no-cache"})
             if response.status_code == 200:
-                logging.info("Serving pre-built static index.html from GitHub raw")
-                return HTMLResponse(response.text)
+                logging.info(f"Serving pre-built static index.html from GitHub raw (size: {len(response.text)} chars)")
+                return HTMLResponse(response.text, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
             else:
                 return HTMLResponse(f"<h1>Static Content Not Available</h1><p>Could not fetch index.html from GitHub (status: {response.status_code})</p>", status_code=503)
     except Exception as e:
