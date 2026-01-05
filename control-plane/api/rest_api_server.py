@@ -65,32 +65,55 @@ from . import shared_api_logic as services
 
 def get_processed_architecture_content():
     """Extract and process architecture content with diagram formatting"""
-    # Try multiple possible paths for ARCHITECTURE.md
-    possible_paths = [
-        os.path.join(os.path.dirname(__file__), "..", "..", "docs", "ARCHITECTURE.md"),
-        os.path.join(os.path.dirname(__file__), "..", "docs", "ARCHITECTURE.md"),
-        os.path.join(os.getcwd(), "docs", "ARCHITECTURE.md"),
-        "/tmp/docs/ARCHITECTURE.md",  # Vercel might copy files here
-        "docs/ARCHITECTURE.md",  # Relative path
-        "../docs/ARCHITECTURE.md",  # Another relative path
-    ]
-    
-    arch_md_path = None
-    for path in possible_paths:
-        if os.path.exists(path):
-            arch_md_path = path
-            print(f"DEBUG: Found ARCHITECTURE.md at: {path}")
-            break
-    
-    if not arch_md_path:
-        print(f"DEBUG: ARCHITECTURE.md not found in any of these paths:")
+    # In Vercel, fetch ARCHITECTURE.md from GitHub since it's not deployed
+    if os.getenv("VERCEL"):
+        try:
+            import httpx
+            github_url = "https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/docs/ARCHITECTURE.md"
+            print(f"DEBUG: Fetching ARCHITECTURE.md from GitHub: {github_url}")
+            
+            with httpx.Client() as client:
+                response = client.get(github_url)
+                if response.status_code == 200:
+                    content = response.text
+                    print(f"DEBUG: Successfully fetched {len(content)} characters from GitHub")
+                else:
+                    print(f"DEBUG: GitHub fetch failed: {response.status_code}")
+                    return None
+                
+        except Exception as e:
+            print(f"DEBUG: Error fetching from GitHub: {e}")
+            return None
+    else:
+        # Local development - try multiple possible paths
+        possible_paths = [
+            os.path.join(os.path.dirname(__file__), "..", "..", "docs", "ARCHITECTURE.md"),
+            os.path.join(os.path.dirname(__file__), "..", "docs", "ARCHITECTURE.md"),
+            os.path.join(os.getcwd(), "docs", "ARCHITECTURE.md"),
+            "/tmp/docs/ARCHITECTURE.md",  # Vercel might copy files here
+            "docs/ARCHITECTURE.md",  # Relative path
+            "../docs/ARCHITECTURE.md",  # Another relative path
+        ]
+        
+        arch_md_path = None
         for path in possible_paths:
-            print(f"  - {path}")
-        return None
-    
-    try:
-        with open(arch_md_path, 'r') as f:
-            content = f.read()
+            if os.path.exists(path):
+                arch_md_path = path
+                print(f"DEBUG: Found ARCHITECTURE.md at: {path}")
+                break
+        
+        if not arch_md_path:
+            print(f"DEBUG: ARCHITECTURE.md not found in any of these paths:")
+            for path in possible_paths:
+                print(f"  - {path}")
+            return None
+        
+        try:
+            with open(arch_md_path, 'r') as f:
+                content = f.read()
+        except Exception as e:
+            print(f"DEBUG: Error reading ARCHITECTURE.md: {e}")
+            return None
         
         # Convert text diagrams to properly formatted code blocks
         lines = content.split('\n')
