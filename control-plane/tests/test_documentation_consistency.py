@@ -17,8 +17,8 @@ def test_vpc_html_tab_consistency():
     
     # Define expected patterns for tabs
     expected_patterns = [
-        r"<h3>📐 Architecture Overview</h3>\s*<p>High-level system design and component interaction from docs/ARCHITECTURE\.md</p>",
-        r"<h3>☁️ Virtual Private Cloud</h3>\s*<p>Deep dive into VPC implementation and scenarios from docs/VPC\.md</p>",
+        r"<h3>🏗️ System Architecture</h3>\s*<p>Conceptual exploration of cloud networking internals from docs/ARCHITECTURE\.md</p>",
+        r"<h3>🌐 VPC Architecture & Visualization</h3>\s*<p>Real-time logical map of your cloud network with 36 demo scenarios from docs/VPC\.md</p>",
         r"<h3>📚 API Usage Examples</h3>\s*<p>Comprehensive API examples and use cases from docs/API_EXAMPLES\.md</p>",
         r"<h3>🧪 Testing & Performance</h3>\s*<p>Multi-layered testing approach ensuring control plane correctness and reliability from\s*docs/TESTING\.md</p>"
     ]
