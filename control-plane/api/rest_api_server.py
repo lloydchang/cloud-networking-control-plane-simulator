@@ -30,6 +30,8 @@ from pydantic import BaseModel, Field
 from sqlalchemy import create_engine, text, Table, MetaData, select, insert, update
 from sqlalchemy.orm import sessionmaker, Session
 
+from bs4 import BeautifulSoup
+
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -667,7 +669,6 @@ async def vpc_view():
         with open(vpc_html_path, "r") as f:
             html_content = f.read()
         
-        from bs4 import BeautifulSoup
         soup = BeautifulSoup(html_content, "html.parser")
         
         # Define markdown files and their mapping to tabs
