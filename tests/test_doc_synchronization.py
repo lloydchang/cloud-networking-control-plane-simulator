@@ -52,5 +52,12 @@ def test_synchronization():
     # Regex to find VRF: 100/200 inside Leaf-1/2 boxes
     assert "VRF: 100/200" in arch_content, "ARCHITECTURE.md should list both VRFs (100 and 200) on Leaf switches"
 
+    # 7. Check NETWORKING.md presence and links
+    nw_path = os.path.join(base_dir, "docs", "NETWORKING.md")
+    assert os.path.exists(nw_path)
+    with open(nw_path, "r") as f:
+        nw_content = f.read()
+    assert "[Architecture Overview](ARCHITECTURE.md)" in nw_content
+
 if __name__ == "__main__":
     pytest.main([__file__])

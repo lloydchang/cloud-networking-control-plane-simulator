@@ -24,7 +24,7 @@ The Cloud Networking Control Plane Simulator focuses on **Control Plane correctn
 
 ### VPC Isolation (VRFs)
 
-*   **Implementation**: The reconciler attempts to create native Linux VRF devices. However, some environments (like Docker Desktop on macOS using Apple Silicon, such as M-series) lacks the `vrf` kernel module.
+*   **Implementation**: The reconciler attempts to create native Linux VRF devices. However, some environments (like Docker Desktop on macOS using Apple Silicon, such as M-series) lack the `vrf` kernel module.
 *   **Enforcement Fallback**: The simulator automatically falls back to **`iptables`** isolation on the leaf switches when native VRFs are not supported. This provides the required logical VPC isolation (preventing cross-VPC traffic) while maintaining stable control plane behavior.
 *   **Unified Discovery**: The reconciler handles "Unified Discovery" by treating both native VRF devices and `iptables` rules equally during state reconciliation to determine if a VPC's isolation is active ("available").
 
