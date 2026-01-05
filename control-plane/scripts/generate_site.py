@@ -361,6 +361,13 @@ def export_static_fully_offline():
             font-weight: bold;
         }}
         </style>
+        
+        <!-- Divider between original content and ARCHITECTURE.md -->
+        <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
+            <h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 Detailed Architecture Documentation</h3>
+            <p style="margin: 0; color: #555;">Below is the comprehensive architecture documentation from <code>docs/ARCHITECTURE.md</code></p>
+        </div>
+        
         <div class="architecture-content">
             <div id="markdown-content" style="display: none;">{arch_data}</div>
             <div id="rendered-content"></div>
@@ -374,12 +381,8 @@ def export_static_fully_offline():
         </script>
         """
         
-        # Create new content div
-        new_arch_div = soup.new_tag("div", **{"id": "content-architecture", "style": "display: none;"})
-        new_arch_div.append(BeautifulSoup(arch_content, "html.parser"))
-        
-        # Replace the existing architecture tab
-        arch_tab.replace_with(new_arch_div)
+        # Append the new content to the existing tab (hybrid approach)
+        arch_tab.append(BeautifulSoup(new_arch_content, "html.parser"))
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     output_path = os.path.join(OUTPUT_DIR, "index.html")

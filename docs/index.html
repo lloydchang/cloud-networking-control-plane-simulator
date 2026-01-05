@@ -1646,6 +1646,55 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
 </div>
 <!-- Architecture Tab -->
 <div id="content-architecture" style="display: none;">
+<h3>🏗️ System Architecture</h3>
+<p>The simulator provides a conceptual exploration of cloud networking internals using Linux networking primitives.</p>
+<h4>Core Concepts</h4>
+<div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
+<strong>Physical Fabric:</strong> Docker-based network providing basic reachability between Spines, Leafs, and Control Plane.<br/><br/>
+<strong>Logical Overlay:</strong> VXLAN-EVPN overlay built on top using BGP EVPN for VPC isolation and routing.<br/><br/>
+<strong>Cloud Routing Hub:</strong> Centralized routing aggregation point for hub-and-spoke architectures.
+                </div>
+<h4>Implementation Status</h4>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+<tr style="background: #f5f5f5;">
+<th style="border: 1px solid #ddd; padding: 8px;">Feature</th>
+<th style="border: 1px solid #ddd; padding: 8px;">Control Plane</th>
+<th style="border: 1px solid #ddd; padding: 8px;">Data Plane</th>
+</tr>
+<tr>
+<td style="border: 1px solid #ddd; padding: 8px;">EVPN-VXLAN</td>
+<td style="border: 1px solid #ddd; padding: 8px;">✅ FRR</td>
+<td style="border: 1px solid #ddd; padding: 8px;">✅ Linux Kernel</td>
+</tr>
+<tr>
+<td style="border: 1px solid #ddd; padding: 8px;">VRFs</td>
+<td style="border: 1px solid #ddd; padding: 8px;">🔄 Simulated</td>
+<td style="border: 1px solid #ddd; padding: 8px;">🔄 iptables Fallback</td>
+</tr>
+<tr>
+<td style="border: 1px solid #ddd; padding: 8px;">VTEPs</td>
+<td style="border: 1px solid #ddd; padding: 8px;">✅ FRR</td>
+<td style="border: 1px solid #ddd; padding: 8px;">✅ VXLAN Interfaces</td>
+</tr>
+</table>
+<h4>Intent-Driven Orchestration</h4>
+<div style="background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 10px 0;">
+<strong>Reconciliation Loop:</strong><br/>
+                    1. <strong>Fetch:</strong> Query SQLite database for desired state<br/>
+                    2. <strong>Discover:</strong> Inspect leaf switches using <code>ip link</code><br/>
+                    3. <strong>Diff:</strong> Compute differences between intended and actual<br/>
+                    4. <strong>Action:</strong> Execute system commands to converge state
+                </div>
+<div style="margin-top: 20px; padding: 15px; background: #f0f4c3; border-radius: 4px;">
+<h4>📚 Related Documentation</h4>
+<ul style="margin: 0; padding-left: 20px;">
+<li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/ARCHITECTURE.md" target="_blank">📖 Full Architecture Details</a></li>
+<li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/NETWORKING_IMPLEMENTATION.md" target="_blank">🔧 Networking Implementation</a></li>
+<li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/docs/IDEAS.md" target="_blank">💡 Design Ideas &amp; Extensions</a></li>
+<li><a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator/blob/main/README.md" target="_blank">🏠 Project README</a></li>
+</ul>
+</div>
+
 <style>
         .architecture-content {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -1719,7 +1768,13 @@ window.STATIC_SCENARIOS = ["Single VPC", "Multi-tier VPC", "Secure Database Tier
             font-weight: bold;
         }
         </style>
-<div class="architecture-content"><h1 id="architecture-details-cloud-networking-control-plane-simulator">Architecture Details: Cloud Networking Control Plane Simulator</h1>
+<!-- Divider between original content and ARCHITECTURE.md -->
+<div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
+<h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 Detailed Architecture Documentation</h3>
+<p style="margin: 0; color: #555;">Below is the comprehensive architecture documentation from <code>docs/ARCHITECTURE.md</code></p>
+</div>
+<div class="architecture-content">
+<div id="markdown-content" style="display: none;"><h1 id="architecture-details-cloud-networking-control-plane-simulator">Architecture Details: Cloud Networking Control Plane Simulator</h1>
 <p>This document provides a deep dive into the architectural components, data flows, and infrastructure mapping of the Cloud Networking Control Plane Simulator.</p>
 <h2 id="core-concepts-terminology">Core Concepts &amp; Terminology</h2>
 <p>Before diving into the technical details, it is important to distinguish between the two primary networking layers. This simulator relies on <strong>FRRouting (FRR) containers</strong> for BGP EVPN functionality to achieve full overlay behavior.</p>
@@ -2018,6 +2073,15 @@ Diagrams are simplified for clarity. This simulator focuses on <strong>Control P
 *   <strong>Resource Contention</strong>: Running multiple FRR instances and a Python-based reconciler on a single host may lead to CPU contention during heavy reconciliation cycles. Memory usage scales linearly with the number of VPCs and virtual switches.
 *   <strong>MTU Mismatches</strong>: Docker network MTU mismatches (standard 1500 vs. VXLAN overhead) may affect packet fragmentation and throughput if not manually tuned.
 *   <strong>Simulated NAT</strong>: NAT/SNAT logic is not hardware-accelerated and runs via Linux kernel <code>netns</code> transitions, further limiting throughput.</p></div>
+<div id="rendered-content"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+<script>
+            // Client-side markdown rendering for better performance
+            const markdownContent = document.getElementById('markdown-content').textContent;
+            const renderedContent = marked.parse(markdownContent);
+            document.getElementById('rendered-content').innerHTML = renderedContent;
+        </script>
 </div>
 <!-- VPC Details Tab -->
 <div id="content-vpc-details" style="display: none;">

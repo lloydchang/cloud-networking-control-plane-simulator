@@ -77,6 +77,7 @@ def get_processed_architecture_content():
                 if response.status_code == 200:
                     content = response.text
                     print(f"DEBUG: Successfully fetched {len(content)} characters from GitHub")
+                    return content  # Return raw markdown for client-side rendering
                 else:
                     print(f"DEBUG: GitHub fetch failed: {response.status_code}")
                     return None
@@ -111,57 +112,10 @@ def get_processed_architecture_content():
         try:
             with open(arch_md_path, 'r') as f:
                 content = f.read()
+            return content  # Return raw markdown for client-side rendering
         except Exception as e:
             print(f"DEBUG: Error reading ARCHITECTURE.md: {e}")
             return None
-        
-        # Convert text diagrams to properly formatted code blocks
-        lines = content.split('\n')
-        formatted_lines = []
-        in_code_block = False
-        in_diagram = False
-        
-        for line in lines:
-            # Detect diagram blocks (start with ```text or contain diagram patterns)
-            if line.strip().startswith('```text'):
-                formatted_lines.append(line)
-                in_code_block = True
-                in_diagram = True
-            elif line.strip() == '```' and in_diagram:
-                formatted_lines.append(line)
-                in_code_block = False
-                in_diagram = False
-            # Detect ASCII diagram patterns (box drawing characters, arrows, etc.)
-            elif any(char in line for char in ['┌', '┐', '└', '┘', '─', '│', '├', '┤', '┬', '┴', '┼', '▶', '───']):
-                if not in_code_block:
-                    formatted_lines.append('```text')
-                    in_code_block = True
-                    in_diagram = True
-                formatted_lines.append(line)
-            elif in_diagram and (line.strip() == '' or line.strip().startswith('```')):
-                if line.strip() == '```':
-                    formatted_lines.append(line)
-                    in_code_block = False
-                    in_diagram = False
-                else:
-                    formatted_lines.append(line)
-            else:
-                formatted_lines.append(line)
-        
-        # Close any open code block
-        if in_code_block:
-            formatted_lines.append('```')
-        
-        formatted_content = '\n'.join(formatted_lines)
-        
-        # Convert markdown to HTML (same as static site generator)
-        import markdown
-        html_content = markdown.markdown(formatted_content, extensions=['fenced_code', 'codehilite', 'tables', 'toc'])
-        
-        return html_content
-    except Exception as e:
-        logging.warning(f"Error processing ARCHITECTURE.md: {e}")
-        return None
 
 app = FastAPI(
     title="Cloud Networking Control Plane Simulator - Control Plane API",
@@ -479,7 +433,10 @@ async def vpc_view():
             soup = BeautifulSoup(html_content, "html.parser")
             arch_tab = soup.find("div", {"id": "content-architecture"})
             if arch_tab:
-                # Instead of processing server-side, serve raw markdown and let client render
+                # Keep the existing static content and append the ARCHITECTURE.md content
+                # This creates a hybrid view with both original content and detailed architecture
+                
+                # Add CSS for the appended content
                 new_arch_content = f"""
                 <style>
                 .architecture-content {{
@@ -554,6 +511,13 @@ async def vpc_view():
                     font-weight: bold;
                 }}
                 </style>
+                
+                <!-- Divider between original content and ARCHITECTURE.md -->
+                <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
+                    <h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 Detailed Architecture Documentation</h3>
+                    <p style="margin: 0; color: #555;">Below is the comprehensive architecture documentation from <code>docs/ARCHITECTURE.md</code></p>
+                </div>
+                
                 <div class="architecture-content">
                     <div id="markdown-content" style="display: none;">{arch_content}</div>
                     <div id="rendered-content"></div>
@@ -566,9 +530,9 @@ async def vpc_view():
                     document.getElementById('rendered-content').innerHTML = renderedContent;
                 </script>
                 """
-                new_arch_div = soup.new_tag("div", **{"id": "content-architecture", "style": "display: none;"})
-                new_arch_div.append(BeautifulSoup(new_arch_content, "html.parser"))
-                arch_tab.replace_with(new_arch_div)
+                
+                # Append the new content to the existing tab
+                arch_tab.append(BeautifulSoup(new_arch_content, "html.parser"))
                 html_content = str(soup)
         
         return HTMLResponse(html_content)
