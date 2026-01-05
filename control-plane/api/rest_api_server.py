@@ -283,14 +283,25 @@ def create_new_tab(soup, tab_id, tab_name, icon, filename, title, description):
         # Find the navigation tabs container
         nav_tabs = soup.find("div", style=lambda x: x and "display: flex" in x and "gap: 10px" in x and "border-bottom" in x)
         if nav_tabs:
-            # Add new tab button
+            # Find the ReDoc button to insert before it
+            redoc_button = None
+            for button in nav_tabs.find_all("button"):
+                if "ReDoc" in button.get_text():
+                    redoc_button = button
+                    break
+            
+            # Add new tab button before ReDoc button or at the end if not found
             new_tab_button = soup.new_tag("button", 
                 onclick=f"showTab('{tab_id}')",
                 style="background: none; border: none; padding: 10px; cursor: pointer;",
                 id=f"tab-{tab_id}"
             )
             new_tab_button.string = f"{icon} {tab_name}"
-            nav_tabs.append(new_tab_button)
+            
+            if redoc_button:
+                redoc_button.insert_before(new_tab_button)
+            else:
+                nav_tabs.append(new_tab_button)
         
         # Find the content container (after the last content div)
         last_content = soup.find_all("div", id=lambda x: x and x.startswith("content-"))[-1]
