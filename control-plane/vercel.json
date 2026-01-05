@@ -12,6 +12,5 @@
       "src": "/(.*)",
       "dest": "/api/rest_api_server.py"
     }
-  ],
-  "_comment": "Updated 2025-01-04 to trigger Vercel deployment after removing GitHub Actions workflow"
+  ]
 }
