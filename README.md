@@ -11,7 +11,7 @@ This project is intended for students, educators, researchers, software engineer
 
 > [!WARNING]
 > **Operational Scope & Security**
-> *   **Environment**: Assumes Linux or WSL2. Requires `iproute2`, `nftables`, and `iptables`. `nftables` is the primary mechanism for Security Groups; `iptables` is required for legacy container networking and specific NAT defaults.
+> *   **Environment**: Assumes Mac, Linux or WSL2. Requires `iproute2`, `nftables`, and `iptables`. `nftables` is the primary mechanism for Security Groups; `iptables` is required for legacy container networking and specific NAT defaults.
 > *   **Isolation**: This is a **conceptual simulator**, not a security-hardened environment. Services bound to `127.0.0.1` are accessible locally on the host. Do **not** deploy in a public network or expose ports without explicit host-level firewalling.
 > *   **Performance**: Focused on **Control Plane correctness** and **Intent reconciliation**. It does **not** emulate hardware throughput or production-scale traffic. Logical isolation is prioritized over data plane performance.
 
