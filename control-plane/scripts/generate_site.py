@@ -671,7 +671,7 @@ def export_static_fully_offline():
             "tab_name": "License",
             "icon": "📄",
             "title": "Project License",
-            "description": "MIT License terms and conditions"
+            "description": "GNU Affero General Public License terms and conditions"
         }
     }
     
