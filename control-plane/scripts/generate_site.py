@@ -236,8 +236,14 @@ def extract_scenarios_from_vpc_md(vpc_md_path="docs/VPC.md"):
                     arch_text = arch_match.group(1).strip()
                     
                     # Best effort at resource inference for visual icons
-                    if "VPC" in arch_text:
+                    # Look for specific names like "Web VPC", "Production VPC", etc.
+                    vpc_names = re.findall(r'([A-Z][\w\s]+ VPC)', arch_text)
+                    if vpc_names:
+                        for name in vpc_names:
+                            resources.append({"type": "vpc", "label": name.strip()})
+                    elif "VPC" in arch_text:
                         resources.append({"type": "vpc", "label": "VPC"})
+                        
                     if "Hub" in arch_text or "hub" in arch_text.lower():
                         resources.append({"type": "hub", "label": "Cloud Routing Hub"})
                     if "Data Center" in arch_text or "on-prem" in arch_text.lower():

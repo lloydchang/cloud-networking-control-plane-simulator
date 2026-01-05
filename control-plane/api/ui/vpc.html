@@ -1264,12 +1264,14 @@
                     if (scenario.resources) {
                         scenario.resources.forEach(res => {
                             let found = null;
+                            const resLabelLower = res.label.toLowerCase();
+
                             if (res.type === 'vpc') {
-                                found = vpcs.find(v => v.label === res.label);
+                                found = vpcs.find(v => v.label.toLowerCase().includes(resLabelLower) || resLabelLower.includes(v.label.toLowerCase()));
                             } else if (res.type === 'hub') {
-                                found = hubs.find(h => h.label === res.label);
+                                found = hubs.find(h => h.label.toLowerCase().includes(resLabelLower) || resLabelLower.includes(h.label.toLowerCase()));
                             } else if (res.type === 'standalone_dc') {
-                                found = standaloneDCs.find(s => s.label === res.label);
+                                found = standaloneDCs.find(s => s.label.toLowerCase().includes(resLabelLower) || resLabelLower.includes(s.label.toLowerCase()));
                             }
                             // Strictly check renderedIds to prevent "count mismatch" / double rendering across scenarios
                             if (found && !globalRenderedIds.has(found.id)) {
