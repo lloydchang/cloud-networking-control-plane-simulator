@@ -165,7 +165,7 @@ This diagram shows how a request at `localhost:8080` traverses the simulated lay
 [ User ] ──▶ [ Port 8080 ] ──▶ [ Load-Balancer ] ──▶ [ Fabric (VXLAN) ] ──▶ [ Server-1 ]
                 │                   │                     │                    │
              Host IP            LB Container        (Decapsulation)         VPC Subnet
-          (203.0.113.10)        (10.0.0.103)           (at Leaf)           (10.1.1.10)
+          (203.0.113.250)       (10.0.0.103)           (at Leaf)           (10.1.1.10)
 ```
 
 ### Outbound Traffic Traversal (VPC to Internet)
@@ -385,3 +385,31 @@ This simulator is designed for functional validation and educational purposes, n
 *   **Resource Contention**: Running multiple FRR instances and a Python-based reconciler on a single host may lead to CPU contention during heavy reconciliation cycles. Memory usage scales linearly with the number of VPCs and virtual switches.
 *   **MTU Mismatches**: Docker network MTU mismatches (standard 1500 vs. VXLAN overhead) may affect packet fragmentation and throughput if not manually tuned.
 *   **Simulated NAT**: NAT/SNAT logic is not hardware-accelerated and runs via Linux kernel `netns` transitions, further limiting throughput.
+388: 
+389: ## Glossary of Acronyms
+390: 
+391: *   **API**: Application Programming Interface
+392: *   **ASN**: Autonomous System Number (used in BGP)
+393: *   **BGP**: Border Gateway Protocol
+394: *   **CDC**: Cloud Data Center (logical availability zone)
+395: *   **CIDR**: Classless Inter-Domain Routing
+396: *   **DNAT**: Destination Network Address Translation
+397: *   **ECMP**: Equal-Cost Multi-Path
+398: *   **EVPN**: Ethernet Virtual Private Network
+399: *   **FRR**: FRRouting
+400: *   **GW**: Gateway
+401: *   **IGW**: Internet Gateway
+402: *   **IP**: Internet Protocol
+403: *   **LB**: Load Balancer
+404: *   **MAC**: Media Access Control
+405: *   **MTU**: Maximum Transmission Unit
+406: *   **NAT**: Network Address Translation
+407: *   **RFC**: Request for Comments (Internet standards)
+408: *   **SNAT**: Source Network Address Translation
+409: *   **VNI**: VXLAN Network Identifier
+410: *   **VPC**: Virtual Private Cloud
+411: *   **VRF**: Virtual Routing and Forwarding
+412: *   **VTEP**: VXLAN Tunnel Endpoint
+413: *   **VXLAN**: Virtual Extensible LAN
+414: *   **WAN**: Wide Area Network
+415: *   **ZTP**: Zero-Touch Provisioning
