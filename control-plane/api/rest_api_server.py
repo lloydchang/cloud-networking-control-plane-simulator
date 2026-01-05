@@ -84,7 +84,7 @@ def get_processed_markdown_content(filename):
                     content = response.text
                     print(f"DEBUG: Successfully fetched {len(content)} characters from GitHub")
                     # Convert markdown to HTML (server-side rendering)
-                    return convert_markdown_to_html(content)
+                    return convert_markdown_to_html(content, filename)
                 else:
                     print(f"DEBUG: GitHub fetch failed: {response.status_code}")
                     return None
@@ -131,13 +131,17 @@ def get_processed_markdown_content(filename):
             with open(file_path, 'r') as f:
                 content = f.read()
             # Convert markdown to HTML (server-side rendering)
-            return convert_markdown_to_html(content)
+            return convert_markdown_to_html(content, filename)
         except Exception as e:
             print(f"DEBUG: Error reading {filename}: {e}")
             return None
 
-def convert_markdown_to_html(content):
+def convert_markdown_to_html(content, filename):
     """Convert markdown content to HTML with proper diagram formatting"""
+    # Handle LICENSE as plain text in code block
+    if filename == "LICENSE":
+        return f'<pre style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; padding: 16px; overflow-x: auto; margin: 15px 0;"><code>{content}</code></pre>'
+    
     try:
         import markdown
         # Format text diagrams as code blocks first
@@ -743,11 +747,11 @@ async def vpc_view():
                 "title": "Detailed Architecture Documentation",
                 "description": "Comprehensive architecture documentation from docs/ARCHITECTURE.md"
             },
-            "API.md": {
+            "API_GUIDE.md": {
                 "tab_id": "content-api-guide", 
                 "action": "append",
                 "title": "Complete API Documentation",
-                "description": "Full API reference and documentation from docs/API.md"
+                "description": "Full API reference and documentation from docs/API_GUIDE.md"
             },
             "TESTING.md": {
                 "tab_id": "content-testing",
@@ -756,7 +760,7 @@ async def vpc_view():
                 "description": "Complete testing documentation and coverage from docs/TESTING.md"
             },
             "VPC.md": {
-                "tab_id": "content-vpc-details",
+                "tab_id": "content-vpc",
                 "action": "append",
                 "title": "VPC Implementation Details", 
                 "description": "Detailed VPC implementation and scenarios from docs/VPC.md"
@@ -787,13 +791,13 @@ async def vpc_view():
                 "title": "Project Ideas and Future Development",
                 "description": "Ideas for future features and improvements from docs/IDEAS.md"
             },
-            "NETWORKING_IMPLEMENTATION.md": {
-                "tab_id": "implementation",
+            "NETWORKING.md": {
+                "tab_id": "networking",
                 "action": "new_tab",
-                "tab_name": "Implementation",
+                "tab_name": "Networking",
                 "icon": "⚙️", 
                 "title": "Networking Implementation Details",
-                "description": "Deep dive into networking implementation from docs/NETWORKING_IMPLEMENTATION.md"
+                "description": "Deep dive into networking implementation from docs/NETWORKING.md"
             },
             "LICENSE": {
                 "tab_id": "license",

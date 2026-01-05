@@ -1508,7 +1508,7 @@
         // Tab switching functionality
         function showTab(tabName) {
             // Hide all content divs
-            const contents = ['api-guide', 'architecture', 'vpc-details', 'examples', 'testing'];
+            const contents = ['api-guide', 'architecture', 'vpc', 'examples', 'testing'];
             contents.forEach(content => {
                 const contentDiv = document.getElementById(`content-${content}`);
                 if (contentDiv) {
@@ -1516,22 +1516,25 @@
                 }
             });
             
-            // Remove active state from all tabs
-            contents.forEach(content => {
+            // Remove active state from all tab buttons (except external links)
+            const tabButtons = ['api-guide', 'architecture', 'vpc', 'examples', 'testing'];
+            tabButtons.forEach(content => {
                 const tabButton = document.getElementById(`tab-${content}`);
                 if (tabButton) {
                     tabButton.style.borderBottom = 'none';
                 }
             });
             
-            // Show selected content and activate tab
-            const selectedContent = document.getElementById(`content-${tabName}`);
-            const selectedTab = document.getElementById(`tab-${tabName}`);
-            if (selectedContent) {
-                selectedContent.style.display = 'block';
-            }
-            if (selectedTab) {
-                selectedTab.style.borderBottom = '2px solid #00897b';
+            // Show selected content and activate tab (only for internal tabs)
+            if (contents.includes(tabName)) {
+                const selectedContent = document.getElementById(`content-${tabName}`);
+                const selectedTab = document.getElementById(`tab-${tabName}`);
+                if (selectedContent) {
+                    selectedContent.style.display = 'block';
+                }
+                if (selectedTab) {
+                    selectedTab.style.borderBottom = '2px solid #00897b';
+                }
             }
         }
 
@@ -1556,7 +1559,7 @@
             <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0;">
                 <button onclick="showTab('api-guide')" style="background: none; border: none; padding: 10px; cursor: pointer; border-bottom: 2px solid #00897b;" id="tab-api-guide">📋 API Guide</button>
                 <button onclick="showTab('architecture')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-architecture">🏗️ Architecture</button>
-                <button onclick="showTab('vpc-details')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-vpc-details">🌐 VPC Details</button>
+                <button onclick="showTab('vpc')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-vpc">🌐 VPC</button>
                 <button onclick="showTab('examples')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-examples">💡 Examples</button>
                 <button onclick="showTab('testing')" style="background: none; border: none; padding: 10px; cursor: pointer;" id="tab-testing">🧪 Testing</button>
                 <button onclick="window.open('https://cloud-networking-control-plane-simulator.vercel.app/redoc', '_blank')" style="background: none; border: none; padding: 10px; cursor: pointer; text-decoration: none; color: inherit; margin-left: auto;">📖 ReDoc</button>
@@ -1717,8 +1720,8 @@
                 </div>
             </div>
 
-            <!-- VPC Details Tab -->
-            <div id="content-vpc-details" style="display: none;">
+            <!-- VPC Tab -->
+            <div id="content-vpc" style="display: none;">
                 <h3>🌐 VPC Architecture & Visualization</h3>
                 <p>The VPC visualization provides a real-time logical map of your cloud network with 33 demo scenarios.</p>
                 

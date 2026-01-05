@@ -105,7 +105,7 @@ See [docs/VPC.md](docs/VPC.md)
 ### REST API
 The control plane exposes a REST API (port 8000) for intent declaration. API operations are **idempotent**, allowing for safe retries without unintended side effects.
 
-Detailed examples for creating **VPCs**, **Subnets**, and **Security Groups** are available in [docs/VPC.md](docs/VPC.md) and [docs/API.md](docs/API.md).
+Detailed examples for creating **VPCs**, **Subnets**, and **Security Groups** are available in [docs/VPC.md](docs/VPC.md) and [docs/API_GUIDE.md](docs/API_GUIDE.md).
 
 Interactive API documentation is available at
 
@@ -122,7 +122,7 @@ A high-performance gRPC API (port 50051) is provided for management operations a
 grpcurl -plaintext localhost:50051 network.NetworkService/ListVPCs
 ```
 
-For detailed examples including **Creating Resources via gRPC**, streaming telemetry, and the full service definition, see [docs/API.md](docs/API.md#grpc-api).
+For detailed examples including **Creating Resources via gRPC**, streaming telemetry, and the full service definition, see [docs/API_GUIDE.md](docs/API_GUIDE.md#grpc-api).
 
 ## Verification & Troubleshooting
 
