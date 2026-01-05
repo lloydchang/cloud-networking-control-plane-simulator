@@ -1129,7 +1129,8 @@
                 };
 
                 const formatStandaloneDCHtml = (sdc) => {
-                    const dcSubnets = subnets.filter(s => s.parent === sdc.id || (data.nodes.filter(d => d.parent === sdc.id).some(d => d.id === s.parent)));
+                    const sdcDcs = dcs.filter(d => d.parent === sdc.id);
+
                     let innerHtml = `
                         <div class="standalone-dc" data-dc-id="${sdc.id}">
                             <div class="dc-header">
@@ -1139,8 +1140,9 @@
                             </div>
                             <div class="dc-container">
                                 <div class="subnets">
-                    `;
+                        `;
 
+                    const dcSubnets = subnets.filter(s => s.parent === sdc.id || (data.nodes.filter(d => d.parent === sdc.id).some(d => d.id === s.parent)));
                     dcSubnets.forEach(subnet => {
                         const subnetClass = getSubnetClass(subnet.label, subnet.type);
                         innerHtml += `
@@ -1886,31 +1888,8 @@
                     </ul>
                 </div>
             </div>
-
-            <!-- License Modal -->
-            <div id="licenseModal" style="position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 16px;" class="hidden">
-                <div style="background-color: white; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); width: 100%; max-width: 42rem; max-height: 80vh; display: flex; flex-direction: column;">
-                    <div style="padding: 16px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-                        <h2 style="font-size: 18px; font-weight: bold; color: #1e293b;">License</h2>
-                        <button id="closeLicenseModal" style="color: #9ca3af; transition: color 0.2s; background: none; border: none; cursor: pointer;" onmouseover="this.style.color='#4b5563';" onmouseout="this.style.color='#9ca3af';">
-                            <svg style="width: 24px; height: 24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-                    <div style="padding: 24px; overflow-y: auto;">
-                        <pre id="licenseText" style="font-size: 14px; color: #475569; white-space: pre-wrap; font-family: monospace;"></pre>
-                    </div>
-                </div>
-            </div>
-
-            </html>
-            <button id="closeLicenseModal" style="color: #9ca3af; transition: color 0.2s; background: none; border: none; cursor: pointer;" onmouseover="this.style.color='#4b5563';" onmouseout="this.style.color='#9ca3af';">
-                <svg style="width: 24px; height: 24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-        </div>
-        <div style="padding: 24px; overflow-y: auto;">
-            <pre id="licenseText" style="font-size: 14px; color: #475569; white-space: pre-wrap; font-family: monospace;"></pre>
         </div>
     </div>
-</div>
+</body>
 
 </html>

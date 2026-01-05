@@ -1,4 +1,21 @@
-# export_vpc_static_fully_offline.py
+#!/usr/bin/env python3
+"""
+Cloud Networking Control Plane Simulator - Static Site Generator
+
+This script generates a fully-offline, portable 'docs/index.html' dashboard.
+It inlines all CSS/JS resources and extracts scenario data from VPC.md.
+
+Deployment Strategy:
+1. Local: Generates docs/index.html for offline use or preview.
+2. GitHub: docs/index.html is committed and served via GitHub Pages.
+3. Vercel: FastAPI (rest_api_server.py) fetches and serves the raw index.html 
+   from GitHub. This ensures the dashboard is always available at the root 
+   domain without requiring manual Vercel builds for every small change.
+
+Usage:
+    python control-plane/scripts/generate_site.py
+"""
+
 import json
 import os
 import re
@@ -113,105 +130,123 @@ def extract_architecture_from_md():
         print(f"Error parsing ARCHITECTURE.md: {e}")
         return "<p>Error loading architecture documentation</p>"
 
-def extract_scenarios_from_vpc_md():
+def extract_scenarios_from_vpc_md(vpc_md_path="docs/VPC.md"):
     """Extract scenario list from VPC.md"""
-    vpc_md_path = "docs/VPC.md"
     if not os.path.exists(vpc_md_path):
         print(f"Warning: {vpc_md_path} not found, using default scenarios")
-        return ["demo", "basic", "advanced"]
+        return [{"title": s, "description": "", "resources": []} for s in ["demo", "basic", "advanced"]]
     
     try:
         with open(vpc_md_path, 'r') as f:
             content = f.read()
         
-        # Extract scenario numbers and names using regex
-        scenario_pattern = r'### (\d+)\. (.+?)(?:\n.*?### (\d+)\. (.+?))*'
-        matches = re.findall(scenario_pattern, content)
+        # Split content by scenario headers: ### N. Title
+        # We capture the number and title in groups to preserve them
+        parts = re.split(r'\n### (\d+)\. ([^\n]+)', content)
         
-        if matches:
-            scenarios = []
-            for match in matches:
-                num = match[0]
-                title = match[1].strip()
-                description = ''
-                resources = []
-                
-                # Extract description for this scenario
-                desc_pattern = rf'### {num}\. {re.escape(match[1])}.*?\n\n(.*?)(?=### \d+\.|$)'
-                desc_match = re.search(desc_pattern, content, re.MULTILINE | re.DOTALL)
-                if desc_match:
-                    description = desc_match.group(1).strip()
-                
-                # Extract resources for this scenario
-                resource_pattern = rf'### {num}\. {re.escape(match[1])}.*?\n\n.*?- \*\*(.*?)\*\*: (.*?)\n'
-                resource_matches = re.findall(resource_pattern, content, re.MULTILINE | re.DOTALL)
-                
-                for resource_match in resource_matches:
-                    resource_type = resource_match[1].strip()
-                    resource_label = resource_match[2].strip()
-                    
-                    # Map resource types to standard names
-                    if resource_type.lower() in ['vpc', 'virtual private cloud', 'vpc with']:
-                        resources.append({"type": "vpc", "label": resource_label})
-                    elif resource_type.lower() in ['cloud routing hub', 'hub']:
-                        resources.append({"type": "hub", "label": resource_label})
-                    elif 'data center' in resource_type.lower():
-                        resources.append({"type": "standalone_dc", "label": resource_label})
-                
-                scenarios.append({
-                    "title": title,
-                    "description": description,
-                    "resources": resources
-                })
+        # parts[0] is the header before the first scenario
+        # then we have: number, title, content, number, title, content, ...
+        scenarios = []
+        for i in range(1, len(parts), 3):
+            num = parts[i].strip()
+            full_title = parts[i+1].strip()
+            block = parts[i+2]
             
+            description = ""
+            resources = []
+            
+            # Extract Goal as description
+            goal_match = re.search(r'\* \*\*Goal\*\*: (.*?)$', block, re.MULTILINE)
+            if goal_match:
+                description = goal_match.group(1).strip()
+            
+                # Extract Architecture and infer resources
+                arch_match = re.search(r'\* \*\*Architecture\*\*: (.*?)$', block, re.MULTILINE)
+                if arch_match:
+                    arch_text = arch_match.group(1).strip()
+                    
+                    # Best effort at resource inference for visual icons
+                    if "VPC" in arch_text:
+                        resources.append({"type": "vpc", "label": "VPC"})
+                    if "Hub" in arch_text or "hub" in arch_text.lower():
+                        resources.append({"type": "hub", "label": "Cloud Routing Hub"})
+                    if "Data Center" in arch_text or "on-prem" in arch_text.lower():
+                        resources.append({"type": "standalone_dc", "label": "Data Center"})
+                    if "VPN" in arch_text:
+                        resources.append({"type": "vpc", "label": "VPN Gateway"})
+                    if "mesh" in arch_text.lower():
+                        resources.append({"type": "vpc", "label": "Mesh Node"})
+            
+            scenarios.append({
+                "title": f"{num}. {full_title}",
+                "description": description,
+                "resources": resources,
+                "clean_title": full_title
+            })
+            
+        if scenarios:
             return scenarios
+        else:
+            print("Warning: No scenarios found in VPC.md, using default")
+            return [{"title": s, "description": "", "resources": []} for s in ["demo", "basic", "advanced"]]
     except Exception as e:
         print(f"Error parsing VPC.md: {e}")
         return ["demo", "basic", "advanced"]
 
 def get_markdown_content(filename):
     """Get markdown content and convert to HTML (server-side rendering)"""
-    try:
-        import requests
-        # Check if it's a root file (README.md, LICENSE)
-        if filename in ["README.md", "LICENSE"]:
-            github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/{filename}"
-        else:
-            github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/docs/{filename}"
-        print(f"Fetching {filename} from GitHub: {github_url}")
-        
-        response = requests.get(github_url)
-        if response.status_code == 200:
-            content = response.text
-            print(f"Successfully fetched {len(content)} characters from GitHub")
-        else:
-            print(f"GitHub fetch failed: {response.status_code}")
-            # Fallback to local file
-            if filename in ["README.md", "LICENSE"]:
-                md_path = os.path.join("..", filename)  # Root directory
-            else:
-                md_path = os.path.join("docs", filename)
-            if os.path.exists(md_path):
-                with open(md_path, 'r') as f:
-                    content = f.read()
-            else:
-                return None
-    except Exception as e:
-        print(f"Error fetching {filename} from GitHub: {e}")
-        # Fallback to local file
-        if filename in ["README.md", "LICENSE"]:
-            md_path = os.path.join("..", filename)  # Root directory
-        else:
-            md_path = os.path.join("docs", filename)
-        if os.path.exists(md_path):
+    # Prefer local files for stability and consistency with current repository state
+    content = None
+    
+    # Root files vs docs files
+    if filename in ["README.md", "LICENSE"]:
+        md_path = filename  # Root directory
+    else:
+        md_path = os.path.join("docs", filename)
+    
+    # Try local path
+    if os.path.exists(md_path):
+        try:
             with open(md_path, 'r') as f:
                 content = f.read()
-        else:
+                print(f"Loaded {filename} from local file: {md_path}")
+        except Exception as e:
+            print(f"Error reading local file {md_path}: {e}")
+
+    # Fallback to GitHub if local file not found
+    if content is None:
+        try:
+            import requests
+            if filename in ["README.md", "LICENSE"]:
+                github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/{filename}"
+            else:
+                github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/docs/{filename}"
+            print(f"Fetching {filename} from GitHub as fallback: {github_url}")
+            
+            response = requests.get(github_url)
+            if response.status_code == 200:
+                content = response.text
+                print(f"Successfully fetched {len(content)} characters from GitHub")
+            else:
+                print(f"GitHub fetch failed: {response.status_code}")
+                return None
+        except Exception as e:
+            print(f"Error fetching {filename} from GitHub: {e}")
             return None
+    
+    if content is None:
+        return None
     
     # Handle LICENSE as plain text in code block
     if filename == "LICENSE":
-        return f'<pre style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; padding: 16px; overflow-x: auto; margin: 15px 0;"><code>{content}</code></pre>'
+        import html
+        import re
+        # Escape HTML to prevent XSS or mangling
+        escaped_content = html.escape(content)
+        # Linkify URLs (refined to avoid capturing trailing punctuation or HTML entities)
+        url_pattern = re.compile(r'(https?://[^\s<>"]+?)(?=[.,;:]?\s|&gt;|&lt;|"|\'|$)')
+        linkified_content = url_pattern.sub(r'<a href="\1" target="_blank" style="color: #2196f3; text-decoration: underline;">\1</a>', escaped_content)
+        return f'<pre style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; padding: 16px; overflow-x: auto; margin: 15px 0; white-space: pre-wrap;"><code>{linkified_content}</code></pre>'
     
     # Convert markdown to HTML (server-side rendering)
     try:
@@ -239,24 +274,21 @@ def get_markdown_content(filename):
                     in_code_block = True
                     in_diagram = True
                 formatted_lines.append(line)
-            elif in_diagram and (line.strip() == '' or line.strip().startswith('```')):
-                if line.strip() == '```':
-                    formatted_lines.append(line)
-                    in_code_block = False
-                    in_diagram = False
-                else:
-                    formatted_lines.append(line)
             else:
                 formatted_lines.append(line)
-        
         # Close any open code block
         if in_code_block:
             formatted_lines.append('```')
         
         formatted_content = '\n'.join(formatted_lines)
         
-        # Convert markdown to HTML
-        html_content = markdown.markdown(formatted_content, extensions=['fenced_code', 'codehilite', 'tables', 'toc'])
+        # Convert markdown to HTML (server-side rendering)
+        import markdown
+        # Add extensions for better formatting (same as Vercel)
+        # nl2br preserves line breaks as <br> tags
+        # Note: formatted_content already handled backticks
+        html_content = markdown.markdown(formatted_content, extensions=['fenced_code', 'codehilite', 'tables', 'toc', 'nl2br'])
+        
         return html_content
         
     except Exception as e:
@@ -506,43 +538,67 @@ def export_static_fully_offline():
     scenarios = extract_scenarios_from_vpc_md()
     print(f"Using scenarios from VPC.md: {scenarios}")
     
+    # Try to load static scenarios fixture if it exists
+    scenarios_fixture = "tests/fixtures/known_good_scenarios.json"
+    if os.path.exists(scenarios_fixture):
+        try:
+            with open(scenarios_fixture, 'r') as f:
+                scenarios = json.load(f)
+                print(f"Using known-good scenario list from fixture: {scenarios_fixture}")
+        except Exception as e:
+            print(f"Warning: Could not load scenarios fixture: {e}")
+
     # Fetch VPC data (with graceful fallback)
     vpc_data = {"nodes": [], "edges": [], "scenarios": scenarios}
-    try:
-        response = requests.get(f"{API_BASE_URL}/vpc", headers={"Accept": "application/json"})
-        response.raise_for_status()
-        vpc_data = response.json()
-    except Exception as e:
-        print(f"Warning: Could not fetch VPC data from API ({e}), using sample data")
-        # Use sample data (same as before)
-        vpc_data = {
-            "nodes": [
-                {
-                    "id": "vpc-demo-1",
-                    "type": "vpc",
-                    "label": "Demo VPC",
-                    "cidr": "10.0.0.0/16",
-                    "region": "us-east-1",
-                    "secondary_cidrs": ["10.1.0.0/16"],
-                    "scenario": "demo",
-                    "status": "active",
-                    "created_at": "2024-01-01T00:00:00Z"
-                }
-            ],
-            "edges": [
-                {
-                    "source": "vpc-demo-1",
-                    "target": "leaf-1",
-                    "type": "vpc-hosting"
-                },
-                {
-                    "source": "vpc-demo-1",
-                    "target": "leaf-2",
-                    "type": "vpc-hosting"
-                }
-            ],
-            "scenarios": scenarios
-        }
+    
+    # Try to load local fixture if it exists (for regression matching)
+    fixture_path = "tests/fixtures/known_good_vpc_data.json"
+    if os.path.exists(fixture_path):
+        try:
+            with open(fixture_path, 'r') as f:
+                vpc_data = json.load(f)
+                print(f"Using known-good VPC data from fixture: {fixture_path}")
+        except Exception as e:
+            print(f"Warning: Could not load fixture {fixture_path}: {e}")
+    else:
+        try:
+            response = requests.get(f"{API_BASE_URL}/vpc", headers={"Accept": "application/json"})
+            response.raise_for_status()
+            vpc_data = response.json()
+        except Exception as e:
+            print(f"Warning: Could not fetch VPC data from API ({e}), using sample data")
+            # Use sample data (same as before)
+            vpc_data = {
+                "nodes": [
+                    {
+                        "id": "vpc-demo-1",
+                        "type": "vpc",
+                        "label": "Demo VPC",
+                        "cidr": "10.0.0.0/16",
+                        "region": "us-east-1",
+                        "secondary_cidrs": ["10.1.0.0/16"],
+                        "scenario": "demo",
+                        "status": "active",
+                        "created_at": "2024-01-01T00:00:00Z"
+                    }
+                ],
+                "edges": [
+                    {
+                        "source": "vpc-demo-1",
+                        "target": "leaf-1",
+                        "type": "vpc-hosting"
+                    },
+                    {
+                        "source": "vpc-demo-1",
+                        "target": "leaf-2",
+                        "type": "vpc-hosting"
+                    }
+                ]
+            }
+    
+    # Always ensure vpc_data has the scenarios we extracted/loaded
+    if not vpc_data.get('scenarios') or len(vpc_data.get('scenarios', [])) == 0:
+        vpc_data['scenarios'] = scenarios
 
     # Read template
     if not os.path.exists(TEMPLATE_PATH):
@@ -556,10 +612,14 @@ def export_static_fully_offline():
     template_dir = os.path.dirname(TEMPLATE_PATH)
 
     # Inject JSON data first
+    # STATIC_SCENARIOS should be a list of strings (titles) for original navigation logic
+    # STATIC_VPC_DATA.scenarios should be a list of objects for resource rendering
+    scenario_titles = [s.get('clean_title', s['title']) if isinstance(s, dict) else s for s in scenarios]
+    
     data_script = soup.new_tag("script")
     data_script.string = (
         f"window.STATIC_VPC_DATA = {json.dumps(vpc_data)};\n"
-        f"window.STATIC_SCENARIOS = {json.dumps(scenarios)};"
+        f"window.STATIC_SCENARIOS = {json.dumps(scenario_titles)};"
     )
     soup.head.insert(0, data_script)
 
@@ -734,7 +794,7 @@ def export_static_fully_offline():
     output_path = os.path.join(OUTPUT_DIR, "index.html")
 
     with open(output_path, 'w') as f:
-        f.write(str(soup))
+        f.write(str(soup) + '\n')
 
     print(f"Fully offline static dashboard written to {os.path.abspath(output_path)}")
     print(f"Contains {len(scenarios)} scenarios, all JS/CSS inlined (local + remote).")

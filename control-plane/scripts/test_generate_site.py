@@ -13,8 +13,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 # Import directly from the module file
 import importlib.util
-spec = importlib.util.spec_from_file_location("generate_site.py")
-generate_site = importlib.util.module_from_spec(spec).extract_scenarios_from_vpc_md
+module_name = "generate_site"
+module_path = os.path.join(os.path.dirname(__file__), 'generate_site.py')
+spec = importlib.util.spec_from_file_location(module_name, module_path)
+generate_site_module = importlib.util.module_from_spec(spec)
+sys.modules[module_name] = generate_site_module
+spec.loader.exec_module(generate_site_module)
+extract_scenarios_from_vpc_md = generate_site_module.extract_scenarios_from_vpc_md
 
 
 class TestScenarioExtraction(unittest.TestCase):
@@ -63,65 +68,45 @@ class TestScenarioExtraction(unittest.TestCase):
     
     def test_extract_scenarios_with_resources(self):
         """Test that scenarios are extracted with proper resource structure"""
-        # Temporarily override the VPC.md path
-        original_path = sys.modules['scripts.generate_site'].__file__
-        sys.modules['scripts.generate_site'].__file__ = self.vpc_md_path
+        scenarios = extract_scenarios_from_vpc_md(self.vpc_md_path)
         
-        try:
-            scenarios = extract_scenarios_from_vpc_md()
-            
-            # Should extract 3 scenarios
-            self.assertEqual(len(scenarios), 3)
-            
-            # Check that scenarios have proper structure
-            for scenario in scenarios:
-                self.assertIn('title', scenario)
-                self.assertIn('description', scenario)
-                self.assertIn('resources', scenario)
-                
-                # Check that resources are properly typed
-                for resource in scenario['resources']:
-                    self.assertIn('type', resource)
-                    self.assertIn('label', resource)
-                    self.assertIn(resource['type'], ['vpc', 'hub', 'standalone_dc'])
+        # Should extract 3 scenarios
+        self.assertEqual(len(scenarios), 3)
         
-        finally:
-            # Restore original path
-            sys.modules['scripts.generate_site'].__file__ = original_path
+        # Check that scenarios have proper structure
+        self.assertEqual(scenarios[0]['title'], "1. Single VPC")
+        self.assertEqual(scenarios[1]['title'], "2. Multi-tier VPC")
+        
+        for scenario in scenarios:
+            self.assertIn('title', scenario)
+            self.assertIn('description', scenario)
+            self.assertIn('resources', scenario)
+            
+            # Check that resources are properly typed
+            for resource in scenario['resources']:
+                self.assertIn('type', resource)
+                self.assertIn('label', resource)
+                self.assertIn(resource['type'], ['vpc', 'hub', 'standalone_dc'])
     
     def test_extract_scenarios_handles_missing_file(self):
         """Test graceful fallback when VPC.md is missing"""
-        original_path = sys.modules['scripts.generate_site'].__file__
-        sys.modules['scripts.generate_site'].__file__ = '/nonexistent/path/VPC.md'
+        scenarios = extract_scenarios_from_vpc_md('/nonexistent/path/VPC.md')
         
-        try:
-            scenarios = extract_scenarios_from_vpc_md()
-            
-            # Should return default scenarios
-            self.assertEqual(scenarios, ["demo", "basic", "advanced"])
-            
-        finally:
-            # Restore original path
-            sys.modules['scripts.generate_site'].__file__ = original_path
+        # Should return default scenarios as objects
+        expected = [{"title": s, "description": "", "resources": []} for s in ["demo", "basic", "advanced"]]
+        self.assertEqual(scenarios, expected)
     
     def test_extract_scenarios_handles_invalid_content(self):
         """Test graceful fallback when VPC.md has invalid content"""
-        original_path = sys.modules['scripts.generate_site'].__file__
-        sys.modules['scripts.generate_site'].__file__ = self.vpc_md_path
-        
         # Create invalid VPC.md
         with open(self.vpc_md_path, 'w') as f:
             f.write("Invalid content without scenario headers")
         
-        try:
-            scenarios = extract_scenarios_from_vpc_md()
-            
-            # Should return default scenarios
-            self.assertEqual(scenarios, ["demo", "basic", "advanced"])
-            
-        finally:
-            # Restore original path
-            sys.modules['scripts.generate_site'].__file__ = original_path
+        scenarios = extract_scenarios_from_vpc_md(self.vpc_md_path)
+        
+        # Should return default scenarios as objects
+        expected = [{"title": s, "description": "", "resources": []} for s in ["demo", "basic", "advanced"]]
+        self.assertEqual(scenarios, expected)
 
 
 if __name__ == '__main__':
