@@ -329,7 +329,7 @@ def get_markdown_content(filename):
         print(f"Error converting markdown to HTML: {e}")
         return f"<p>Error rendering {filename}</p>"
 
-def append_markdown_to_tab(soup, tab_id, filename, title, description):
+def append_markdown_to_tab(soup, tab_id, filename, title, description, icon="📖"):
     """Append markdown content to existing tab for GitHub Pages"""
     content = get_markdown_content(filename)
     
@@ -419,7 +419,7 @@ def append_markdown_to_tab(soup, tab_id, filename, title, description):
             
             <!-- Divider between original content and {filename} -->
             <div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px; border-left: 4px solid #2196f3;">
-                <h3 style="margin: 0 0 10px 0; color: #1976d2;">📖 {title}</h3>
+                <h3 style="margin: 0 0 10px 0; color: #1976d2;">{icon} {title}</h3>
                 <p style="margin: 0; color: #555;">{description}</p>
             </div>
             
@@ -756,26 +756,30 @@ def export_static_fully_offline():
         "ARCHITECTURE.md": {
             "tab_id": "content-architecture",
             "action": "append",
-            "title": "Detailed Architecture Documentation",
-            "description": "Comprehensive architecture documentation from docs/ARCHITECTURE.md"
+            "icon": "🏗️",
+            "title": "System Architecture",
+            "description": "Conceptual exploration of cloud networking internals from docs/ARCHITECTURE.md"
         },
         "API_GUIDE.md": {
             "tab_id": "content-api-guide", 
             "action": "append",
-            "title": "Complete API Documentation",
+            "icon": "📋",
+            "title": "API Guide",
             "description": "Full API reference and documentation from docs/API_GUIDE.md"
         },
         "TESTING.md": {
             "tab_id": "content-testing",
-            "action": "append", 
-            "title": "Comprehensive Testing Guide",
-            "description": "Complete testing documentation and coverage from docs/TESTING.md"
+            "action": "append",
+            "icon": "🧪", 
+            "title": "Testing & Performance",
+            "description": "Multi-layered testing approach ensuring control plane correctness and reliability from docs/TESTING.md"
         },
         "VPC.md": {
             "tab_id": "content-vpc",
             "action": "append",
-            "title": "VPC Implementation Details", 
-            "description": "Detailed VPC implementation and scenarios from docs/VPC.md"
+            "icon": "🌐",
+            "title": "VPC Architecture & Visualization", 
+            "description": "Real-time logical map of your cloud network with 36 demo scenarios from docs/VPC.md"
         },
         
         # New tabs - create dedicated tabs
@@ -788,16 +792,15 @@ def export_static_fully_offline():
             "description": "Main project documentation and getting started guide from README.md"
         },
         "API_EXAMPLES.md": {
-            "tab_id": "api-examples",
-            "action": "new_tab",
-            "tab_name": "API Examples",
+            "tab_id": "content-examples",
+            "action": "append",
             "icon": "📚",
             "title": "API Usage Examples",
             "description": "Comprehensive API examples and use cases from docs/API_EXAMPLES.md"
         },
         "IDEAS.md": {
             "tab_id": "ideas",
-            "action": "new_tab", 
+            "action": "new_tab",
             "tab_name": "Ideas",
             "icon": "💡",
             "title": "Project Ideas and Future Development",
@@ -807,7 +810,7 @@ def export_static_fully_offline():
             "tab_id": "networking",
             "action": "new_tab",
             "tab_name": "Networking",
-            "icon": "⚙️", 
+            "icon": "⚙️",
             "title": "Networking Implementation Details",
             "description": "Deep dive into networking implementation from docs/NETWORKING.md"
         },
@@ -817,7 +820,7 @@ def export_static_fully_offline():
             "tab_name": "License",
             "icon": "📄",
             "title": "Project License",
-            "description": "GNU Affero General Public License terms and conditions"
+            "description": "AGPL-3.0 license from LICENSE"
         }
     }
     
@@ -830,7 +833,8 @@ def export_static_fully_offline():
                 config["tab_id"], 
                 filename, 
                 config["title"], 
-                config["description"]
+                config["description"],
+                config.get("icon", "📖")
             )
         elif config["action"] == "new_tab":
             # Create new tab

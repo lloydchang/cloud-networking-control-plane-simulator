@@ -381,36 +381,36 @@ To avoid confusion between static definitions and live state, the simulator dist
 ## Performance Caveats
 
 This simulator is designed for functional validation and educational purposes, not for stress-testing or production traffic modeling.
+
 *   **Docker Latency**: Packet traversal through multiple Docker bridges and the userspace-heavy VXLAN implementation will show significantly higher latency than ASIC-based hardware.
 *   **Kernel Limitations**: As noted, the lack of `vrf` modules in Docker Desktop on MacOS using Apple Silicon hosts requires fallback to `iptables`, which has different scaling characteristics than native VRFs.
 *   **Resource Contention**: Running multiple FRR instances and a Python-based reconciler on a single host may lead to CPU contention during heavy reconciliation cycles. Memory usage scales linearly with the number of VPCs and virtual switches.
 *   **MTU Mismatches**: Docker network MTU mismatches (standard 1500 vs. VXLAN overhead) may affect packet fragmentation and throughput if not manually tuned.
 *   **Simulated NAT**: NAT/SNAT logic is not hardware-accelerated and runs via Linux kernel `netns` transitions, further limiting throughput.
-388: 
-389: ## Glossary of Acronyms
-390: 
-391: *   **API**: Application Programming Interface
-392: *   **ASN**: Autonomous System Number (used in BGP)
-393: *   **BGP**: Border Gateway Protocol
-394: *   **CDC**: Cloud Data Center (logical availability zone)
-395: *   **CIDR**: Classless Inter-Domain Routing
-396: *   **DNAT**: Destination Network Address Translation
-397: *   **ECMP**: Equal-Cost Multi-Path
-398: *   **EVPN**: Ethernet Virtual Private Network
-399: *   **FRR**: FRRouting
-400: *   **GW**: Gateway
-401: *   **IGW**: Internet Gateway
-402: *   **IP**: Internet Protocol
-403: *   **LB**: Load Balancer
-404: *   **MAC**: Media Access Control
-405: *   **MTU**: Maximum Transmission Unit
-406: *   **NAT**: Network Address Translation
-407: *   **RFC**: Request for Comments (Internet standards)
-408: *   **SNAT**: Source Network Address Translation
-409: *   **VNI**: VXLAN Network Identifier
-410: *   **VPC**: Virtual Private Cloud
-411: *   **VRF**: Virtual Routing and Forwarding
-412: *   **VTEP**: VXLAN Tunnel Endpoint
-413: *   **VXLAN**: Virtual Extensible LAN
-414: *   **WAN**: Wide Area Network
-415: *   **ZTP**: Zero-Touch Provisioning
+## Glossary of Acronyms
+
+*   **API**: Application Programming Interface
+*   **ASN**: Autonomous System Number (used in BGP)
+*   **BGP**: Border Gateway Protocol
+*   **CDC**: Cloud Data Center (logical availability zone)
+*   **CIDR**: Classless Inter-Domain Routing
+*   **DNAT**: Destination Network Address Translation
+*   **ECMP**: Equal-Cost Multi-Path
+*   **EVPN**: Ethernet Virtual Private Network
+*   **FRR**: FRRouting
+*   **GW**: Gateway
+*   **IGW**: Internet Gateway
+*   **IP**: Internet Protocol
+*   **LB**: Load Balancer
+*   **MAC**: Media Access Control
+*   **MTU**: Maximum Transmission Unit
+*   **NAT**: Network Address Translation
+*   **RFC**: Request for Comments (Internet standards)
+*   **SNAT**: Source Network Address Translation
+*   **VNI**: VXLAN Network Identifier
+*   **VPC**: Virtual Private Cloud
+*   **VRF**: Virtual Routing and Forwarding
+*   **VTEP**: VXLAN Tunnel Endpoint
+*   **VXLAN**: Virtual Extensible LAN
+*   **WAN**: Wide Area Network
+*   **ZTP**: Zero-Touch Provisioning

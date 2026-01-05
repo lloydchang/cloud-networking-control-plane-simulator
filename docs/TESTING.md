@@ -33,16 +33,16 @@ make security-scan
 
 ## Test Coverage
 
-Current coverage by component (as of latest commit 3c0c98f):
+Current coverage by component (as of latest commit 5cadd9d):
 
 | Component | Coverage | Status |
 |-----------|----------|--------|
 | `models.py` | 100% | ✅ All SQLAlchemy models |
-| `grpc_api_server.py` | 77% | 📈 gRPC API implementation (improved from 28%) |
-| `rest_api_server.py` | 71% | 📈 REST API endpoints (improved from 57%) |
-| `shared_api_logic.py` | 45% | 📈 Core business logic (improved from 12%) |
-| `diagnostic_logger.py` | 25% | 📈 Diagnostic logging (improved from 6%) |
-| **Overall** | **56%** | 📈 **Improved from 35%** |
+| `rest_api_server.py` | 76% | 📈 REST API endpoints |
+| `grpc_api_server.py` | 77% | 📈 gRPC API implementation |
+| `shared_api_logic.py` | 34% | ⚠️ Shared logic needs more coverage |
+| `diagnostic_logger.py` | 27% | ⚠️ Partial coverage |
+| **Overall** | **52%** | 📈 **Improved from previous baseline** |
 
 **Recent Improvements** (Commit 596365e):
 - ✅ Fixed test environment issues (filesystem permissions)
