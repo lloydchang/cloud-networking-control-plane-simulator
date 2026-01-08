@@ -864,6 +864,7 @@
             <h1>Cloud Networking Control Plane Simulator</h1>
         </div>
         <div class="controls">
+            <button class="btn" id="refresh-btn">🔄 Refresh</button>
             <button class="btn btn-secondary" onclick="showTab('testing')">🧪 Testing</button>
         </div>
     </header>
@@ -985,6 +986,10 @@
         }
 
         async function loadData() {
+            const refreshBtn = document.getElementById('refresh-btn');
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '🔄 Loading...';
+
             try {
                 let data;
                 if (window.STATIC_VPC_DATA) {
@@ -1417,6 +1422,9 @@
                 document.getElementById('content').innerHTML = '<p style="color: #c62828;">Error loading data: ' + err.message + '</p>';
                 const statusStatsEl = document.getElementById('status-stats');
                 if (statusStatsEl) statusStatsEl.innerText = 'Error: ' + err.message;
+            } finally {
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = '🔄 Refresh';
             }
         }
 
@@ -1529,6 +1537,8 @@
         loadData();
         // Auto-refresh every 15 seconds
         setInterval(loadData, 15000);
+
+        document.getElementById('refresh-btn').addEventListener('click', loadData);
 
         // API Guide functionality
         function toggleApiGuide() {
