@@ -69,11 +69,12 @@ INSTANCE_SG_MAPPINGS: Dict[str, List[str]] = {
 }
 
 
-def run_nft(command: str) -> bool:
+def run_nft(command: List[str]) -> bool:
     """Execute an nft command."""
     try:
+        # Note: a List[str] is passed to subprocess.run to avoid shell injection.
         result = subprocess.run(
-            ["nft"] + command.split(),
+            ["nft"] + command,
             capture_output=True,
             text=True,
             check=True
@@ -90,20 +91,20 @@ def init_nftables():
     
     # Create base tables and chains
     commands = [
-        "add table ip security_groups",
-        "add chain ip security_groups input { type filter hook input priority filter; policy drop; }",
-        "add chain ip security_groups forward { type filter hook forward priority filter; policy drop; }",
-        "add chain ip security_groups output { type filter hook output priority filter; policy accept; }",
+        ["add", "table", "ip", "security_groups"],
+        ["add", "chain", "ip", "security_groups", "input", "{", "type", "filter", "hook", "input", "priority", "filter;", "policy", "drop;", "}"],
+        ["add", "chain", "ip", "security_groups", "forward", "{", "type", "filter", "hook", "forward", "priority", "filter;", "policy", "drop;", "}"],
+        ["add", "chain", "ip", "security_groups", "output", "{", "type", "filter", "hook", "output", "priority", "filter;", "policy", "accept;", "}"],
         
         # Allow established connections
-        "add rule ip security_groups input ct state established,related accept",
-        "add rule ip security_groups forward ct state established,related accept",
+        ["add", "rule", "ip", "security_groups", "input", "ct", "state", "established,related", "accept"],
+        ["add", "rule", "ip", "security_groups", "forward", "ct", "state", "established,related", "accept"],
         
         # Allow loopback
-        "add rule ip security_groups input iifname lo accept",
+        ["add", "rule", "ip", "security_groups", "input", "iifname", "lo", "accept"],
         
         # Allow Prometheus scraping (port 9100)
-        "add rule ip security_groups input tcp dport 9100 accept",
+        ["add", "rule", "ip", "security_groups", "input", "tcp", "dport", "9100", "accept"],
     ]
     
     # Clear existing rules first
@@ -113,7 +114,7 @@ def init_nftables():
         run_nft(cmd)
 
 
-def generate_nft_rules(instance_ip: str, sg_ids: List[str]) -> List[str]:
+def generate_nft_rules(instance_ip: str, sg_ids: List[str]) -> List[List[str]]:
     """Generate nftables rules for an instance based on its security groups."""
     rules = []
     
@@ -128,37 +129,41 @@ def generate_nft_rules(instance_ip: str, sg_ids: List[str]) -> List[str]:
             cidr = rule["cidr"]
             port = rule.get("port")
             
+            # This is the core of the security fix.
+            # Instead of building a command string, we build a list of arguments.
+            # This prevents shell injection vulnerabilities.
+
             if direction == "ingress":
                 # Ingress: allow traffic TO this instance
-                nft_rule = f"add rule ip security_groups forward ip daddr {instance_ip}"
+                nft_rule = ["add", "rule", "ip", "security_groups", "forward", "ip", "daddr", instance_ip]
                 
                 if protocol != "all":
                     if protocol == "icmp":
-                        nft_rule += " ip protocol icmp"
+                        nft_rule.extend(["ip", "protocol", "icmp"])
                     else:
-                        nft_rule += f" ip protocol {protocol}"
+                        nft_rule.extend(["ip", "protocol", protocol])
                         if port:
-                            nft_rule += f" {protocol} dport {port}"
+                            nft_rule.extend([protocol, "dport", str(port)])
                 
                 if cidr != "0.0.0.0/0":
-                    nft_rule += f" ip saddr {cidr}"
+                    nft_rule.extend(["ip", "saddr", cidr])
                     
-                nft_rule += " accept"
+                nft_rule.append("accept")
                 rules.append(nft_rule)
                 
             elif direction == "egress":
                 # Egress: allow traffic FROM this instance
-                nft_rule = f"add rule ip security_groups forward ip saddr {instance_ip}"
+                nft_rule = ["add", "rule", "ip", "security_groups", "forward", "ip", "saddr", instance_ip]
                 
                 if protocol != "all":
-                    nft_rule += f" ip protocol {protocol}"
+                    nft_rule.extend(["ip", "protocol", protocol])
                     if port:
-                        nft_rule += f" {protocol} dport {port}"
+                        nft_rule.extend([protocol, "dport", str(port)])
                 
                 if cidr != "0.0.0.0/0":
-                    nft_rule += f" ip daddr {cidr}"
+                    nft_rule.extend(["ip", "daddr", cidr])
                     
-                nft_rule += " accept"
+                nft_rule.append("accept")
                 rules.append(nft_rule)
     
     return rules
