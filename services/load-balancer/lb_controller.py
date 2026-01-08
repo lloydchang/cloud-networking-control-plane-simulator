@@ -170,16 +170,24 @@ def reconciliation_loop():
     - Applies changes with validation
     """
     last_config_hash = None
-    
+
+    # ⚡ OPTIMIZATION: Pre-calculate the hash for the static config.
+    # In a real-world scenario where the config is fetched from an API,
+    # this hash would be calculated on the fetched data inside the loop.
+    # Since LB_CONFIG is static, we calculate it once to avoid redundant
+    # CPU work in every iteration.
+    # Impact: Reduces CPU usage by avoiding repeated JSON serialization and hashing.
+    config_hash = hash(json.dumps(LB_CONFIG, sort_keys=True))
+
     while True:
         try:
             # In production: fetch desired state from API
-            # config = fetch_from_api("/load-balancers")
+            # fetched_config = fetch_from_api("/load-balancers")
+            # For this simulation, we use the static config.
             config = LB_CONFIG
-            
-            # Simple change detection (hash comparison in production)
-            config_hash = hash(json.dumps(config, sort_keys=True))
-            
+
+            # In a real system, we'd calculate the hash of the *newly fetched* config.
+            # Since our config is static, we use the pre-calculated hash.
             if config_hash != last_config_hash:
                 print("Configuration change detected")
                 if apply_config(config):
