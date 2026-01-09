@@ -3,7 +3,8 @@
   "builds": [
     {
       "src": "vercel-build.sh",
-      "use": "@vercel/static-build"
+      "use": "@vercel/static-build",
+      "config": { "distDir": "control-plane/api/ui" }
     },
     {
       "src": "control-plane/api/rest_api_server.py",

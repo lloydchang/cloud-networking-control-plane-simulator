@@ -247,24 +247,8 @@ def get_markdown_content(filename):
 
     # Fallback to GitHub if local file not found
     if content is None:
-        try:
-            import requests
-            if filename in ["README.md", "LICENSE"]:
-                github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/{filename}"
-            else:
-                github_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/main/docs/{filename}"
-            print(f"Fetching {filename} from GitHub as fallback: {github_url}")
-            
-            response = requests.get(github_url)
-            if response.status_code == 200:
-                content = response.text
-                print(f"Successfully fetched {len(content)} characters from GitHub")
-            else:
-                print(f"GitHub fetch failed: {response.status_code}")
-                return None
-        except Exception as e:
-            print(f"Error fetching {filename} from GitHub: {e}")
-            return None
+        print(f"Error: Could not find local file for {filename} and remote fallbacks are disabled.")
+        return None
     
     if content is None:
         return None
