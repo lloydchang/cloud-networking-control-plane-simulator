@@ -306,7 +306,7 @@ def delete_vpc(vpc_id: str, background_tasks: BackgroundTasks, db: Session = Dep
     return {"message": "VPC deletion initiated"}
 
 @app.get("/vpc", include_in_schema=False)
-async def vpc_view():
+async def vpc_html_view():
     """Serve the VPC HTML template"""
     try:
         template_path = os.path.join(os.path.dirname(__file__), "ui", "vpc.html")
@@ -324,24 +324,19 @@ async def openapi_json():
     return JSONResponse(app.openapi())
 
 @app.get("/", include_in_schema=False)
-async def vpc_view():
-    """Serve the pre-built static index.html directly from GitHub raw"""
+async def root_view():
+    """Serve the pre-built static index.html locally"""
     try:
-        import httpx
-        import time
-        # Add cache-busting timestamp to force fresh fetch
-        timestamp = int(time.time())
-        github_raw_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/refs/heads/main/docs/index.html?t={timestamp}"
-        
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(github_raw_url, headers={"Cache-Control": "no-cache"})
-            if response.status_code == 200:
-                logging.info(f"Serving pre-built static index.html from GitHub raw (size: {len(response.text)} chars)")
-                return HTMLResponse(response.text, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
-            else:
-                return HTMLResponse(f"<h1>Static Content Not Available</h1><p>Could not fetch index.html from GitHub (status: {response.status_code})</p>", status_code=503)
+        index_path = os.path.join(os.path.dirname(__file__), "..", "..", "docs", "index.html")
+        if os.path.exists(index_path):
+            with open(index_path, 'r') as f:
+                content = f.read()
+            return HTMLResponse(content)
+        else:
+            logging.error("index.html not found at expected path")
+            return HTMLResponse("<h1>Static Content Not Available</h1><p>index.html not found</p>", status_code=404)
     except Exception as e:
-        logging.error(f"Error fetching static index.html from GitHub: {e}")
+        logging.error(f"Error serving static index.html: {e}")
         return HTMLResponse("<h1>Service Unavailable</h1><p>Unable to serve static content</p>", status_code=503)
 
 @app.get("/redoc", include_in_schema=False)
