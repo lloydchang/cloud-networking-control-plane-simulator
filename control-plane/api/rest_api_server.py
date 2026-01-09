@@ -327,13 +327,18 @@ async def openapi_json():
 async def root_view():
     """Serve the pre-built static index.html locally"""
     try:
+        # The vercel-build.sh script will copy docs/index.html to this location
         index_path = os.path.join(os.path.dirname(__file__), "ui", "index.html")
+        if not os.path.exists(index_path):
+            # Fallback for local development
+            index_path = os.path.join(os.path.dirname(__file__), "..", "..", "docs", "index.html")
+
         if os.path.exists(index_path):
             with open(index_path, 'r') as f:
                 content = f.read()
             return HTMLResponse(content)
         else:
-            logging.error(f"index.html not found at expected path: {index_path}")
+            logging.error(f"index.html not found at expected paths")
             return HTMLResponse("<h1>Static Content Not Available</h1><p>index.html not found</p>", status_code=404)
     except Exception as e:
         logging.error(f"Error serving static index.html: {e}")
