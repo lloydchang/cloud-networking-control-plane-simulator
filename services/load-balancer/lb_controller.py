@@ -18,6 +18,7 @@ import signal
 from pathlib import Path
 from typing import Dict, List, Any
 from jinja2 import Template
+from config_validation import validate_config_data
 
 HAPROXY_CFG = "/etc/haproxy/haproxy.cfg"
 HAPROXY_TEMPLATE = "haproxy.cfg.template"
@@ -137,10 +138,16 @@ def reload_haproxy():
 def apply_config(config: Dict[str, Any]):
     """Apply new load balancer configuration."""
     print("Applying new configuration...")
-    
+
+    # 🛡️ SECURITY: Validate config data before rendering to prevent injection
+    errors = validate_config_data(config)
+    if errors:
+        print(f"Configuration data validation FAILED: {errors}")
+        return False
+
     # Render config
     rendered = render_config(config)
-    
+
     # Write to temp file first
     temp_path = f"{HAPROXY_CFG}.new"
     with open(temp_path, 'w') as f:
