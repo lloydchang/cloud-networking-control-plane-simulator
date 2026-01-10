@@ -158,7 +158,7 @@ class ReconciliationEngine:
             # Step 4: Execute actions
             for action in sorted(actions, key=lambda a: a.priority):
                 try:
-                    self._execute_action(action)
+                    self._execute_action(action, desired_state)
                     result.actions_taken.append(action)
                 except Exception as e:
                     action.retries += 1
@@ -386,7 +386,7 @@ class ReconciliationEngine:
 
         return actions
 
-    def _execute_action(self, action: ReconciliationAction):
+    def _execute_action(self, action: ReconciliationAction, desired_state: Dict[str, Any]):
         """
         Execute a single reconciliation action.
 
@@ -397,7 +397,7 @@ class ReconciliationEngine:
         )
 
         if action.resource_type == ResourceType.VPC:
-            self._apply_vpc_action(action)
+            self._apply_vpc_action(action, desired_state)
         elif action.resource_type == ResourceType.ROUTE:
             self._apply_route_action(action)
         elif action.resource_type == ResourceType.VXLAN_TUNNEL:
@@ -405,7 +405,7 @@ class ReconciliationEngine:
         elif action.resource_type == ResourceType.VRF:
             self._apply_vrf_action(action)
 
-    def _apply_vpc_action(self, action: ReconciliationAction):
+    def _apply_vpc_action(self, action: ReconciliationAction, desired_state: Dict[str, Any]):
         """Apply VPC-related changes using IPTables for isolation."""
         vpc = action.target_state
 
@@ -423,9 +423,7 @@ class ReconciliationEngine:
                         continue
 
                     # Apply isolation rules between this VPC and all other VPCs
-                    for other_id, other_vpc in (
-                        self._fetch_desired_state().get("vpcs", {}).items()
-                    ):
+                    for other_id, other_vpc in desired_state.get("vpcs", {}).items():
                         if vpc_id == other_id:
                             continue
 
