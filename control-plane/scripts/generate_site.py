@@ -8,9 +8,9 @@ It inlines all CSS/JS resources and extracts scenario data from VPC.md.
 Deployment Strategy:
 1. Local: Generates docs/index.html for offline use or preview.
 2. GitHub: docs/index.html is committed and served via GitHub Pages.
-3. Vercel: FastAPI (rest_api_server.py) fetches and serves the raw index.html 
-   from GitHub. This ensures the dashboard is always available at the root 
-   domain without requiring manual Vercel builds for every small change.
+3. Vercel: A build script (`vercel-build.sh`) generates the static site,
+   which is then served by the FastAPI application. This ensures the
+   dashboard is self-contained and does not rely on external resources.
 
 Usage:
     python control-plane/scripts/generate_site.py
@@ -248,9 +248,6 @@ def get_markdown_content(filename):
     # Fallback to GitHub if local file not found
     if content is None:
         print(f"Error: Could not find local file for {filename} and remote fallbacks are disabled.")
-        return None
-    
-    if content is None:
         return None
     
     # Handle LICENSE as plain text in code block

@@ -34,6 +34,7 @@ from sqlalchemy.orm import sessionmaker, Session
 
 import logging
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 try:
     from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
@@ -324,7 +325,7 @@ async def openapi_json():
     return JSONResponse(app.openapi())
 
 @app.get("/", include_in_schema=False)
-async def root_view():
+def root_view():
     """Serve the pre-built static index.html locally"""
     try:
         # The vercel-build.sh script will copy docs/index.html to this location
@@ -334,14 +335,14 @@ async def root_view():
             index_path = os.path.join(os.path.dirname(__file__), "..", "..", "docs", "index.html")
 
         if os.path.exists(index_path):
-            with open(index_path, 'r') as f:
+            with open(index_path, "r", encoding="utf-8") as f:
                 content = f.read()
             return HTMLResponse(content)
         else:
-            logging.error(f"index.html not found at expected paths")
+            logger.error("index.html not found at expected paths")
             return HTMLResponse("<h1>Static Content Not Available</h1><p>index.html not found</p>", status_code=404)
-    except Exception as e:
-        logging.error(f"Error serving static index.html: {e}")
+    except Exception:
+        logger.exception("Error serving static index.html")
         return HTMLResponse("<h1>Service Unavailable</h1><p>Unable to serve static content</p>", status_code=503)
 
 @app.get("/redoc", include_in_schema=False)
