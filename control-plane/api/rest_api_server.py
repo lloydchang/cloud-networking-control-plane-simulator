@@ -82,7 +82,7 @@ app.add_middleware(
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "scripts")
