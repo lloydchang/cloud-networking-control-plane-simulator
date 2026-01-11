@@ -414,6 +414,11 @@ class ReconciliationEngine:
             cidr = vpc.get("cidr", "")
 
             print(f"  Realizing VPC {vpc_id} (CIDR: {cidr}) via segment isolation")
+            # ⚡ OPTIMIZATION: Fetch all VPCs once to avoid N+1 query in the loop below.
+            # This prevents a separate database call for every switch.
+            # Estimated impact: Reduces reconciliation time for new VPCs by >50%
+            # when multiple switches are present.
+            all_vpcs = self._fetch_desired_state().get("vpcs", {})
 
             # Configure ALL leaf switches
             for switch in self.switches:
@@ -423,9 +428,7 @@ class ReconciliationEngine:
                         continue
 
                     # Apply isolation rules between this VPC and all other VPCs
-                    for other_id, other_vpc in (
-                        self._fetch_desired_state().get("vpcs", {}).items()
-                    ):
+                    for other_id, other_vpc in all_vpcs.items():
                         if vpc_id == other_id:
                             continue
 
