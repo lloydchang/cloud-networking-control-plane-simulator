@@ -1600,7 +1600,12 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2>📋 Documentation Hub</h2>
                 <button onclick="toggleApiGuide()"
-                    style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+                    style="background: none; border: none; font-size: 24px; cursor: pointer; padding: 4px; border-radius: 4px;"
+                    aria-label="Close" title="Close"
+                    onmouseover="this.style.backgroundColor='#f0f0f0'"
+                    onmouseout="this.style.backgroundColor='transparent'"
+                    onfocus="this.style.outline='2px solid #00897b'"
+                    onblur="this.style.outline='none'">×</button>
             </div>
 
             <!-- Navigation Tabs -->
