@@ -865,7 +865,7 @@
         </div>
         <div class="controls">
             <button class="btn" id="refresh-btn">🔄 Refresh</button>
-            <button class="btn btn-secondary" onclick="showTab('testing')">🧪 Testing</button>
+            <button class="btn btn-secondary" onclick="toggleApiGuide(); showTab('testing')">🧪 Testing</button>
         </div>
     </header>
 
@@ -934,7 +934,7 @@
             <a href="https://github.com/lloydchang/cloud-networking-control-plane-simulator" target="_blank"
                 class="status-link">View on GitHub</a>
             <span class="status-separator">|</span>
-            <a class="status-link" onclick="toggleApiGuide(); showTab('license');">License</a>
+            <button type="button" class="status-link" onclick="toggleApiGuide(); showTab('license');" style="background: none; border: none; padding: 0; font: inherit;">License</button>
         </div>
     </div>
 
@@ -1600,7 +1600,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2>📋 Documentation Hub</h2>
                 <button onclick="toggleApiGuide()"
-                    style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+                    style="background: none; border: none; font-size: 24px; cursor: pointer;" aria-label="Close documentation modal">×</button>
             </div>
 
             <!-- Navigation Tabs -->
