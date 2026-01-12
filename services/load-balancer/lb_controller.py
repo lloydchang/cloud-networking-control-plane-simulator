@@ -17,7 +17,7 @@ import os
 import signal
 from pathlib import Path
 from typing import Dict, List, Any
-from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader
 
 HAPROXY_CFG = "/etc/haproxy/haproxy.cfg"
 HAPROXY_TEMPLATE = "haproxy.cfg.template"
@@ -76,10 +76,25 @@ LB_CONFIG: Dict[str, Any] = {
 }
 
 
+def escape_for_config(value: Any) -> str:
+    """Sanitize values for safe inclusion in HAProxy config."""
+    s = str(value)
+    # Remove characters that could be used for injection
+    s = s.replace('\n', '').replace('\r', '').replace(';', '')
+    return s
+
+
 def render_config(config: Dict[str, Any]) -> str:
     """Render HAProxy config from template."""
-    with open(HAPROXY_TEMPLATE, 'r') as f:
-        template = Template(f.read())
+    # Create a secure Jinja2 environment
+    # - FileSystemLoader loads templates from the current directory
+    env = Environment(
+        loader=FileSystemLoader('.'),
+    )
+    # Register the custom escaper
+    env.filters['escape_for_config'] = escape_for_config
+
+    template = env.get_template(HAPROXY_TEMPLATE)
     
     return template.render(
         frontends=config["frontends"],
