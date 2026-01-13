@@ -15,6 +15,8 @@ import subprocess
 import time
 import os
 import signal
+import re
+import copy
 from pathlib import Path
 from typing import Dict, List, Any
 from jinja2 import Template
@@ -76,14 +78,39 @@ LB_CONFIG: Dict[str, Any] = {
 }
 
 
+def sanitize_name(name: str) -> str:
+    """
+    Sanitize names to prevent HAProxy config injection.
+    Allows only alphanumeric characters, hyphens, and underscores.
+    This is critical because component names are rendered directly into the
+    HAProxy config. Without sanitization, a malicious name like
+    'my-backend; acl admin path_beg /admin; http-request deny if admin'
+    could be used to inject arbitrary rules.
+    """
+    return re.sub(r'[^a-zA-Z0-9_-]', '', name)
+
+
 def render_config(config: Dict[str, Any]) -> str:
     """Render HAProxy config from template."""
+    # 🛡️ SECURITY: Sanitize all frontend, backend, and server names before rendering
+    # to prevent configuration injection. A deep copy is used to avoid modifying the
+    # original config object, which could have unintended side effects.
+    sane_config = copy.deepcopy(config)
+    for fe in sane_config["frontends"]:
+        fe["name"] = sanitize_name(fe["name"])
+        fe["backend"] = sanitize_name(fe["backend"])
+
+    for be in sane_config["backends"]:
+        be["name"] = sanitize_name(be["name"])
+        for server in be["servers"]:
+            server["name"] = sanitize_name(server["name"])
+
     with open(HAPROXY_TEMPLATE, 'r') as f:
         template = Template(f.read())
     
     return template.render(
-        frontends=config["frontends"],
-        backends=config["backends"]
+        frontends=sane_config["frontends"],
+        backends=sane_config["backends"]
     )
 
 
