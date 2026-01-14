@@ -34,25 +34,25 @@ frontend health
     http-request return status 200 content-type text/plain string "OK"
 
 {% for frontend in frontends %}
-# Frontend: {{ frontend.name }}
-frontend {{ frontend.name }}
+# Frontend: {{ frontend.name | haproxy_escape }}
+frontend {{ frontend.name | haproxy_escape }}
     bind *:{{ frontend.port }}
     mode {{ frontend.mode }}
     {% if frontend.mode == 'http' %}
     option httplog
     {% endif %}
-    default_backend {{ frontend.backend }}
+    default_backend {{ frontend.backend | haproxy_escape }}
 
 {% endfor %}
 
 {% for backend in backends %}
-# Backend: {{ backend.name }}
-backend {{ backend.name }}
+# Backend: {{ backend.name | haproxy_escape }}
+backend {{ backend.name | haproxy_escape }}
     mode {{ backend.mode }}
     balance {{ backend.balance }}
     option httpchk GET /
     {% for server in backend.servers %}
-    server {{ server.name }} {{ server.address }}:{{ server.port }} check weight {{ server.weight }}
+    server {{ server.name | haproxy_escape }} {{ server.address }}:{{ server.port }} check weight {{ server.weight }}
     {% endfor %}
 
 {% endfor %}

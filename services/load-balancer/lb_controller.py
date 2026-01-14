@@ -14,10 +14,11 @@ import json
 import subprocess
 import time
 import os
+import re
 import signal
 from pathlib import Path
 from typing import Dict, List, Any
-from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader
 
 HAPROXY_CFG = "/etc/haproxy/haproxy.cfg"
 HAPROXY_TEMPLATE = "haproxy.cfg.template"
@@ -76,10 +77,27 @@ LB_CONFIG: Dict[str, Any] = {
 }
 
 
+def haproxy_escape(value: Any) -> str:
+    """
+    Sanitizes a string for safe inclusion in an HAProxy config.
+    Allows only alphanumeric characters, hyphens, underscores, and periods.
+    This prevents injection of newlines, semicolons, or other HAProxy
+    directives.
+    """
+    s = str(value)
+    # The regex '[^a-zA-Z0-9_.-]' matches any character that is NOT in the allowed set.
+    return re.sub(r'[^a-zA-Z0-9_.-]', '', s)
+
+
 def render_config(config: Dict[str, Any]) -> str:
     """Render HAProxy config from template."""
-    with open(HAPROXY_TEMPLATE, 'r') as f:
-        template = Template(f.read())
+    # 🛡️ SECURITY: Use a Jinja2 Environment to register a custom escaper.
+    # This prevents injection attacks by ensuring that dynamic values
+    # are sanitized before being rendered into the HAProxy config.
+    env = Environment(loader=FileSystemLoader('.'))
+    env.filters['haproxy_escape'] = haproxy_escape
+
+    template = env.get_template(HAPROXY_TEMPLATE)
     
     return template.render(
         frontends=config["frontends"],
