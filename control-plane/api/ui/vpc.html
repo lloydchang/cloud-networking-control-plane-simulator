@@ -67,6 +67,12 @@
             background: #00796b;
         }
 
+        .btn:disabled {
+            background-color: #9ddad4;
+            color: #f5f5f5;
+            cursor: not-allowed;
+        }
+
         .btn-secondary {
             background: #545b64;
             color: white;
@@ -1600,7 +1606,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2>📋 Documentation Hub</h2>
                 <button onclick="toggleApiGuide()"
-                    style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+                    style="background: none; border: none; font-size: 24px; cursor: pointer;" aria-label="Close">×</button>
             </div>
 
             <!-- Navigation Tabs -->
