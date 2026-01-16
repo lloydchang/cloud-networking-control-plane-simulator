@@ -67,6 +67,38 @@
             background: #00796b;
         }
 
+        .btn .icon {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            vertical-align: -0.125em;
+            transition: transform 0.2s;
+        }
+
+        .btn .spinner {
+            display: none;
+            width: 1em;
+            height: 1em;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+        }
+
+        @keyframes spinner-border {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn.loading .icon {
+            display: none;
+        }
+
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+
         .btn-secondary {
             background: #545b64;
             color: white;
@@ -864,7 +896,16 @@
             <h1>Cloud Networking Control Plane Simulator</h1>
         </div>
         <div class="controls">
-            <button class="btn" id="refresh-btn">🔄 Refresh</button>
+            <button class="btn" id="refresh-btn">
+                <span class="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                    </svg>
+                </span>
+                <span class="spinner"></span>
+                <span class="text">Refresh</span>
+            </button>
             <button class="btn btn-secondary" onclick="showTab('testing')">🧪 Testing</button>
         </div>
     </header>
@@ -987,8 +1028,11 @@
 
         async function loadData() {
             const refreshBtn = document.getElementById('refresh-btn');
+            const btnText = refreshBtn.querySelector('.text');
+
             refreshBtn.disabled = true;
-            refreshBtn.innerHTML = '🔄 Loading...';
+            refreshBtn.classList.add('loading');
+            btnText.textContent = 'Loading...';
 
             try {
                 let data;
@@ -1424,7 +1468,8 @@
                 if (statusStatsEl) statusStatsEl.innerText = 'Error: ' + err.message;
             } finally {
                 refreshBtn.disabled = false;
-                refreshBtn.innerHTML = '🔄 Refresh';
+                refreshBtn.classList.remove('loading');
+                btnText.textContent = 'Refresh';
             }
         }
 
