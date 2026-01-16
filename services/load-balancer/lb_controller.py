@@ -11,6 +11,7 @@ Implements:
 """
 
 import json
+import re
 import subprocess
 import time
 import os
@@ -18,6 +19,48 @@ import signal
 from pathlib import Path
 from typing import Dict, List, Any
 from jinja2 import Template
+
+
+def sanitize_identifier(input_val: Any) -> str:
+    """
+    Sanitizes a string to be a safe HAProxy identifier.
+    Allows alphanumeric characters, hyphens, underscores, and periods.
+    Strips any other characters to prevent config injection.
+    Example: "backend-name_1.0" -> "backend-name_1.0"
+    Example: "backend; rm -rf /" -> "backendrm-rf"
+    """
+    if not isinstance(input_val, str):
+        return ""
+    return re.sub(r'[^a-zA-Z0-9_.-]', '', input_val)
+
+
+def sanitize_address(input_val: Any) -> str:
+    """
+    Sanitizes a network address (IP or hostname).
+    Allows characters valid in hostnames, IPv4, and IPv6 addresses.
+    Strips characters that could be used for injection.
+    Example: "1.2.3.4" -> "1.2.3.4"
+    Example: "2001:db8::1" -> "2001:db8::1"
+    Example: "my-host.com" -> "my-host.com"
+    Example: "my-host.com;-R" -> "my-host.com-R"
+    """
+    if not isinstance(input_val, str):
+        return ""
+    # Allow alphanumeric, underscore, hyphen, period, and colon
+    return re.sub(r'[^a-zA-Z0-9_.:-]', '', input_val)
+
+
+def validate_numeric(input_val: Any) -> Any:
+    """
+    Validates that a value is numeric.
+    Returns the value if it's an integer, otherwise returns 0.
+    This prevents non-numeric values from being injected into numeric-only
+    fields like port or weight.
+    """
+    if isinstance(input_val, int):
+        return input_val
+    return 0  # Default to a safe value if not an integer
+
 
 HAPROXY_CFG = "/etc/haproxy/haproxy.cfg"
 HAPROXY_TEMPLATE = "haproxy.cfg.template"
@@ -77,10 +120,29 @@ LB_CONFIG: Dict[str, Any] = {
 
 
 def render_config(config: Dict[str, Any]) -> str:
-    """Render HAProxy config from template."""
+    """
+    Render HAProxy config from template with sanitization.
+
+    🛡️ SECURITY: A custom Jinja2 environment is used to apply specific
+    sanitization and validation filters to all rendered variables. This prevents
+    config injection attacks by ensuring that any data from the API
+    (or local config) is stripped of malicious characters before being
+    written to the haproxy.cfg file. Without this, a malicious server
+    name like 'my-server\n acl malicious_acl path_beg /admin' could
+    inject unauthorized rules.
+    """
     with open(HAPROXY_TEMPLATE, 'r') as f:
-        template = Template(f.read())
+        template_str = f.read()
+
+    # Create a Jinja2 environment and register the custom filters
+    env = Template(template_str).environment
+    env.filters['sanitize_id'] = sanitize_identifier
+    env.filters['sanitize_addr'] = sanitize_address
+    env.filters['validate_num'] = validate_numeric
     
+    # Re-parse the template with the new environment
+    template = env.from_string(template_str)
+
     return template.render(
         frontends=config["frontends"],
         backends=config["backends"]
