@@ -67,6 +67,12 @@
             background: #00796b;
         }
 
+        .btn:disabled {
+            background: #b0bec5;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
         .btn-secondary {
             background: #545b64;
             color: white;
@@ -987,8 +993,8 @@
 
         async function loadData() {
             const refreshBtn = document.getElementById('refresh-btn');
-            refreshBtn.disabled = true;
             refreshBtn.innerHTML = '🔄 Loading...';
+            refreshBtn.disabled = true;
 
             try {
                 let data;
