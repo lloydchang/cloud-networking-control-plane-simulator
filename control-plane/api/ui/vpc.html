@@ -67,6 +67,25 @@
             background: #00796b;
         }
 
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn.loading .refresh-icon {
+            animation: spin 1s linear infinite;
+            margin-right: 6px;
+        }
+
+        .btn .refresh-icon {
+            display: inline-block;
+        }
+
         .btn-secondary {
             background: #545b64;
             color: white;
@@ -864,7 +883,7 @@
             <h1>Cloud Networking Control Plane Simulator</h1>
         </div>
         <div class="controls">
-            <button class="btn" id="refresh-btn">🔄 Refresh</button>
+            <button class="btn" id="refresh-btn"><span class="refresh-icon">🔄</span> Refresh</button>
             <button class="btn btn-secondary" onclick="showTab('testing')">🧪 Testing</button>
         </div>
     </header>
@@ -924,7 +943,7 @@
     </div>
 
     <div class="status">
-        <div class="status-left">
+        <div class="status-left" aria-live="polite">
             <span id="status-stats">Initializing...</span>
         </div>
         <div class="status-center" style="opacity: 0.8; font-style: italic;">
@@ -988,7 +1007,10 @@
         async function loadData() {
             const refreshBtn = document.getElementById('refresh-btn');
             refreshBtn.disabled = true;
-            refreshBtn.innerHTML = '🔄 Loading...';
+            refreshBtn.classList.add('loading');
+            // Keep the icon, just change the text
+            refreshBtn.innerHTML = '<span class="refresh-icon">🔄</span> Loading...';
+
 
             try {
                 let data;
@@ -1424,7 +1446,8 @@
                 if (statusStatsEl) statusStatsEl.innerText = 'Error: ' + err.message;
             } finally {
                 refreshBtn.disabled = false;
-                refreshBtn.innerHTML = '🔄 Refresh';
+                refreshBtn.classList.remove('loading');
+                refreshBtn.innerHTML = '<span class="refresh-icon">🔄</span> Refresh';
             }
         }
 
