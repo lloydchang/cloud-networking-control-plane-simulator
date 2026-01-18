@@ -81,8 +81,8 @@ app.add_middleware(
         "http://localhost:3000"
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
 )
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "scripts")
