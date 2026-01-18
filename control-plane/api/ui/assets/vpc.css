@@ -1,0 +1,848 @@
+* {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #fafafa;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #232f3e;
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .btn {
+            background: #00897b;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .btn:hover {
+            background: #00796b;
+        }
+
+        .btn-secondary {
+            background: #545b64;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #6b7280;
+        }
+
+        .btn-secondary.active {
+            background: #0073bb;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 4px;
+        }
+
+        .main-container {
+            padding: 20px;
+            position: relative;
+        }
+
+        /* SVG Overlay for connections */
+        .svg-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .architecture-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: flex-start;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        /* VPC Box */
+        .vpc {
+            background: linear-gradient(135deg, #fffde7 0%, #fff9c4 100%);
+            border: 3px solid #827717;
+            border-radius: 8px;
+            padding: 20px;
+            min-width: 300px;
+            max-width: 550px;
+            position: relative;
+        }
+
+        .vpc-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #c0ca33;
+        }
+
+        .vpc-icon {
+            width: 28px;
+            height: 28px;
+            background: #827717;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .vpc-title {
+            font-weight: bold;
+            font-size: 13px;
+            color: #33691e;
+        }
+
+        .vpc-cidr {
+            font-size: 10px;
+            color: #689f38;
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-family: monospace;
+        }
+
+        /* Internet Gateway at VPC level */
+        .vpc-gateways {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .igw-icon {
+            background: #e0f2f1;
+            border: 2px solid #00897b;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: bold;
+            color: #004d40;
+        }
+
+        /* Data Center Box */
+        .dc-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .dc {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #1565c0;
+            border-radius: 6px;
+            padding: 12px;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .dc-header {
+            font-size: 10px;
+            font-weight: bold;
+            color: #0d47a1;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dc-icon {
+            width: 16px;
+            height: 16px;
+            background: #1565c0;
+            border-radius: 2px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+        }
+
+        /* Hub Resource Box (Standalone) */
+        .hub {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border: 3px solid #c62828;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .hub-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 2px solid #c62828;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #c62828;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .hub-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #b71c1c;
+            margin-bottom: 5px;
+        }
+
+        .hub-region {
+            display: none;
+        }
+
+        /* Subnet Box */
+        .subnets {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .subnet {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 2px solid #2e7d32;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 9px;
+        }
+
+        .subnet.private {
+            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+            border-color: #3949ab;
+        }
+
+        .subnet.cgnat {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #7b1fa2;
+        }
+
+        .subnet.ngw-dc {
+            background: linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%);
+            border-color: #512da8;
+        }
+
+        .subnet.server {
+            background: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%);
+            border-color: #455a64;
+        }
+
+        .subnet-name {
+            font-weight: bold;
+            color: #1b5e20;
+        }
+
+        .subnet.private .subnet-name {
+            color: #1a237e;
+        }
+
+        .subnet.cgnat .subnet-name {
+            color: #4a148c;
+        }
+
+        .subnet.ngw-dc .subnet-name {
+            color: #311b92;
+        }
+
+        .subnet.server .subnet-name {
+            color: #263238;
+        }
+
+        .subnet-cidr {
+            color: #666;
+            font-family: monospace;
+            font-size: 8px;
+        }
+
+        /* Gateway inside DC */
+        .gateway {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border: 2px solid #00897b;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 8px;
+            font-weight: bold;
+            color: #00695c;
+            margin-top: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .gateway-icon {
+            width: 12px;
+            height: 12px;
+            background: #00897b;
+            border-radius: 2px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6px;
+        }
+
+        /* Route Tables (Detailed View) */
+        .route-tables {
+            margin-top: 15px;
+            /* Always visible now */
+            display: block;
+        }
+
+        .route-table {
+            border: 1px solid #00897b;
+            border-radius: 4px;
+            overflow: hidden;
+            font-size: 8px;
+            margin-bottom: 8px;
+        }
+
+        .route-table-header {
+            background: #00897b;
+            color: white;
+            padding: 4px 8px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .route-table-body {
+            background: white;
+        }
+
+        .route-row {
+            display: flex;
+            border-bottom: 1px solid #eee;
+        }
+
+        .route-row:last-child {
+            border-bottom: none;
+        }
+
+        .route-cell {
+            padding: 3px 6px;
+            flex: 1;
+            font-family: monospace;
+        }
+
+        .route-cell:first-child {
+            border-right: 1px solid #eee;
+        }
+
+        /* Connections Section - Multiple Types */
+        .connections-section {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .connections-section.peering {
+            background: #f3e5f5;
+            border: 2px dashed #7b1fa2;
+        }
+
+        .connections-section.vpn {
+            background: #e8eaf6;
+            border: 2px solid #3949ab;
+        }
+
+        .connections-section.mesh {
+            background: #e8f5e9;
+            border: 2px dotted #2e7d32;
+        }
+
+        .connections-section.cloud_routing_hub {
+            background: #ffebee;
+            border: 2px solid #c62828;
+        }
+
+        .connections-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connections-title.peering {
+            color: #4a148c;
+        }
+
+        .connections-title.vpn {
+            color: #283593;
+        }
+
+        .connections-title.mesh {
+            color: #1b5e20;
+        }
+
+        .connections-title.cloud_routing_hub {
+            color: #c62828;
+        }
+
+        .connections-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .connection-item {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connection-item.peering {
+            border: 1px solid #ce93d8;
+        }
+
+        .connection-item.vpn {
+            border: 1px solid #9fa8da;
+        }
+
+        .connection-item.mesh {
+            border: 1px solid #a5d6a7;
+        }
+
+        .connection-item.cloud-routing-hub {
+            border: 1px solid #90caf9;
+            color: #c62828 !important;
+        }
+
+        /* Cloud Routing Hub */
+        .routing-hub-section {
+            margin-top: 20px;
+        }
+
+        .routing-hub-section.visible {
+            display: block;
+        }
+
+        .network-hub {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 3px solid #1976d2;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .hub-icon {
+            width: 50px;
+            height: 50px;
+            background: #1976d2;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .hub-title {
+            font-weight: bold;
+            color: #0d47a1;
+            font-size: 12px;
+        }
+
+        .hub-subtitle {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .connection-arrow {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .connection-arrow.peering {
+            color: #7b1fa2;
+        }
+
+        .connection-arrow.vpn {
+            color: #3949ab;
+        }
+
+        .connection-arrow.mesh {
+            color: #2e7d32;
+        }
+
+        .connection-arrow.cloud_routing_hub {
+            color: #c62828;
+        }
+
+        .connection-type-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .connection-type-icon.peering {
+            background: #7b1fa2;
+        }
+
+        .connection-type-icon.vpn {
+            background: #3949ab;
+        }
+
+        .connection-type-icon.mesh {
+            background: #2e7d32;
+        }
+
+        .connection-type-icon.cloud_routing_hub {
+            background: #c62828 !important;
+            font-size: 8px !important;
+            font-weight: bold !important;
+            color: white !important;
+            width: 24px !important;
+            height: 24px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 3px !important;
+        }
+
+        .connections-title.cloud_routing_hub .connection-type-icon.cloud_routing_hub {
+            background: #c62828 !important;
+            color: white !important;
+        }
+
+        .connection-destination {
+            font-family: monospace;
+            font-size: 9px;
+            color: #666;
+            margin-left: auto;
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+
+
+        .cloud-routing-hub-section.visible {
+            display: block;
+        }
+
+        .cloud-routing-hub {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border: 3px solid #00897b;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .crh-icon {
+            width: 50px;
+            height: 50px;
+            background: #00897b;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .crh-title {
+            font-weight: bold;
+            color: #00695c;
+            font-size: 12px;
+        }
+
+        .node-group {
+            border: 1px dashed #1976d2;
+            background: #e3f2fd;
+            padding: 8px;
+            margin-top: 8px;
+            border-radius: 4px;
+            /* Always visible */
+            display: block;
+        }
+
+        .node-group.visible {
+            display: block;
+        }
+
+        .node-group-title {
+            font-size: 10px;
+            font-weight: bold;
+            color: #1565c0;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Status bar */
+        .status {
+            padding: 10px 24px;
+            font-size: 11px;
+            color: #666;
+            background: #f5f5f5;
+            border-top: 1px solid #ddd;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .status-link {
+            color: #1976d2;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .status-link:hover {
+            text-decoration: underline;
+        }
+
+        .status-separator {
+            margin: 0 8px;
+            color: #ccc;
+        }
+
+        /* Legend */
+        .legend {
+            position: fixed;
+            bottom: 50px;
+            right: 20px;
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 9px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #232f3e;
+            font-size: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 2px;
+        }
+
+        .gateway-icon.vpn {
+            background: #ef6c00;
+            border-color: #e65100;
+        }
+
+        .gateway-icon.mesh {
+            background: #2e7d32;
+            border-color: #1b5e20;
+        }
+
+        /* Scenario Grouping */
+        .scenario-group {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            width: 100%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .scenario-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #232f3e;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #00897b;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .scenario-desc {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .scenario-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .vpc-secondary-cidrs {
+            font-size: 9px;
+            color: #666;
+            margin-top: 2px;
+            font-family: monospace;
+            display: block;
+        }
+
+        /* High-Fidelity Grid Layout */
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 40px;
+            width: 100%;
+        }
+
+        .scenario-column {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .propagation-arrow {
+            fill: none;
+            stroke: #3949ab;
+            stroke-width: 2;
+            stroke-dasharray: 5, 5;
+            marker-end: url(#arrowhead);
+        }
+
+        .propagation-label {
+            font-size: 9px;
+            fill: #3949ab;
+            font-weight: bold;
+        }
+
+        /* Standalone Data Center (no VPC wrapper) */
+        .standalone-dc {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            border: 2px solid #757575;
+            border-radius: 8px;
+            padding: 15px;
+            min-width: 280px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .standalone-dc-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #bdbdbd;
+        }
+
+        .standalone-dc-icon {
+            width: 32px;
+            height: 32px;
+            background: #616161;
+            color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .standalone-dc-title {
+            font-weight: bold;
+            color: #424242;
+            font-size: 13px;
+        }
+
+        .standalone-dc-cidr {
+            font-size: 10px;
+            color: #757575;
+            font-family: monospace;
+            margin-left: auto;
+        }
+
+        .standalone-dc .dc-icon {
+            background: #616161;
+        }
+
+        .standalone-dc .dc-container {
+            margin-top: 10px;
+        }

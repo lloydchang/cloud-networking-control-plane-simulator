@@ -1,0 +1,54 @@
+=== Starting Cloud Networking Control Plane Simulator ===
+docker compose up -d
+ spine-1 Pulling
+ prometheus Pulling
+ grafana Pulling
+ server-5 Pulling
+ server-3 Pulling
+ server-6 Pulling
+ spine-2 Pulling
+ server-2 Pulling
+ server-1 Pulling
+ leaf-3 Pulling
+ leaf-1 Pulling
+ spine-3 Pulling
+ leaf-2 Pulling
+ server-4 Pulling
+ 44cf07d57ee4 Pulling fs layer
+ 9621f1afde84 Pulling fs layer
+ 6306f7582a7a Pulling fs layer
+ 790462042e10 Pulling fs layer
+ 19d5e49440dd Pulling fs layer
+ 4f4fb700ef54 Pulling fs layer
+ ff9bba182ee0 Pulling fs layer
+ 1c78bb868fcb Pulling fs layer
+ 790462042e10 Waiting
+ 19d5e49440dd Waiting
+ 4f4fb700ef54 Waiting
+ ff9bba182ee0 Waiting
+ 1c78bb868fcb Waiting
+ 8a49fdb3b6a5 Pulling fs layer
+ ab577562f274 Pulling fs layer
+ 3e825cba1e15 Pulling fs layer
+ 8b851b1c9ffe Pulling fs layer
+ 9fe6ebc5ed46 Pulling fs layer
+ 4e672be270b9 Pulling fs layer
+ 26e78b642c59 Pulling fs layer
+ 3c3e774c3854 Pulling fs layer
+ 1a0bceefe858 Pulling fs layer
+ 8b851b1c9ffe Waiting
+ 9fe6ebc5ed46 Waiting
+ 4e672be270b9 Waiting
+ 26e78b642c59 Waiting
+ 3c3e774c3854 Waiting
+ 1a0bceefe858 Waiting
+ ab577562f274 Waiting
+ 3e825cba1e15 Waiting
+ 8a49fdb3b6a5 Waiting
+ prometheus  Interrupted
+ spine-1  Interrupted
+ server-5  Interrupted
+ server-3  Interrupted
+ leaf-2  Interrupted
+toomanyrequests: You have reached your unauthenticated pull rate limit. https://www.docker.com/increase-rate-limit
+make: *** [Makefile:92: up] Error 1
