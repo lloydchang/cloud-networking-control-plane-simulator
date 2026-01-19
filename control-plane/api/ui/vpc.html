@@ -67,6 +67,23 @@
             background: #00796b;
         }
 
+        .btn .icon {
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinning {
+            animation: spin 1s linear infinite;
+        }
+
         .btn-secondary {
             background: #545b64;
             color: white;
@@ -864,7 +881,7 @@
             <h1>Cloud Networking Control Plane Simulator</h1>
         </div>
         <div class="controls">
-            <button class="btn" id="refresh-btn">🔄 Refresh</button>
+            <button class="btn" id="refresh-btn"><span class="icon">🔄</span><span class="text"> Refresh</span></button>
             <button class="btn btn-secondary" onclick="showTab('testing')">🧪 Testing</button>
         </div>
     </header>
@@ -987,8 +1004,12 @@
 
         async function loadData() {
             const refreshBtn = document.getElementById('refresh-btn');
+            const refreshIcon = refreshBtn.querySelector('.icon');
+            const buttonText = refreshBtn.querySelector('.text');
+
             refreshBtn.disabled = true;
-            refreshBtn.innerHTML = '🔄 Loading...';
+            refreshIcon.classList.add('spinning');
+            buttonText.textContent = ' Loading...';
 
             try {
                 let data;
@@ -1424,7 +1445,8 @@
                 if (statusStatsEl) statusStatsEl.innerText = 'Error: ' + err.message;
             } finally {
                 refreshBtn.disabled = false;
-                refreshBtn.innerHTML = '🔄 Refresh';
+                refreshIcon.classList.remove('spinning');
+                buttonText.textContent = ' Refresh';
             }
         }
 
