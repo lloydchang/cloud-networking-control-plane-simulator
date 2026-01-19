@@ -81,7 +81,7 @@ def test_delete_vpc_rest():
 def test_root_endpoint():
     response = client.get("/")
     assert response.status_code == 200
-    assert "endpoints" in response.json()
+    assert "Cloud Networking Control Plane Simulator" in response.text
 
 
 def test_create_route_rest():
