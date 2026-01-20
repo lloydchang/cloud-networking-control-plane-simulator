@@ -317,7 +317,8 @@ async def vpc_view():
         else:
             return HTMLResponse("<h1>VPC template not found</h1>", status_code=404)
     except Exception as e:
-        return HTMLResponse(f"<h1>Error serving VPC view: {e}</h1>", status_code=500)
+        logging.error(f"Error serving VPC view: {e}", exc_info=True)
+        return HTMLResponse("<h1>An unexpected error occurred</h1>", status_code=500)
 
 @app.get("/openapi.json", include_in_schema=False)
 async def openapi_json():
