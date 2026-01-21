@@ -64,7 +64,7 @@ def create_vpc_logic(db: Session, name: str, cidr: str, region: str = "us-east-1
     db.commit()
     db.refresh(new_vpc)
     if METRICS:
-        METRICS["vpcs_total"].set(db.query(VPCModel).count())
+        METRICS["vpcs_total"].inc()
     return new_vpc
 
 
@@ -133,7 +133,7 @@ def create_subnet_logic(
     db.commit()
     db.refresh(new_subnet)
     if METRICS:
-        METRICS["subnets_total"].set(db.query(SubnetModel).count())
+        METRICS["subnets_total"].inc()
     return new_subnet
 
 def list_subnets(vpc_id: str):
@@ -187,7 +187,7 @@ def create_route_logic(
     db.commit()
     db.refresh(new_route)
     if METRICS:
-        METRICS["routes_total"].set(db.query(RouteModel).count())
+        METRICS["routes_total"].inc()
     return new_route
 
 
@@ -199,7 +199,7 @@ def create_sg_logic(db: Session, name: str, description: str, rules: list):
     db.commit()
     db.refresh(new_sg)
     if METRICS:
-        METRICS["security_groups_total"].set(db.query(SGModel).count())
+        METRICS["security_groups_total"].inc()
     return new_sg
 
 
@@ -215,7 +215,7 @@ def create_nat_logic(db: Session, vpc_id: str, subnet_id: str):
     db.commit()
     db.refresh(new_nat)
     if METRICS:
-        METRICS["nat_gateways_total"].set(db.query(NATModel).count())
+        METRICS["nat_gateways_total"].inc()
     return new_nat
 
 
@@ -226,7 +226,7 @@ def create_igw_logic(db: Session, vpc_id: str):
     db.commit()
     db.refresh(new_igw)
     if METRICS:
-        METRICS["internet_gateways_total"].set(db.query(InternetGatewayModel).count())
+        METRICS["internet_gateways_total"].inc()
     return new_igw
 
 
@@ -289,7 +289,7 @@ def create_vpn_gateway_logic(vpc_id: str, endpoint: str, public_key: str, allowe
         db.commit()
         db.refresh(new_vpn)
         if METRICS:
-            METRICS["vpn_gateways_total"].set(db.query(VPNGatewayModel).count())
+            METRICS["vpn_gateways_total"].inc()
         return new_vpn
     finally:
         db.close()
@@ -301,7 +301,7 @@ def delete_vpn_gateway_logic(db: Session, vpn_id: str):
         db.delete(vpn)
         db.commit()
         if METRICS:
-            METRICS["vpn_gateways_total"].set(db.query(VPNGatewayModel).count())
+            METRICS["vpn_gateways_total"].dec()
     return vpn
 
 
@@ -342,7 +342,7 @@ def create_mesh_node_logic(vpc_id: str, node_key: str, tailnet: str):
         db.commit()
         db.refresh(new_node)
         if METRICS:
-            METRICS["mesh_nodes_total"].set(db.query(MeshNodeModel).count())
+            METRICS["mesh_nodes_total"].inc()
         return new_node
     finally:
         db.close()
@@ -354,7 +354,7 @@ def delete_mesh_node_logic(db: Session, node_id: str):
         db.delete(node)
         db.commit()
         if METRICS:
-            METRICS["mesh_nodes_total"].set(db.query(MeshNodeModel).count())
+            METRICS["mesh_nodes_total"].dec()
     return node
 
 
@@ -403,7 +403,7 @@ async def deprovision_vpn_gateway_task(db_factory, vpn_id: str):
             db.delete(vpn)
             db.commit()
             if METRICS:
-                METRICS["vpn_gateways_total"].set(db.query(VPNGatewayModel).count())
+                METRICS["vpn_gateways_total"].dec()
     finally:
         db.close()
 
@@ -433,7 +433,7 @@ async def deprovision_mesh_node_task(db_factory, node_id: str):
             db.delete(node)
             db.commit()
             if METRICS:
-                METRICS["mesh_nodes_total"].set(db.query(MeshNodeModel).count())
+                METRICS["mesh_nodes_total"].dec()
     finally:
         db.close()
 
@@ -585,7 +585,7 @@ def create_standalone_dc_route_logic(
     db.commit()
     db.refresh(new_route)
     if METRICS:
-        METRICS["routes_total"].set(db.query(RouteModel).count())
+        METRICS["routes_total"].inc()
     return new_route
 
 
@@ -628,7 +628,7 @@ async def deprovision_vpc_task(db_factory, vpc_id: str):
             db.delete(vpc)
             db.commit()
             if METRICS:
-                METRICS["vpcs_total"].set(db.query(VPCModel).count())
+                METRICS["vpcs_total"].dec()
     finally:
         db.close()
 
@@ -642,7 +642,7 @@ async def deprovision_subnet_task(db_factory, subnet_id):
             db.delete(subnet)
             db.commit()
             if METRICS:
-                METRICS["subnets_total"].set(db.query(SubnetModel).count())
+                METRICS["subnets_total"].dec()
     finally:
         db.close()
 
@@ -670,7 +670,7 @@ async def deprovision_route_task(db_factory, route_id):
             db.delete(route)
             db.commit()
             if METRICS:
-                METRICS["routes_total"].set(db.query(RouteModel).count())
+                METRICS["routes_total"].dec()
     finally:
         db.close()
 
@@ -698,7 +698,7 @@ async def deprovision_nat_gateway_task(db_factory, nat_id):
             db.delete(nat)
             db.commit()
             if METRICS:
-                METRICS["nat_gateways_total"].set(db.query(NATModel).count())
+                METRICS["nat_gateways_total"].dec()
     finally:
         db.close()
 
