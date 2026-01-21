@@ -15,9 +15,20 @@ import os
 import asyncio
 import threading
 import uvicorn
-from api.rest_api_server import app
+from api.rest_api_server import app, SessionLocal
 from reconciler.reconciler import ReconciliationEngine
 from device.config_generator import ConfigGenerator
+from metrics import METRICS
+from api.models import (
+    VPC as VPCModel,
+    Subnet as SubnetModel,
+    Route as RouteModel,
+    SecurityGroup as SGModel,
+    NATGateway as NATModel,
+    InternetGateway as InternetGatewayModel,
+    VPNGateway as VPNGatewayModel,
+    MeshNode as MeshNodeModel,
+)
 
 
 def start_rest_api():
@@ -38,6 +49,30 @@ def start_grpc_server():
     grpc_thread.start()
 
 
+def initialize_metrics():
+    """Initialize Prometheus metrics from the database."""
+    if not METRICS:
+        print("  ! Metrics not enabled, skipping initialization.")
+        return
+
+    db = SessionLocal()
+    try:
+        print("  Initializing metrics from database...")
+        METRICS["vpcs_total"].set(db.query(VPCModel).count())
+        METRICS["subnets_total"].set(db.query(SubnetModel).count())
+        METRICS["routes_total"].set(db.query(RouteModel).count())
+        METRICS["security_groups_total"].set(db.query(SGModel).count())
+        METRICS["nat_gateways_total"].set(db.query(NATModel).count())
+        METRICS["internet_gateways_total"].set(db.query(InternetGatewayModel).count())
+        METRICS["vpn_gateways_total"].set(db.query(VPNGatewayModel).count())
+        METRICS["mesh_nodes_total"].set(db.query(MeshNodeModel).count())
+        print("  ✓ Metrics initialized")
+    except Exception as e:
+        print(f"  ! Error initializing metrics: {e}")
+    finally:
+        db.close()
+
+
 def main():
     print("=" * 60)
     print("  Cloud Networking Control Plane")
@@ -46,6 +81,9 @@ def main():
 
     # Initialize components
     print("\nInitializing components...")
+
+    # Initialize metrics from database
+    initialize_metrics()
 
     # Start reconciliation engine in background
     try:
