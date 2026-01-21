@@ -324,25 +324,26 @@ async def openapi_json():
     return JSONResponse(app.openapi())
 
 @app.get("/", include_in_schema=False)
-async def vpc_view():
-    """Serve the pre-built static index.html directly from GitHub raw"""
+async def serve_index():
+    """Serve the main index.html page from the local docs directory."""
     try:
-        import httpx
-        import time
-        # Add cache-busting timestamp to force fresh fetch
-        timestamp = int(time.time())
-        github_raw_url = f"https://raw.githubusercontent.com/lloydchang/cloud-networking-control-plane-simulator/refs/heads/main/docs/index.html?t={timestamp}"
-        
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(github_raw_url, headers={"Cache-Control": "no-cache"})
-            if response.status_code == 200:
-                logging.info(f"Serving pre-built static index.html from GitHub raw (size: {len(response.text)} chars)")
-                return HTMLResponse(response.text, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
-            else:
-                return HTMLResponse(f"<h1>Static Content Not Available</h1><p>Could not fetch index.html from GitHub (status: {response.status_code})</p>", status_code=503)
+        # Construct the path to the index.html file relative to this script.
+        # The path is control-plane/api/ -> ../../docs/index.html
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        index_path = os.path.join(base_dir, "..", "..", "docs", "index.html")
+
+        if os.path.exists(index_path):
+            with open(index_path, 'r') as f:
+                content = f.read()
+            # Security: By serving the file locally, we avoid availability and integrity
+            # risks associated with fetching it from a remote URL like raw.githubusercontent.
+            return HTMLResponse(content)
+        else:
+            logging.error(f"Local index.html not found at expected path: {index_path}")
+            return HTMLResponse("<h1>Static Content Not Available</h1><p>Local index.html not found.</p>", status_code=404)
     except Exception as e:
-        logging.error(f"Error fetching static index.html from GitHub: {e}")
-        return HTMLResponse("<h1>Service Unavailable</h1><p>Unable to serve static content</p>", status_code=503)
+        logging.error(f"Error serving local index.html: {e}")
+        return HTMLResponse("<h1>Service Unavailable</h1><p>Unable to serve static content due to an internal error.</p>", status_code=503)
 
 @app.get("/redoc", include_in_schema=False)
 async def redoc(request: Request):
