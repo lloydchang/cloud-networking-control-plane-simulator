@@ -18,6 +18,9 @@ class MockMetric:
     def inc(self, val=1):
         pass
 
+    def dec(self, val=1):
+        pass
+
     def labels(self, *args, **kwargs):
         return self
 
@@ -27,6 +30,13 @@ class MockMetric:
 
 mock_metrics = {
     "vpcs_total": MockMetric(),
+    "subnets_total": MockMetric(),
+    "routes_total": MockMetric(),
+    "security_groups_total": MockMetric(),
+    "nat_gateways_total": MockMetric(),
+    "internet_gateways_total": MockMetric(),
+    "vpn_gateways_total": MockMetric(),
+    "mesh_nodes_total": MockMetric(),
     "reconciliation_latency": MockMetric(),
     "api_requests": MockMetric(),
     "reconciliation_actions": MockMetric(),
