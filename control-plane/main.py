@@ -18,7 +18,38 @@ import uvicorn
 from api.rest_api_server import app
 from reconciler.reconciler import ReconciliationEngine
 from device.config_generator import ConfigGenerator
+from metrics import METRICS
+from api.models import (
+    VPC as VPCModel,
+    Subnet as SubnetModel,
+    Route as RouteModel,
+    SecurityGroup as SGModel,
+    NATGateway as NATModel,
+    InternetGateway as InternetGatewayModel,
+    VPNGateway as VPNGatewayModel,
+    MeshNode as MeshNodeModel,
+)
+from api.rest_api_server import SessionLocal
 
+def initialize_metrics():
+    """Initialize Prometheus metrics from the database."""
+    if not METRICS:
+        return
+
+    print("  Initializing metrics from database...")
+    db = SessionLocal()
+    try:
+        METRICS["vpcs_total"].set(db.query(VPCModel).count())
+        METRICS["subnets_total"].set(db.query(SubnetModel).count())
+        METRICS["routes_total"].set(db.query(RouteModel).count())
+        METRICS["security_groups_total"].set(db.query(SGModel).count())
+        METRICS["nat_gateways_total"].set(db.query(NATModel).count())
+        METRICS["internet_gateways_total"].set(db.query(InternetGatewayModel).count())
+        METRICS["vpn_gateways_total"].set(db.query(VPNGatewayModel).count())
+        METRICS["mesh_nodes_total"].set(db.query(MeshNodeModel).count())
+        print("  ✓ Metrics initialized")
+    finally:
+        db.close()
 
 def start_rest_api():
     """Start the FastAPI REST API server."""
@@ -46,6 +77,7 @@ def main():
 
     # Initialize components
     print("\nInitializing components...")
+    initialize_metrics()
 
     # Start reconciliation engine in background
     try:
