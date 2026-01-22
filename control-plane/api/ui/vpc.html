@@ -854,6 +854,43 @@
         .standalone-dc .dc-container {
             margin-top: 10px;
         }
+
+        .btn .icon {
+            width: 14px;
+            height: 14px;
+            vertical-align: middle;
+            margin-right: 4px;
+            filter: invert(1);
+        }
+
+        .btn.loading .icon {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            /* Light grey */
+            border-top: 4px solid #00897b;
+            /* Teal to match button */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1.5s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-left: -20px;
+            margin-top: -20px;
+        }
     </style>
 </head>
 
@@ -864,7 +901,9 @@
             <h1>Cloud Networking Control Plane Simulator</h1>
         </div>
         <div class="controls">
-            <button class="btn" id="refresh-btn">🔄 Refresh</button>
+            <button class="btn" id="refresh-btn" title="Refresh the network diagram">
+                <img src="/ui/assets/images/refresh-icon.svg" alt="Refresh Icon" class="icon"> Refresh
+            </button>
             <button class="btn btn-secondary" onclick="showTab('testing')">🧪 Testing</button>
         </div>
     </header>
@@ -879,7 +918,7 @@
         </svg>
 
         <div id="content" class="architecture-container">
-            <p>Loading...</p>
+            <div class="loading-spinner"></div>
         </div>
 
         <div id="peering-container"></div>
@@ -987,8 +1026,10 @@
 
         async function loadData() {
             const refreshBtn = document.getElementById('refresh-btn');
+            const originalContent = refreshBtn.innerHTML;
             refreshBtn.disabled = true;
-            refreshBtn.innerHTML = '🔄 Loading...';
+            refreshBtn.classList.add('loading');
+            refreshBtn.innerHTML = `<img src="/ui/assets/images/refresh-icon.svg" alt="Refresh Icon" class="icon"> Loading...`;
 
             try {
                 let data;
@@ -1424,7 +1465,8 @@
                 if (statusStatsEl) statusStatsEl.innerText = 'Error: ' + err.message;
             } finally {
                 refreshBtn.disabled = false;
-                refreshBtn.innerHTML = '🔄 Refresh';
+                refreshBtn.classList.remove('loading');
+                refreshBtn.innerHTML = originalContent;
             }
         }
 

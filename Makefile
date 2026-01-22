@@ -28,7 +28,7 @@ lint:
 proto:
 	@echo "=== Generating gRPC Stubs ==="
 	docker compose build control-plane
-	docker run --rm -v $(shell pwd)/control-plane/proto:/proto -v $(shell pwd)/control-plane/api:/out cloud-networking-control-plane-simulator-control-plane sh -c "\
+	docker run --rm -v $(shell pwd)/control-plane/proto:/proto -v $(shell pwd)/control-plane/api:/out app-control-plane sh -c "\
 	    python -m grpc_tools.protoc \
 	        -I/proto \
 	        --python_out=/out \
