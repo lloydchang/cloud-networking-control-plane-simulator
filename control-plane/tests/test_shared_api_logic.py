@@ -27,6 +27,11 @@ class MockMetric:
 
 mock_metrics = {
     "vpcs_total": MockMetric(),
+    "subnets_total": MockMetric(),
+    "routes_total": MockMetric(),
+    "security_groups_total": MockMetric(),
+    "nat_gateways_total": MockMetric(),
+    "internet_gateways_total": MockMetric(),
     "reconciliation_latency": MockMetric(),
     "api_requests": MockMetric(),
     "reconciliation_actions": MockMetric(),
@@ -143,6 +148,12 @@ def test_create_subnet(db):
     subnet = services.create_subnet_logic(db, vpc.id, "subnet-1", "10.0.1.0/24")
     assert subnet.id.startswith("subnet-")
     assert subnet.gateway == "10.0.1.1"
+
+
+def test_create_subnet_invalid_cidr(db):
+    vpc = services.create_vpc_logic(db, "vpc-sub-invalid", "10.0.0.0/16")
+    with pytest.raises(ValueError, match="Invalid CIDR notation"):
+        services.create_subnet_logic(db, vpc.id, "subnet-invalid", "10.0.1.0/33")
 
 
 def test_create_route(db):

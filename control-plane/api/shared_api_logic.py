@@ -117,8 +117,8 @@ def create_subnet_logic(
         # Use first host as gateway
         gateway = str(next(network.hosts()))
     except ValueError:
-        # Fallback for invalid CIDRs
-        gateway = cidr.rsplit(".", 1)[0] + ".1"
+        # Raise an exception for invalid CIDRs
+        raise ValueError("Invalid CIDR notation")
 
     new_subnet = SubnetModel(
         id=subnet_id,
